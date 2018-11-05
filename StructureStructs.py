@@ -64,19 +64,46 @@ class PaperDrone2D(Structure):
 
     def __init__(self, num_sticks):
         super().__init__()
-        self.p_connection = 1
+        self.p_connection = 0.5
         self.num_sticks = num_sticks
         self.sticks = dict()
         self.connections = dict()
         self.elastic_constant = 1
+        
         self.initSticks(self.num_sticks)
         self.net_force=0
         self.total_force=0
         self.check_force = np.zeros((6,1))
 
+    def mutate(self):
+
+        for i in np.arange(self.num_sticks):
+            new_connections = []
+            for connection in self.connections[i]:
+                selector = np.random.rand(1)[0]
+                selector = 0
+                if selector < 0.33:
+
+
+                    sample_connection = np.array([np.random.randint(1,3,1)[0], np.random.randint(1,3,1)[0], np.random.randint(0,self.num_sticks,1)[0]])
+
+                    for i in range(3):
+                        if (np.random.rand(1)[0] < 1):
+                            connection[i] = sample_connection[i]
+                    new_connections.append(connection)
+
+                elif selector < 0.66:
+                    pass
+
+                else:
+                    new_connections.append(connection)
+
+            self.connections[i] = new_connections
+
+
     def combine(self, new_drone):
         combine_p = np.random.rand(1)[0]
-        combine_p = 1
+        # combine_p = 1
         new_stick_dict = dict()
         keep_sticks = round(combine_p*self.num_sticks)
         new_sticks = round(new_drone.num_sticks * (1-combine_p))
@@ -92,19 +119,22 @@ class PaperDrone2D(Structure):
 
             if counter < keep_sticks:
                 new_stick_dict[pointer] = self.sticks[i]
-                # for connection in self.connections[i]:
-                #     if connection[2] < new_total:
-                #         new_connections[pointer].append(connection)
-
+                for connection in self.connections[i]:
+                    if connection[2] < new_total:
+                        new_connections[pointer].append(connection)
+                        new_connections[connection[2]].append([connection[1],connection[0],pointer])
                 pointer += 1
 
             if counter < new_sticks:
 
-                new_stick_dict[pointer] = new_drone.sticks[i]
+                ind = int(new_drone.num_sticks - i - 1)
+                print(ind)
+                new_stick_dict[pointer] = new_drone.sticks[ind]
                 print("ADDING NEW STICK")
-                # for connection in new_drone.connections[i]:
-                #     if connection[2] < new_total:
-                #         new_connections[pointer].append(connection)
+                for connection in new_drone.connections[ind]:
+                    if connection[2] < new_total:
+                        new_connections[pointer].append(connection)
+                        new_connections[connection[2]].append([connection[1],connection[0],pointer])
                 pointer += 1
             counter += 1
 
@@ -115,7 +145,7 @@ class PaperDrone2D(Structure):
         #keep the first sticks in the dict
 
         return self
-        
+
     def initSticks(self, num_sticks=0):
         self.sticks.clear()
         for i in np.arange(num_sticks):
@@ -132,5 +162,5 @@ class PaperDrone2D(Structure):
                     continue
                 c1 = np.random.randint(1,3)
                 c2 = np.random.randint(1,3)
-                self.connections[i].append([c1,c2,stick_id])
-                self.connections[stick_id].append([c2,c1,i])
+                self.connections[i].append(np.array([c1,c2,stick_id]))
+                self.connections[stick_id].append(np.array([c1,c2,stick_id]))

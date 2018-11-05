@@ -18,23 +18,32 @@ class Viz:
         self.rows = row
         self.colums= col
         self.plots.clear()
+        self.plotId = dict()
+        counter = 0
 
         plt.figure(0)
         for i in range(row):
             for j in range(col):
                 ax = plt.subplot2grid((row,col), (i,j))
                 self.plots[(i,j)] = ax
+                self.plotId[counter] = (i,j)
+                counter += 1
     def updateDrones(self, drones):
         self.drones = drones
     def showDrones(self, wait = 0.1):
 
         # create grid
+        count = 0
         for drone in self.drones:
-            self.draw2Dsticks(drone)
+            self.draw2Dsticks(drone,count)
+            count += 1
             # self.draw2Dstrings(drone)
 
         plt.show()
         plt.pause(wait)
+    def getPlotId(self, ind):
+        total_plots = self.rows * self.colums
+        return self.plotId[ind%total_plots]
 
     def getNewPlotId(self):
 
@@ -60,7 +69,7 @@ class Viz:
     #
 
 
-    def draw2Dsticks(self,drone):
+    def draw2Dsticks(self,drone,ind):
 
         drawn = {}
         lines = []
@@ -86,8 +95,9 @@ class Viz:
                 end_id = int(j[2])
                 c1 = int(j[0]) - 1
                 c2 = int(j[1]) - 1
+                print("end id:", end_id)
+                print("num sticks:", num_sticks)
                 end_stick = drone.sticks[end_id]
-
                 start = (stick.nodes[c1].x,stick.nodes[c1].y)
                 end = (end_stick.nodes[c2].x,end_stick.nodes[c2].y)
 
@@ -100,7 +110,9 @@ class Viz:
 
         string_lc = mc.LineCollection(strings, colors=string_colours, linewidths=1)
         lc = mc.LineCollection(lines, colors=colours, linewidths=2)
-        curr_ax = self.plots[self.getNewPlotId()]
+        # curr_ax = self.plots[self.getNewPlotId()]
+        curr_ax = self.plots[self.getPlotId(ind)]
+
         curr_ax.cla()
         curr_ax.add_collection(lc)
         curr_ax.add_collection(string_lc)

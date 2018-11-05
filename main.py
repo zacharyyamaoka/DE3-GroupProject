@@ -14,7 +14,7 @@ def GetFitness(drone):
 drones = []
 # Create 100 different drone configurations and display tharctan2arctan2em
 
-num_population = 2
+num_population = 4
 epochs = 10
 percent_clear = 0.5 # how many to get rid of
 percent_mutate = 0.1 # of how many you keep how many do you mutate
@@ -25,7 +25,7 @@ for i in np.arange(num_population):
     num_sticks = np.random.randint(2,10,1)[0] #pick a random number of num_sticks
     drones.append(PaperDrone2D(num_sticks))
 
-Vizulizer = Viz(drones, 1, 2)
+Vizulizer = Viz(drones, 3, 3)
 # Run Evolution
 for i in np.arange(epochs):
 
@@ -47,18 +47,24 @@ for i in np.arange(epochs):
     # Evolution
 
     num_keep = int(round((1-percent_clear)*num_population))
-    new_pop = heapq.nlargest(num_keep,eval_pop)
-    print("num keep: ", num_keep)
+    new_pop = []
+    for pop in heapq.nlargest(num_keep,eval_pop):
+        new_pop.append(pop[2])
+
     for i in np.arange(num_population-num_keep):
 
-        p1 = new_pop[np.random.randint(0,num_keep)][2]
-        p2 = new_pop[np.random.randint(0,num_keep)][2]
+        p1 = new_pop[np.random.randint(0,num_keep)]
+        p2 = new_pop[np.random.randint(0,num_keep)]
         child = p1.combine(p2)
 
         #mutate child
+        if np.random.rand(1)[0] < percent_mutate:
+            child.mutate()
+
         new_pop.append(child)
 
     drones = new_pop
+
 # Create Vizulzation Matrix
 
 print("Net Force: ", drones[0].net_force)
