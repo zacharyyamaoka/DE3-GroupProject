@@ -24,8 +24,9 @@ class Viz:
             for j in range(col):
                 ax = plt.subplot2grid((row,col), (i,j))
                 self.plots[(i,j)] = ax
-
-    def showDrones(self):
+    def updateDrones(self, drones):
+        self.drones = drones
+    def showDrones(self, wait = 0.1):
 
         # create grid
         for drone in self.drones:
@@ -33,7 +34,7 @@ class Viz:
             # self.draw2Dstrings(drone)
 
         plt.show()
-        plt.pause(0.1)
+        plt.pause(wait)
 
     def getNewPlotId(self):
 
@@ -71,7 +72,7 @@ class Viz:
         connections = drone.connections
         # rows = np.shape(connections)[0]
         # cols = np.shape(connections)[1]
-        print(connections)
+        # print(connections)
 
         for i in np.arange(num_sticks):
             stick = drone.sticks[i]
@@ -81,7 +82,7 @@ class Viz:
             lines.append(end_points)
             # print(connections[i,:])
             for j in connections[i]:
-                print(j)
+                # print(j)
                 end_id = int(j[2])
                 c1 = int(j[0]) - 1
                 c2 = int(j[1]) - 1

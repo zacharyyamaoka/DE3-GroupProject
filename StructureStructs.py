@@ -10,28 +10,35 @@ class Node:
 
 class Stick:
     def __init__(self, node1, node2):
-        self.nodes = [node1,node2]
 
-        self.node1 = np.array([node1.x,node1.y,node1.z])
-        self.node2 = np.array([node2.x,node2.y,node2.z])
-        self.cm = (self.node1 + self.node2)/2
-
-        self.mass = 0.1
-        # print(node1.x, node1.y, node1.z, node2.x, node2.y, node2.z)
         self.length = Distance(node1,node2)
-        # print("Length ", self.length)
+        self.mass = 0.1
         self.intertia = (1/12) * self.mass * self.length**2
         self.mass = np.array([0.1, 0.1, 0.1, (1/12) * self.mass * self.length**2, 1, 1])
         self.mass = np.reshape(self.mass, (6,1))
 
+        self.node1 = np.array([node1.x,node1.y,node1.z])
+        self.node2 = np.array([node2.x,node2.y,node2.z])
+
         self.acceleration = np.zeros((6,1))
         self.velocity = np.zeros((6,1))
         self.position = np.zeros((6,1))
+        self.net_force = np.zeros((6,1))
+        self.total_force = np.zeros((6,1))
 
         self.position[0:3,0] = (self.node1 + self.node2)/2
         delta = self.node1 - self.node2
-        print(delta)
         self.position[5,0] = np.arctan2(delta[1],delta[0])
+
+        offset = np.array([np.cos(self.position[5,0]) * self.length/2,
+        np.sin(self.position[5,0]) * self.length/2,
+        0,0,0,0])
+
+        offset = np.reshape(offset,(6,1))
+        node1 = self.position + offset
+        node2 = self.position - offset
+
+        self.nodes = [Node(node1[0,0],node1[1,0]),Node(node2[0,0],node2[1,0])]
 
 
 class Structure:
@@ -63,8 +70,52 @@ class PaperDrone2D(Structure):
         self.connections = dict()
         self.elastic_constant = 1
         self.initSticks(self.num_sticks)
+        self.net_force=0
+        self.total_force=0
+        self.check_force = np.zeros((6,1))
 
+    def combine(self, new_drone):
+        combine_p = np.random.rand(1)[0]
+        combine_p = 1
+        new_stick_dict = dict()
+        keep_sticks = round(combine_p*self.num_sticks)
+        new_sticks = round(new_drone.num_sticks * (1-combine_p))
+        counter = 0
+        pointer = 0
 
+        new_connections = dict()
+        new_total = keep_sticks+new_sticks
+        for i in np.arange(new_total):
+            new_connections[i] = []
+
+        for i in np.arange(max(keep_sticks,new_sticks)):
+
+            if counter < keep_sticks:
+                new_stick_dict[pointer] = self.sticks[i]
+                # for connection in self.connections[i]:
+                #     if connection[2] < new_total:
+                #         new_connections[pointer].append(connection)
+
+                pointer += 1
+
+            if counter < new_sticks:
+
+                new_stick_dict[pointer] = new_drone.sticks[i]
+                print("ADDING NEW STICK")
+                # for connection in new_drone.connections[i]:
+                #     if connection[2] < new_total:
+                #         new_connections[pointer].append(connection)
+                pointer += 1
+            counter += 1
+
+        print("Here")
+        self.connections = new_connections
+        self.num_sticks = new_total
+        self.sticks = new_stick_dict
+        #keep the first sticks in the dict
+
+        return self
+        
     def initSticks(self, num_sticks=0):
         self.sticks.clear()
         for i in np.arange(num_sticks):
