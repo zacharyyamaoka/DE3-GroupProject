@@ -35,12 +35,16 @@ class Viz:
         # create grid
         count = 0
         for drone in self.drones:
-            self.draw2Dsticks(drone,count)
+            # self.draw2Dsticks(drone,count)
+            self.draw3DPaperDrone(drone,count)
+
+
             count += 1
             # self.draw2Dstrings(drone)
 
         plt.show()
         plt.pause(wait)
+
     def getPlotId(self, ind):
         total_plots = self.rows * self.colums
         return self.plotId[ind%total_plots]
@@ -68,6 +72,51 @@ class Viz:
     #     for i in np.arange(num_sticks):
     #
 
+    def draw3DPaperDrone(self,drone,ind):
+        drawn = {}
+        lines = []
+        line_colours = []
+        strings = []
+        string_colours = []
+
+        nodeXY = drone.nodes[:,0:2]
+        connections = drone.connections
+        # rows = np.shape(connections)[0]
+        # cols = np.shape(connections)[1]
+        # print(connections)
+
+        for i in np.arange(drone.num_nodes):
+            row = connections[i]
+            for j in np.arange(drone.num_nodes):
+                connection = row[j]
+                if connection == 1: #draw elastic
+                    start = (nodeXY[i,0],nodeXY[i,1])
+                    end = (nodeXY[j,0],nodeXY[j,1])
+                    end_points = [start,end]
+                    c = (0,0,1,1)
+                    string_colours.append(c)
+                    strings.append(end_points)
+
+                if connection == 2: #draw bar
+                    start = (nodeXY[i,0],nodeXY[i,1])
+                    end = (nodeXY[j,0],nodeXY[j,1])
+                    end_points = [start,end]
+                    c = (1,0,0,1)
+                    line_colours.append(c)
+                    lines.append(end_points)
+
+        string_lc = mc.LineCollection(strings, colors=string_colours, linewidths=1)
+        lc = mc.LineCollection(lines, colors=line_colours, linewidths=2)
+        # curr_ax = self.plots[self.getNewPlotId()]
+        curr_ax = self.plots[self.getPlotId(ind)]
+
+        curr_ax.cla()
+        curr_ax.add_collection(lc)
+        curr_ax.add_collection(string_lc)
+        # curr_ax.autoscale()
+        curr_ax.set_xlim([-10,10])
+        curr_ax.set_ylim([-10,10])
+        curr_ax.margins(0.1)
 
     def draw2Dsticks(self,drone,ind):
 

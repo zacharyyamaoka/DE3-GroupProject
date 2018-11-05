@@ -10,7 +10,6 @@ def GetFitness(drone):
     return 1
 
 
-
 drones = []
 # Create 100 different drone configurations and display tharctan2arctan2em
 
@@ -23,53 +22,55 @@ show_viz = True
 # Initalize population
 for i in np.arange(num_population):
     num_sticks = np.random.randint(2,10,1)[0] #pick a random number of num_sticks
-    drones.append(PaperDrone2D(num_sticks))
+    drones.append(PaperDrone3D(num_sticks))
 
 Vizulizer = Viz(drones, 3, 3)
-# Run Evolution
-for i in np.arange(epochs):
-
-    if (show_viz):
-        Vizulizer.updateDrones(drones);
-        Vizulizer.showDrones(2);
-
-    scores = []
-    eval_pop = []
-    count = 0
-    # evaluate current drones
-    for drone in drones:
-        solveForces(drone)
-        fitness = GetFitness(drone)
-        print(fitness)
-        heapq.heappush(eval_pop, (fitness, count, drone))
-        count += 1
-
-    # Evolution
-
-    num_keep = int(round((1-percent_clear)*num_population))
-    new_pop = []
-    for pop in heapq.nlargest(num_keep,eval_pop):
-        new_pop.append(pop[2])
-
-    for i in np.arange(num_population-num_keep):
-
-        p1 = new_pop[np.random.randint(0,num_keep)]
-        p2 = new_pop[np.random.randint(0,num_keep)]
-        child = p1.combine(p2)
-
-        #mutate child
-        if np.random.rand(1)[0] < percent_mutate:
-            child.mutate()
-
-        new_pop.append(child)
-
-    drones = new_pop
-
-# Create Vizulzation Matrix
-
-print("Net Force: ", drones[0].net_force)
-print("Total Force: ", drones[0].total_force)
-print("Check Force: ", drones[0].check_force)
+Vizulizer.updateDrones(drones);
+Vizulizer.showDrones(2);
+# # Run Evolution
+# for i in np.arange(epochs):
+#
+#     if (show_viz):
+#         Vizulizer.updateDrones(drones);
+#         Vizulizer.showDrones(2);
+#
+#     scores = []
+#     eval_pop = []
+#     count = 0
+#     # evaluate current drones
+#     for drone in drones:
+#         solveForces(drone)
+#         fitness = GetFitness(drone)
+#         print(fitness)
+#         heapq.heappush(eval_pop, (fitness, count, drone))
+#         count += 1
+#
+#     # Evolution
+#
+#     num_keep = int(round((1-percent_clear)*num_population))
+#     new_pop = []
+#     for pop in heapq.nlargest(num_keep,eval_pop):
+#         new_pop.append(pop[2])
+#
+#     for i in np.arange(num_population-num_keep):
+#
+#         p1 = new_pop[np.random.randint(0,num_keep)]
+#         p2 = new_pop[np.random.randint(0,num_keep)]
+#         child = p1.combine(p2)
+#
+#         #mutate child
+#         if np.random.rand(1)[0] < percent_mutate:
+#             child.mutate()
+#
+#         new_pop.append(child)
+#
+#     drones = new_pop
+#
+# # Create Vizulzation Matrix
+#
+# print("Net Force: ", drones[0].net_force)
+# print("Total Force: ", drones[0].total_force)
+# print("Check Force: ", drones[0].check_force)
 
 #check FORCE NOT zero that is sketchy
 plt.pause(2)
