@@ -1,4 +1,5 @@
 import numpy as np
+from StructureStructs import *
 
 
 
@@ -10,17 +11,18 @@ def solveForces(drone):
     for i in np.arange(num_sticks):
         net_force = np.zeros((6,1))
         start_stick = drone.sticks[i]
-
-        node1 = np.array([start_stick.nodes[0].x,start_stick.nodes[0].y,0])
-        node2 = np.array([start_stick.nodes[1].x,start_stick.nodes[1].y,0])
-        cm = (node1 + node2)/2
-
+        cm = start_stick.position[0:3,0]
         for j in connections[i]:
 
                 end_id = int(j[2])
                 c1 = int(j[0]) - 1
                 c2 = int(j[1]) - 1
                 end_stick = drone.sticks[end_id]
+                #
+                # if c1 = 0:
+                #     start = node1[0:3,0]
+                # else:
+                #     start = node2[0:3,0]
 
                 start = np.array([start_stick.nodes[c1].x,start_stick.nodes[c1].y,0])
                 end = np.array([end_stick.nodes[c2].x,end_stick.nodes[c2].y,0])
@@ -35,14 +37,30 @@ def solveForces(drone):
 
             # print(np.ones((3,3)) / (2*np.ones((3,3))))
 
-        start_stick.velocity_vec = net_force / start_stick.mass
-        print(start_stick.velocity_vec)
+        drone.sticks[i].acceleration = net_force / start_stick.mass
+        # print("Accel: ", drone.sticks[i].acceleration)
         #solve for rotation and transloation velcity 6x1 vector
         #loop through each stick
 
 def updatePostion(drone):
-    dt = 0.01
+    dt = 0
     num_sticks = drone.num_sticks
     for i in np.arange(num_sticks):
-        stick.velocity_vec = stick.acceleration * dt
-        stick.position = stick.velocity_vec * dt + 0.5 * stick.acceleration * dt**2
+        print(drone.sticks[i].position)
+        drone.sticks[i].velocity += drone.sticks[i].acceleration * dt
+        drone.sticks[i].position += drone.sticks[i].velocity * dt + 0.5 * drone.sticks[i].acceleration * dt**2
+
+        print("z theta:", drone.sticks[i].position[5,0])
+        print("Stick: ", i, " Rotation: ", np.rad2deg(drone.sticks[i].position[5,0]))
+        offset = [np.cos(drone.sticks[i].position[5,0]) * drone.sticks[i].length/2,
+        np.sin(drone.sticks[i].position[5,0]) * drone.sticks[i].length/2,
+        0,0,0,0]
+
+        offset = [np.cos(drone.sticks[i].position[5,0]) * 0.1,
+        np.sin(drone.sticks[i].position[5,0]) * 0.1,
+        0,0,0,0]
+
+        node1 = drone.sticks[i].position + offset
+        node2 = drone.sticks[i].position - offset
+
+        # drone.sticks[i].nodes = [Node(node1[0,0],node1[1,0]),Node(node2[0,0],node2[1,0])]

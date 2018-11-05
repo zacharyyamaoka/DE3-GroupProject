@@ -1,4 +1,3 @@
-
 import numpy as np
 import matplotlib.pyplot as plt
 from TrigFunctions import *
@@ -22,11 +21,11 @@ class Stick:
         self.length = Distance(node1,node2)
         # print("Length ", self.length)
         self.intertia = (1/12) * self.mass * self.length**2
-        self.mass = np.array([0.1, 0.1, 0.1, (1/12) * self.mass * self.length**2, 0, 0])
+        self.mass = np.array([0.1, 0.1, 0.1, (1/12) * self.mass * self.length**2, 1, 1])
         self.mass = np.reshape(self.mass, (6,1))
 
         self.acceleration = np.zeros((6,1))
-        self.velocity_vec = np.zeros((6,1))
+        self.velocity = np.zeros((6,1))
         self.position = np.zeros((6,1))
 
         self.position[0:3,0] = (self.node1 + self.node2)/2

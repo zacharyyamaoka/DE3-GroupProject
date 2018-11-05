@@ -11,6 +11,8 @@ class Viz:
         self.plot_j = 0
         self.createGrid(rows, colums)
 
+        plt.ion()
+
     def createGrid(self,row=10,col=10):
 
         self.rows = row
@@ -31,8 +33,7 @@ class Viz:
             # self.draw2Dstrings(drone)
 
         plt.show()
-        plt.pause(1)
-        plt.close()
+        plt.pause(0.1)
 
     def getNewPlotId(self):
 
@@ -99,6 +100,7 @@ class Viz:
         string_lc = mc.LineCollection(strings, colors=string_colours, linewidths=1)
         lc = mc.LineCollection(lines, colors=colours, linewidths=2)
         curr_ax = self.plots[self.getNewPlotId()]
+        curr_ax.cla()
         curr_ax.add_collection(lc)
         curr_ax.add_collection(string_lc)
         # curr_ax.autoscale()
