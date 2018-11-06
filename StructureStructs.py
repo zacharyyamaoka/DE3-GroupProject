@@ -100,30 +100,26 @@ class PaperDrone3D(Structure):
             basket_len -= 1
 
             ind = np.random.randint(0,basket_len)
-            print(pick_basket)
             j = pick_basket[ind]
             if (np.size(pick_basket) > 1):
                 pick_basket = np.delete(pick_basket,ind)
             basket_len -= 1
 
-            print(pick_basket)
-            print(i,j)
+
             connections[i,j] = 100
             connections[j,i] = 100
-            print(connections)
-            print(basket_len)
+
 
         self.nodes = nodes
         self.connections = connections
-        print("Init")
-        print(connections)
+
         #set Z to zero
     def combine(self, mate):
-        print("COMBINE")
 
         #Combine Structure
+        p_comb = np.random.rand(1)[0]
         new_num_nodes = int((self.num_nodes + mate.num_nodes)/2)
-
+        # new_num_nodes =
         if new_num_nodes % 2 != 0:
             new_num_nodes += 1
 
@@ -149,16 +145,7 @@ class PaperDrone3D(Structure):
             self_connections = self.connections[0:new_num_nodes,0:new_num_nodes]
 
         # new_nodes =
-        print(new_num_nodes)
-        print("Connections")
-        print("SELF")
 
-        print(self_nodes)
-        print(self_connections)
-        print("MATE")
-
-        print(mate_nodes)
-        print(mate_connections)
         #don't average zero, that has no meaning
         new_nodes = (self_nodes + mate_nodes)
         new_nodes[(self_nodes != 0) & (mate_nodes != 0)] /= 2
@@ -214,11 +201,7 @@ class PaperDrone3D(Structure):
         #     new_connections[i,j] = 0
         #     new_connections[i,j] = 0
 
-        print("NEW")
-        print(beam_basket)
-        print(new_connections)
-        print(beam_mask)
-
+        return self
 
     def mutate(self):
         # adjust node positions
@@ -228,7 +211,7 @@ class PaperDrone3D(Structure):
         # CAREFUL CHEKC THIS LINE ABOVE
         # self.nodes += noise
         count = np.sum(self.connections[self.connections == 1])/2
-        print("Connections Before: ", count)
+        # print("Connections Before: ", count)
         #switch up connections of elastics
         noise2 = np.random.normal(0,1,(self.num_nodes,self.num_nodes))
         noise_connections = self.connections + noise2
@@ -244,7 +227,8 @@ class PaperDrone3D(Structure):
         self.connections = new_connections
 
         count = np.sum(self.connections[self.connections == 1])/2
-        print("Connections After: ", count)
+        # print("Connections After: ", count)
+        return self
 
 class PaperDrone2D(Structure):
 

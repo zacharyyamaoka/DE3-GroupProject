@@ -79,6 +79,9 @@ class Viz:
         strings = []
         string_colours = []
 
+        if (ind > self.rows*self.colums):
+            return
+
         nodeXY = drone.nodes[:,0:2]
         connections = drone.connections
         # rows = np.shape(connections)[0]
@@ -93,7 +96,7 @@ class Viz:
                     start = (nodeXY[i,0],nodeXY[i,1])
                     end = (nodeXY[j,0],nodeXY[j,1])
                     end_points = [start,end]
-                    c = (0,0,1,1)
+                    c = (0,0,1,0.8)
                     string_colours.append(c)
                     strings.append(end_points)
 
@@ -101,22 +104,26 @@ class Viz:
                     start = (nodeXY[i,0],nodeXY[i,1])
                     end = (nodeXY[j,0],nodeXY[j,1])
                     end_points = [start,end]
-                    c = (1,0,0,1)
+                    c = (0,0,0,0.5)
                     line_colours.append(c)
                     lines.append(end_points)
 
         string_lc = mc.LineCollection(strings, colors=string_colours, linewidths=1)
-        lc = mc.LineCollection(lines, colors=line_colours, linewidths=2)
+        lc = mc.LineCollection(lines, colors=line_colours, linewidths=3)
         # curr_ax = self.plots[self.getNewPlotId()]
         curr_ax = self.plots[self.getPlotId(ind)]
-
+        colors = np.random.rand(4)
         curr_ax.cla()
-        curr_ax.scatter(nodeXY[:,0],nodeXY[:,1])
+        curr_ax.scatter(nodeXY[0:4,0],nodeXY[0:4,1],s=200, c="b", alpha = 0.3)
+        curr_ax.scatter(nodeXY[:,0],nodeXY[:,1],s=10)
+
         curr_ax.add_collection(lc)
         curr_ax.add_collection(string_lc)
         # curr_ax.autoscale()
-        curr_ax.set_xlim([-11,11])
-        curr_ax.set_ylim([-11,11])
+        curr_ax.set_xlim([-13,13])
+        curr_ax.set_ylim([-13,13])
+        curr_ax.axis('equal')
+
         curr_ax.margins(1)
 
     def draw2Dsticks(self,drone,ind):

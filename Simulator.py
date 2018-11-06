@@ -4,11 +4,39 @@ from StructureStructs import *
 
 def solveForces3DPaper(drone):
 
-    mConnection = drone.connections
+    mConnection = np.copy(drone.connections)
     mNodes = drone.nodes
+    total_force = 0
+    for i in np.arange(drone.num_nodes):
+        displacement_vec = mNodes - mNodes[i]
+        print(displacement_vec)
+        connection_vec = np.reshape(mConnection[i],(np.size(mConnection[i]),1))
+        # j = np.nonzero(mConnection[i] == 100)
+        # print("J: ", j)
+        mConnection[mConnection==100]=0#zero stiffness Connections
+        print(connection_vec)
 
-    print(mConnection)
-    print(mNodes)
+        force_vec = np.multiply(displacement_vec,connection_vec)
+        total_node_force = np.sum(force_vec)
+        total_force += abs(total_node_force)
+
+        if total_node_force == 0:
+            return 0 # this is faulty
+    return total_force
+
+    #create matrix of displacments
+    # print(np.tile(mNodes,(drone.num_nodes,1)))
+
+    # extract node pair indexs
+
+    #calculate forces on each node
+
+    #sum forces on each stick
+
+    #sum torques on each sticks
+    # print(mConnection)
+    # print(mNodes)
+
 
     pass
 
