@@ -97,7 +97,7 @@ class Viz:
                     string_colours.append(c)
                     strings.append(end_points)
 
-                if connection == 2: #draw bar
+                if connection > 50: #draw bar
                     start = (nodeXY[i,0],nodeXY[i,1])
                     end = (nodeXY[j,0],nodeXY[j,1])
                     end_points = [start,end]

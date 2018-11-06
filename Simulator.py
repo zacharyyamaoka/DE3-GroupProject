@@ -2,6 +2,15 @@ import numpy as np
 from StructureStructs import *
 
 
+def solveForces3DPaper(drone):
+
+    mConnection = drone.connections
+    mNodes = drone.nodes
+
+    print(mConnection)
+    print(mNodes)
+
+    pass
 
 def solveForces(drone):
 

@@ -13,7 +13,7 @@ def GetFitness(drone):
 drones = []
 # Create 100 different drone configurations and display tharctan2arctan2em
 
-num_population = 4
+num_population = 2
 epochs = 10
 percent_clear = 0.5 # how many to get rid of
 percent_mutate = 0.1 # of how many you keep how many do you mutate
@@ -21,12 +21,21 @@ percent_breed = 0.2 # of how many you keep how many do you breed?
 show_viz = True
 # Initalize population
 for i in np.arange(num_population):
-    num_node = np.random.randint(0,10,1)[0] #pick a random number of num_sticks
+    num_node = np.random.randint(0,4,1)[0] #pick a random number of num_sticks
     drones.append(PaperDrone3D(num_node))
 
 Vizulizer = Viz(drones, 3, 3)
-Vizulizer.updateDrones(drones);
-Vizulizer.showDrones(2);
+Vizulizer.updateDrones(drones)
+Vizulizer.showDrones(1)
+# plt.pause(10)
+solveForces3DPaper(drones[0])
+
+drones[0].combine(drones[1])
+# print(drones[0].nodes)
+Vizulizer.updateDrones(drones)
+Vizulizer.showDrones(1)
+plt.close()
+
 # # Run Evolution
 # for i in np.arange(epochs):
 #
@@ -73,6 +82,5 @@ Vizulizer.showDrones(2);
 # print("Check Force: ", drones[0].check_force)
 
 #check FORCE NOT zero that is sketchy
-plt.pause(2)
-plt.close()
+
 #! CAREFUL TO AVOID DESIGNS THAT HAVE NO BANDS SO THE TOTAL FORCE IS LOW.....

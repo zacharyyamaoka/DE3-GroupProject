@@ -83,37 +83,164 @@ class PaperDrone3D(Structure):
     def initDroneStructure(self, num_nodes):
         nodes = np.random.uniform(-10,10,(num_nodes,3))
         nodes[0:self.constraint_points,:] = self.constraint_matrix
-
+        nodes[:,2] = 0
         connections = np.zeros((num_nodes,num_nodes))
         mask = np.random.rand(num_nodes,num_nodes) < self.p_connection/2
         connections[mask] = 1
         connections += connections.T
         connections[connections > 0] = 1
-
-        # connections -= np.eye(num_nodes) #makes sure that you don't connect to yourself
+        connections[np.eye(num_nodes)==1] = 0 #makes sure that you don't connect to yourself
 
         basket = np.arange(num_nodes)
+        pick_basket = np.arange(num_nodes)
         basket_len = num_nodes
-        for i in basket:
-            basket = np.delete(basket,0)
+        while (basket_len != 0):
+            i = pick_basket[0]
+            pick_basket = np.delete(pick_basket,0)
             basket_len -= 1
 
             ind = np.random.randint(0,basket_len)
-            j = basket[ind]
-            if (np.size(basket) > 1):
-                basket = np.delete(basket,ind)
+            print(pick_basket)
+            j = pick_basket[ind]
+            if (np.size(pick_basket) > 1):
+                pick_basket = np.delete(pick_basket,ind)
             basket_len -= 1
 
-            connections[i,j] = 2
-            connections[j,i] = 2
+            print(pick_basket)
+            print(i,j)
+            connections[i,j] = 100
+            connections[j,i] = 100
+            print(connections)
+            print(basket_len)
 
-            if basket_len == 0:
-                break
         self.nodes = nodes
         self.connections = connections
+        print("Init")
+        print(connections)
         #set Z to zero
+    def combine(self, mate):
+        print("COMBINE")
+
+        #Combine Structure
+        new_num_nodes = int((self.num_nodes + mate.num_nodes)/2)
+
+        if new_num_nodes % 2 != 0:
+            new_num_nodes += 1
+
+        diff_mate = int(new_num_nodes - mate.num_nodes)
+
+        if (diff_mate >= 0):
+            # pad to increase size
+            mate_nodes = np.pad(mate.nodes,( (0,abs(diff_mate)),(0,0) ), mode='constant')
+            mate_connections = np.pad(mate.connections,( (0,abs(diff_mate)),(0,abs(diff_mate)) ), mode='constant')
+        else:
+            mate_nodes = mate.nodes[0:new_num_nodes,:]
+            mate_connections = mate.connections[0:new_num_nodes,0:new_num_nodes]
+
+        diff_self = int(new_num_nodes - self.num_nodes)
+
+        if (diff_self >= 0):
+            # pad to increase size
+            self_nodes = np.pad(self.nodes,( (0,abs(diff_self)),(0,0) ), mode='constant')
+            self_connections = np.pad(self.connections,( (0,abs(diff_self)),(0,abs(diff_self)) ), mode='constant')
+
+        else:
+            self_nodes = self.nodes[0:new_num_nodes,:]
+            self_connections = self.connections[0:new_num_nodes,0:new_num_nodes]
+
+        # new_nodes =
+        print(new_num_nodes)
+        print("Connections")
+        print("SELF")
+
+        print(self_nodes)
+        print(self_connections)
+        print("MATE")
+
+        print(mate_nodes)
+        print(mate_connections)
+        #don't average zero, that has no meaning
+        new_nodes = (self_nodes + mate_nodes)
+        new_nodes[(self_nodes != 0) & (mate_nodes != 0)] /= 2
+        zero_base = new_num_nodes - max(diff_self, diff_mate)
+        new_nodes[self.constraint_points:zero_base,:] /= 2
+        self.nodes = new_nodes
+
+        #Combine connections
+        new_connections = (self_connections + mate_connections)
+        new_connections[0:zero_base,0:zero_base] /= 2
+        mask = np.random.rand(new_num_nodes,new_num_nodes)
+
+        # Look into altering this later
+        new_connections[new_connections < mask] = 0
 
 
+        beam_mask = np.max(new_connections, axis = 1) != 100
+        beam_basket = np.arange(new_num_nodes)[beam_mask]
+        beam_basket_len = np.size(beam_basket)
+
+        for i in beam_basket:
+            print("Beam Basket")
+            inds = np.nonzero(new_connections[i] >= 50)[0]
+
+            selector = np.random.randint(0,2,1)[0]
+            print(inds)
+            print(selector)
+            j = inds[selector]
+            inds = np.delete(inds,selector)
+            new_connections[i,j] = 100
+            new_connections[i,j] = 100
+
+            j_dagger = inds[0]
+            new_connections[i,j] = 0
+            new_connections[i,j] = 0
+
+        # while (beam_basket_len != 0):
+        #     i = beam_basket[0]
+        #     beam_basket = np.delete(beam_basket,0)
+        #     beam_basket_len -= 1
+        #
+        #     ind = np.random.randint(0,beam_basket_len)
+        #     print(pick_basket)
+        #     j = pick_basket[ind]
+        #     if (np.size(beam_basket) > 1):
+        #         beam_basket = np.delete(beam_basket,ind)
+        #     beam_basket_len -= 1
+        #
+        #     new_connections[i,j] = 100
+        #     new_connections[j,i] = 100
+
+        print("NEW")
+        print(beam_basket)
+        print(new_connections)
+        print(beam_mask)
+
+
+    def mutate(self):
+        # adjust node positions
+        noise = np.random.normal(0,1,(self.num_nodes,3))
+        noise[0:self.constraint_points,:] = 0 # don't move constraint points
+        noise[:,2] = 0 # no Noise in y
+        # CAREFUL CHEKC THIS LINE ABOVE
+        # self.nodes += noise
+        count = np.sum(self.connections[self.connections == 1])/2
+        print("Connections Before: ", count)
+        #switch up connections of elastics
+        noise2 = np.random.normal(0,1,(self.num_nodes,self.num_nodes))
+        noise_connections = self.connections + noise2
+        new_connections = self.connections
+
+        lowerThresh = noise_connections < 0.5
+        upperThresh = noise_connections > 0.5
+        maxThresh = noise_connections > 50
+
+        new_connections[((upperThresh) | (upperThresh.T)) & (self.connections==0)] = 1 #where both are connected then I SWITCH connection
+        new_connections[((lowerThresh) | (lowerThresh.T)) & (self.connections==1)] = 0 #where both are connected then I SWITCH connection
+
+        self.connections = new_connections
+
+        count = np.sum(self.connections[self.connections == 1])/2
+        print("Connections After: ", count)
 
 class PaperDrone2D(Structure):
 
