@@ -171,44 +171,48 @@ class PaperDrone3D(Structure):
         new_connections[0:zero_base,0:zero_base] /= 2
         mask = np.random.rand(new_num_nodes,new_num_nodes)
 
+        beam_mask = np.max(new_connections, axis = 1) != 100
+        new_connections[(new_connections > 1) & (new_connections < 100) ] = 0.5 # REMOVE LATER
         # Look into altering this later
         new_connections[new_connections < mask] = 0
+        new_connections[(new_connections > 0) & (new_connections < 100) ] = 1 # REMOVE LATER
 
 
-        beam_mask = np.max(new_connections, axis = 1) != 100
         beam_basket = np.arange(new_num_nodes)[beam_mask]
         beam_basket_len = np.size(beam_basket)
 
-        for i in beam_basket:
-            print("Beam Basket")
-            inds = np.nonzero(new_connections[i] >= 50)[0]
 
-            selector = np.random.randint(0,2,1)[0]
-            print(inds)
-            print(selector)
-            j = inds[selector]
-            inds = np.delete(inds,selector)
+        while (beam_basket_len != 0):
+            i = beam_basket[0]
+            beam_basket = np.delete(beam_basket,0)
+            beam_basket_len -= 1
+
+            ind = np.random.randint(0,beam_basket_len)
+            j = beam_basket[ind]
+            if (np.size(beam_basket) > 1):
+                beam_basket = np.delete(beam_basket,ind)
+            beam_basket_len -= 1
+
             new_connections[i,j] = 100
-            new_connections[i,j] = 100
+            new_connections[j,i] = 100
 
-            j_dagger = inds[0]
-            new_connections[i,j] = 0
-            new_connections[i,j] = 0
-
-        # while (beam_basket_len != 0):
-        #     i = beam_basket[0]
-        #     beam_basket = np.delete(beam_basket,0)
-        #     beam_basket_len -= 1
+        self.connections = new_connections
+        self.num_nodes = new_num_nodes
+        # for i in beam_basket:
+        #     print("Beam Basket")
+        #     inds = np.nonzero(new_connections[i] >= 50)[0]
         #
-        #     ind = np.random.randint(0,beam_basket_len)
-        #     print(pick_basket)
-        #     j = pick_basket[ind]
-        #     if (np.size(beam_basket) > 1):
-        #         beam_basket = np.delete(beam_basket,ind)
-        #     beam_basket_len -= 1
-        #
+        #     selector = np.random.randint(0,2,1)[0]
+        #     print(inds)
+        #     print(selector)
+        #     j = inds[selector]
+        #     inds = np.delete(inds,selector)
         #     new_connections[i,j] = 100
-        #     new_connections[j,i] = 100
+        #     new_connections[i,j] = 100
+        #
+        #     j_dagger = inds[0]
+        #     new_connections[i,j] = 0
+        #     new_connections[i,j] = 0
 
         print("NEW")
         print(beam_basket)
