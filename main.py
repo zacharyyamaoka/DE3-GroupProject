@@ -21,8 +21,8 @@ percent_breed = 0.2 # of how many you keep how many do you breed?
 show_viz = True
 # Initalize population
 for i in np.arange(num_population):
-    num_sticks = np.random.randint(2,10,1)[0] #pick a random number of num_sticks
-    drones.append(PaperDrone3D(num_sticks))
+    num_node = np.random.randint(0,10,1)[0] #pick a random number of num_sticks
+    drones.append(PaperDrone3D(num_node))
 
 Vizulizer = Viz(drones, 3, 3)
 Vizulizer.updateDrones(drones);

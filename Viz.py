@@ -111,12 +111,13 @@ class Viz:
         curr_ax = self.plots[self.getPlotId(ind)]
 
         curr_ax.cla()
+        curr_ax.scatter(nodeXY[:,0],nodeXY[:,1])
         curr_ax.add_collection(lc)
         curr_ax.add_collection(string_lc)
         # curr_ax.autoscale()
-        curr_ax.set_xlim([-10,10])
-        curr_ax.set_ylim([-10,10])
-        curr_ax.margins(0.1)
+        curr_ax.set_xlim([-11,11])
+        curr_ax.set_ylim([-11,11])
+        curr_ax.margins(1)
 
     def draw2Dsticks(self,drone,ind):
 

@@ -67,31 +67,28 @@ class PaperDrone3D(Structure):
             num_nodes += 1
 
         self.p_connection = 0.5
-        self.num_sticks = num_nodes/2
-        self.nodes = []
-        self.connections = []
+        self.constraint_points = 4
+        self.constraint_matrix = [[10, 10, 0],[10, -10, 0],[-10, 10, 0],[-10, -10, 0]]
+
         self.elastic_constant = 1
         self.net_force=0
         self.total_force=0
         self.check_force = np.zeros((6,1))
 
-        self.num_nodes = num_nodes
-        self.constraint_points = 4
-        self.constraint_matrix = [[1, 1, 0],[1, 1, 0],[1, 1, 0],[1, 1, 0]]
-        self.initDroneStructure(20)
+        self.num_nodes = num_nodes + self.constraint_points #total num nodes
+        self.num_sticks = self.num_nodes/2
+
+        self.initDroneStructure(self.num_nodes)
 
     def initDroneStructure(self, num_nodes):
         nodes = np.random.uniform(-10,10,(num_nodes,3))
-        print(np.shape(nodes))
         nodes[0:self.constraint_points,:] = self.constraint_matrix
-        print(nodes[0:self.constraint_points,:])
 
         connections = np.zeros((num_nodes,num_nodes))
         mask = np.random.rand(num_nodes,num_nodes) < self.p_connection/2
         connections[mask] = 1
         connections += connections.T
         connections[connections > 0] = 1
-        print(connections)
 
         # connections -= np.eye(num_nodes) #makes sure that you don't connect to yourself
 
@@ -100,10 +97,6 @@ class PaperDrone3D(Structure):
         for i in basket:
             basket = np.delete(basket,0)
             basket_len -= 1
-
-
-            print(basket)
-            print(basket_len)
 
             ind = np.random.randint(0,basket_len)
             j = basket[ind]
@@ -116,7 +109,6 @@ class PaperDrone3D(Structure):
 
             if basket_len == 0:
                 break
-        print(connections)
         self.nodes = nodes
         self.connections = connections
         #set Z to zero
@@ -191,9 +183,7 @@ class PaperDrone2D(Structure):
             if counter < new_sticks:
 
                 ind = int(new_drone.num_sticks - i - 1)
-                print(ind)
                 new_stick_dict[pointer] = new_drone.sticks[ind]
-                print("ADDING NEW STICK")
                 for connection in new_drone.connections[ind]:
                     if connection[2] < new_total:
                         new_connections[pointer].append(connection)
@@ -201,7 +191,6 @@ class PaperDrone2D(Structure):
                 pointer += 1
             counter += 1
 
-        print("Here")
         self.connections = new_connections
         self.num_sticks = new_total
         self.sticks = new_stick_dict
