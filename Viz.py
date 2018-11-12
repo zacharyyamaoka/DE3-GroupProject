@@ -123,7 +123,8 @@ class Viz:
         curr_ax.set_xlim([-13,13])
         curr_ax.set_ylim([-13,13])
         curr_ax.axis('equal')
-
+        curr_ax.set_yticklabels([])
+        curr_ax.set_xticklabels([])
         curr_ax.margins(1)
 
     def draw2Dsticks(self,drone,ind):

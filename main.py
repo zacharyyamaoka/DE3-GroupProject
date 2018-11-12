@@ -13,7 +13,7 @@ def GetFitness(drone):
 drones = []
 # Create 100 different drone configurations and display tharctan2arctan2em
 
-num_population = 200
+num_population = 100
 epochs = 10
 percent_clear = 0.5 # how many to get rid of
 percent_mutate = 0.5 # of how many you keep how many do you mutate
