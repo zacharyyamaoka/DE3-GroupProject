@@ -3,10 +3,38 @@ from mpl_toolkits import mplot3d
 import matplotlib.pyplot as plt
 
 class Vizulization():
-  def __init__(self):
-      pass
+  def __init__(self,rows=1,cols=1):
       self.on = False
-      # plt.ion()
+      self.drone_figure = 0
+      self.createGrid(rows,cols)
+  def getPlotId(self, ind):
+      total_plots = self.rows * self.colums
+      return self.plotId[ind%total_plots]
+
+  def createGrid(self,row=2,col=2):
+
+      self.rows = row
+      self.colums= col
+      self.plotId = dict()
+      self.plots = dict()
+      counter = 0
+
+      plt.figure(0)
+      for i in range(row):
+          for j in range(col):
+              ax = plt.subplot2grid((row,col), (i,j), projection='3d')
+              # ax.grid(False)
+              ax.axis('equal')
+              # ax.set_yticklabels([])
+              # ax.set_xticklabels([])
+              # ax.set_zticklabels([])
+              ax.set_xlim([-10,10])
+              ax.set_ylim([-10,10])
+              ax.set_zlim([-10,10])
+              ax.margins(0.1)
+              self.plots[(i,j)] = ax
+              self.plotId[counter] = (i,j)
+              counter += 1
 
   def init(self):
     fig = plt.figure()
@@ -37,7 +65,8 @@ class Vizulization():
       # if not self.on:
       #     self.on = True
       #     self.init()
-      fig = plt.figure(2)
+      ax = self.plots[self.getPlotId(ind)]
+
       ax = plt.axes(projection='3d')
 
       num = structure.numElements*2
@@ -67,9 +96,9 @@ class Vizulization():
           plt.show()
 
   def show(self, structure, hold_on = False):
-      fig = plt.figure()
-      ax = plt.axes(projection='3d')
 
+      ax = self.plots[self.getPlotId(1)]
+      ax.cla()
       num = structure.numElements
       for i in np.arange(num):
           rows = np.array([i,i+num])

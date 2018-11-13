@@ -11,7 +11,6 @@ class Viz:
         self.plot_j = 0
         self.createGrid(rows, colums)
 
-        plt.ion()
 
     def createGrid(self,row=10,col=10):
 
@@ -24,7 +23,7 @@ class Viz:
         plt.figure(0)
         for i in range(row):
             for j in range(col):
-                ax = plt.subplot2grid((row,col), (i,j))
+                ax = plt.subplot2grid((row,col), (i,j), projection='3d')
                 self.plots[(i,j)] = ax
                 self.plotId[counter] = (i,j)
                 counter += 1

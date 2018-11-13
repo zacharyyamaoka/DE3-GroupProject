@@ -22,7 +22,7 @@ class Element():
       self.alpha = alpha
       self.beta = beta
       self.gamma = gamma
-      
+
       self.old_positions = []
       self.position = self.getFrame()
 

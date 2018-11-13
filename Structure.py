@@ -18,6 +18,8 @@ class Structure():
       self.modified_elements = [] #careful for memory?
       self.old_D = []
       self.old_F = []
+      self.max_element = 0
+      self.E_total = 0
 
   def setD(self, new_D):
       self.old_D.append(self.D)
@@ -63,6 +65,9 @@ class Structure():
 
           self.nodes[i,:] = elements[i].getNodePosition(1).T
           self.nodes[i + numStruts,:] = elements[i].getNodePosition(2).T
+
+  def refresh(self):
+      self.initNodes(self.elements)
 
   def initConnections(self):
 

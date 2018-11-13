@@ -6,34 +6,33 @@ class FormFinder():
       self.error_esp = 0.01
       self.max_iter = 10
 
-  def solve(self, tensegrity):
-      iter = 0
-      energy = []
-      force = []
-      D, F, E, F_total, E_total = self.evalute(tensegrity) # initial Specs
+  def update(self, tensegrity):
+
+
+          # D, F, E, F_total, E_total = self.evalute(tensegrity) # initial Specs
+          #
+          # max_element = np.argmax(F_total)
+          # max_force = F_total[max_element]
+
+      # move the highest force element
+      tensegrity.vibrate(tensegrity.max_element, 1)
+      tensegrity.refresh()
+      D, F, E, F_total, E_total = self.evalute(tensegrity)
 
       max_element = np.argmax(F_total)
       max_force = F_total[max_element]
+      tensegrity.max_element = max_element
+      tensegrity.E_total = E_total
+      # # see if energy went down
+      # if E_total - tensegrity.E_total < 0: # delta E is negative
+      #     tensegrity.max_element = max_element
+      #     tensegrity.E_total = E_total
+      #     # max_force = F_total[max_element]
+      # else: # did not go down
+      #     tensegrity.revertElemement(tensegrity.max_element)
 
-
-      while (max_force > self.error_esp) and (iter < self.max_iter):
-          iter += 1
-          energy.append(E_total)
-          force.append(max_force)
-
-          # move the highest force element
-          tensegrity.vibrate(max_element)
-          D, F, E, F_total, E_total = self.evalute(tensegrity)
-
-          # see if energy went down
-          print(iter)
-          if E_total - energy[-1] < 0: # delta E is negative
-              max_element = np.argmax(F_total)
-              max_force = F_total[max_element]
-          else: # did not go down
-              tensegrity.revertElemement(max_element)
-
-      # return (tensegrity, info)
+      info = (max_force, E_total)
+      return info
 
 
   def evalute(self, tensegrity):
