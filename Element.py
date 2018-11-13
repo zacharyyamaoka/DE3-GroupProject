@@ -22,8 +22,23 @@ class Element():
       self.alpha = alpha
       self.beta = beta
       self.gamma = gamma
-
+      
+      self.old_positions = []
       self.position = self.getFrame()
+
+  def savePosition(self):
+      self.old_positions.append([self.x,self.y,self.z,self.alpha,self.beta,self.gamma])
+
+  def revertPosition(self):
+      if len(self.old_positions) != 0:
+          pos = self.old_positions.pop()
+          self.x = pos[0]
+          self.y = pos[1]
+          self.z = pos[2]
+          self.alpha = pos[3]
+          self.beta = pos[4]
+          self.gamma = pos[5]
+
 
   def getRandomFrame(self):
 
@@ -36,7 +51,8 @@ class Element():
 
       return x, y, z, alpha, beta, gamma
 
-  def wiggle( x, y, z, alpha, beta, gamma):
+  def wiggle(self, x, y, z, alpha, beta, gamma):
+      self.savePosition()
       self.x += x
       self.y += y
       self.z += z

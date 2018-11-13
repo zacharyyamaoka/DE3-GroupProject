@@ -16,12 +16,19 @@ drone = Structure(10,2)
 
 Viz = Vizulization()
 
-
+error_esp = 0.1
+max_iter = 10
 # print(drone.elements)
 # print(drone.nodes)
 # print(drone.C)
-drone.F, drone.D = Solver.evalute(drone)
+# iter = 0
+# energy = []
+# force = []
+# Solver.solve(drone)
 
+# while (max_force > error_esp) and (iter < max_iter):
+Solver.solve(drone)
+# drone.D, drone.F, E, F_total, E_total = Solver.evalute(drone)
 # Viz.show(drone)
 Viz.F(drone)
 Viz.show(drone)

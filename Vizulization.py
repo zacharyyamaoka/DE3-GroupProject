@@ -23,7 +23,7 @@ class Vizulization():
          ax.plot3D(structure.nodes[rows,np.array([0,0])], structure.nodes[rows,np.array([1,1])], structure.nodes[rows,np.array([2,2])], 'black',linewidth=3)
 
      Fmat = structure.F #+ nodes
-     for i in np.arange(num):
+     for i in np.arange(1):
          row = Fmat[i]
          for j in np.arange(num):
              if j != i:
@@ -31,6 +31,7 @@ class Vizulization():
                      end = row[j]
                      if np.sum(end) != 0:
                          ax.quiver(start[0], start[1], start[2], end[0], end[1], end[2], normalize = False)
+                         ax.scatter3D(start[0], start[1], start[2]);
 
   def D(self, structure, hold_on = False):
       # if not self.on:

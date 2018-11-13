@@ -15,12 +15,43 @@ class Structure():
       self.initConnections()
       self.D = np.zeros((numStruts*2,numStruts*2))
       self.F = np.zeros((numStruts*2,numStruts*2))
+      self.modified_elements = [] #careful for memory?
+      self.old_D = []
+      self.old_F = []
 
-      pass
+  def setD(self, new_D):
+      self.old_D.append(self.D)
+      self.D = new_D
+
+  def setF(self, new_F):
+      self.old_F.append(self.F)
+      self.F = new_F
+
+  def revertElemement(self, ind):
+      self.elements[ind].revertPosition()
+
+  def revertStructure(self):
+      self.D = self.old_D.pop()
+      self.F = self.old_F.pop()
+      self.elements[self.modified_elements.pop()].revertPosition()
+
+  def vibrate(self, elementInd, multipler=0.01):
+      # Can I estimate the optimal movement online
+      x = np.random.uniform(-1,1)*multipler
+      y = np.random.uniform(-1,1)*multipler
+      z = np.random.uniform(-1,1)*multipler
+      alpha = np.random.uniform(-3.14,3.14)*multipler
+      beta = np.random.uniform(-3.14,3.14)*multipler
+      gamma = np.random.uniform(-3.14,3.14)*multipler
+
+      self.modified_elements.append(elementInd)
+      self.elements[elementInd].wiggle(x,y,z,alpha,gamma,beta)
 
   def initStruts(self, numStruts, length):
       self.elements = []
       self.numElements = numStruts
+      self.numStruts = numStruts
+
       for i in np.arange(numStruts):
            self.elements.append(Element(length=length, random=True))
           #Create a strut of given length in a random location
