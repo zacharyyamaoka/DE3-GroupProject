@@ -9,9 +9,11 @@ class Structure():
       # self.alpha_bounds =
       # self.alpha_bounds =
       # self.alpha_bounds =
+      self.numStruts = numStruts
       self.initStruts(numStruts, length)
       self.initNodes(self.elements)
       self.initConnections()
+      self.D = np.zeros((numStruts*2,numStruts*2))
       pass
 
   def initStruts(self, numStruts, length):
@@ -32,6 +34,9 @@ class Structure():
   def initConnections(self):
 
        C = np.random.rand(self.numElements*2,self.numElements*2)
+
+       #ensure symmetry
+       C = C/2 + C.T/2
        C[C>=0.5] = 1
        C[C<0.5] = 0
        C[np.eye(self.numElements*2)==1] = 0
