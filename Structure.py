@@ -19,6 +19,7 @@ class Structure():
       self.old_D = []
       self.old_F = []
       self.max_element = 0
+      self.max_force = 0
       self.E_total = 0
 
   def setD(self, new_D):

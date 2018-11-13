@@ -17,21 +17,20 @@ class FormFinder():
       # move the highest force element
       tensegrity.vibrate(tensegrity.max_element, 1)
       tensegrity.refresh()
+
       D, F, E, F_total, E_total = self.evalute(tensegrity)
 
-      max_element = np.argmax(F_total)
-      max_force = F_total[max_element]
-      tensegrity.max_element = max_element
-      tensegrity.E_total = E_total
-      # # see if energy went down
-      # if E_total - tensegrity.E_total < 0: # delta E is negative
-      #     tensegrity.max_element = max_element
-      #     tensegrity.E_total = E_total
-      #     # max_force = F_total[max_element]
-      # else: # did not go down
-      #     tensegrity.revertElemement(tensegrity.max_element)
+      # see if energy went down
+      if E_total - tensegrity.E_total < 0: # delta E is negative
+          tensegrity.max_element = np.argmax(F_total)
+          tensegrity.max_force = F_total[tensegrity.max_element]
+          tensegrity.E_total = E_total
+          # max_force = F_total[max_element]
+      else: # did not go down
+          print("Bad Move")
+          tensegrity.revertElemement(tensegrity.max_element)
 
-      info = (max_force, E_total)
+      info = (tensegrity.max_force, tensegrity.E_total)
       return info
 
 
