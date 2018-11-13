@@ -14,6 +14,8 @@ class Structure():
       self.initNodes(self.elements)
       self.initConnections()
       self.D = np.zeros((numStruts*2,numStruts*2))
+      self.F = np.zeros((numStruts*2,numStruts*2))
+
       pass
 
   def initStruts(self, numStruts, length):
@@ -37,12 +39,12 @@ class Structure():
 
        #ensure symmetry
        C = C/2 + C.T/2
-       C[C>=0.5] = 1
        C[C<0.5] = 0
+       C[C>=0.5] = 1 # Spring Constant
        C[np.eye(self.numElements*2)==1] = 0
 
        for i in np.arange(self.numElements):
-           C[i,i+self.numElements] = 2
-           C[i+self.numElements,i] = 2
+           C[i,i+self.numElements] = 0
+           C[i+self.numElements,i] = 0
 
        self.C = C

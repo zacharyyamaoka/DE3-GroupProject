@@ -19,4 +19,19 @@ class FormFinder():
 
       D = nodesT - nodes
       info = D
+
+      # Determine forces on each node
+
+      # F = D * C
+      K = tensegrity.C.reshape(num_nodes,num_nodes,1)
+      print(D.shape)
+      print(K.shape)
+      print((D*K).shape)
+      F = D*K
+
+      #Determine force on each node
+      F_nodes = np.sum(F,axis=1)
+      print(F_nodes.shape)
+      print(F_nodes)
+      info = (F, D)
       return info

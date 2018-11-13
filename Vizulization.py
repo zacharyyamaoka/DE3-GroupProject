@@ -6,16 +6,37 @@ class Vizulization():
   def __init__(self):
       pass
       self.on = False
+      # plt.ion()
 
   def init(self):
     fig = plt.figure()
     ax = plt.axes(projection='3d')
+  def F(self, structure, hold_on = False):
+     fig = plt.figure(1)
+     ax = plt.axes(projection='3d')
+
+     num = structure.numElements*2
+
+     #Draw Struts
+     for i in np.arange(structure.numElements):
+         rows = np.array([i,i+structure.numElements])
+         ax.plot3D(structure.nodes[rows,np.array([0,0])], structure.nodes[rows,np.array([1,1])], structure.nodes[rows,np.array([2,2])], 'black',linewidth=3)
+
+     Fmat = structure.F #+ nodes
+     for i in np.arange(num):
+         row = Fmat[i]
+         for j in np.arange(num):
+             if j != i:
+                     start = structure.nodes[i]
+                     end = row[j]
+                     if np.sum(end) != 0:
+                         ax.quiver(start[0], start[1], start[2], end[0], end[1], end[2], normalize = False)
 
   def D(self, structure, hold_on = False):
       # if not self.on:
       #     self.on = True
       #     self.init()
-      fig = plt.figure()
+      fig = plt.figure(2)
       ax = plt.axes(projection='3d')
 
       num = structure.numElements*2
@@ -45,10 +66,8 @@ class Vizulization():
           plt.show()
 
   def show(self, structure, hold_on = False):
-
-      if not self.on:
-          self.on = True
-          self.init()
+      fig = plt.figure()
+      ax = plt.axes(projection='3d')
 
       num = structure.numElements
       for i in np.arange(num):
@@ -63,6 +82,3 @@ class Vizulization():
                   ax.plot3D(structure.nodes[rows,np.array([0,0])], structure.nodes[rows,np.array([1,1])], structure.nodes[rows,np.array([2,2])], 'red')
 
       ax.scatter3D(structure.nodes[:,0], structure.nodes[:,1], structure.nodes[:,2], c=structure.nodes[:,2], cmap='Greens');
-
-      if not hold_on:
-          plt.show()
