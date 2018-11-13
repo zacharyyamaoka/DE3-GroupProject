@@ -26,24 +26,20 @@ class Vizulization():
           ax.plot3D(structure.nodes[rows,np.array([0,0])], structure.nodes[rows,np.array([1,1])], structure.nodes[rows,np.array([2,2])], 'black',linewidth=3)
 
       # Draw Displacement Vectors
-      D_full = np.tile(structure.nodes,(num,1))
-      D_full = D_full.reshape((num,num,3))
-      print("D_full")
-      print(D_full)
-      D_back = structure.D #+ D_full
-      print("D_Back")
+      # nodes = structure.nodes.reshape(structure.numElements*2,1,3)
+      # nodes = np.tile(nodes,(1,num,1))
 
-      print(D_back)
-      for i in np.arange(1):
+      D_back = structure.D #+ nodes
+      for i in np.arange(num):
           row = D_back[i]
           for j in np.arange(num):
               if j != i:
-                  start = row[i]
+                  start = structure.nodes[i]
                   end = row[j]
                   v = np.array([start,end])
-                  print(v.shape)
-                  print(v)
-                  ax.plot3D(v[:,0], v[:,1], v[:,2], 'red')
+                  ax.quiver(start[0], start[1], start[2], end[0], end[1], end[2], normalize = False)
+
+                  # ax.plot3D(v[:,0], v[:,1], v[:,2], 'red')
 
       if not hold_on:
           plt.show()
