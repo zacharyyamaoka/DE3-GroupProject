@@ -21,6 +21,7 @@ class Structure():
       self.max_element = 0
       self.max_force = 0
       self.E_total = 0
+      self.old_Nodes = 0
 
   def setD(self, new_D):
       self.old_D.append(self.D)
@@ -34,9 +35,10 @@ class Structure():
       self.elements[ind].revertPosition()
 
   def revertStructure(self):
-      self.D = self.old_D.pop()
-      self.F = self.old_F.pop()
-      self.elements[self.modified_elements.pop()].revertPosition()
+      self.nodes = self.old_Nodes
+      # self.D = self.old_D.pop()
+      # self.F = self.old_F.pop()
+      # self.elements[self.modified_elements.pop()].revertPosition()
 
   def vibrate(self, elementInd, multipler=0.01):
       # Can I estimate the optimal movement online
@@ -68,6 +70,7 @@ class Structure():
           self.nodes[i + numStruts,:] = elements[i].getNodePosition(2).T
 
   def refresh(self):
+      self.old_Nodes = self.nodes
       self.initNodes(self.elements)
 
   def initConnections(self):

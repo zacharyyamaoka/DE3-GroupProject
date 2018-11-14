@@ -6,10 +6,31 @@ class Vizulization():
   def __init__(self,rows=1,cols=1):
       self.on = False
       self.drone_figure = 0
+      self.graph = []
+      self.figures = 0
       self.createGrid(rows,cols)
+
+  def getFigureId(self):
+      id = self.figures
+      self.figures += 1
+      return id
+
   def getPlotId(self, ind):
       total_plots = self.rows * self.colums
       return self.plotId[ind%total_plots]
+
+  def createGraph(self):
+      fig = plt.figure(self.getFigureId())
+      ax1 = fig.add_subplot(1, 1, 1)
+      self.graph.append(ax1)
+      return len(self.graph)
+  def plotGraph(self,ind,x,y):
+      ax = self.graph[ind-1]
+      ax.scatter([y],[x])
+      pass
+  def labelGraph(self,ind,title="",xaxis="",yaxis=""):
+      ax = self.graph[ind-1]
+      ax.set_title(title)
 
   def createGrid(self,row=2,col=2):
 
@@ -19,7 +40,7 @@ class Vizulization():
       self.plots = dict()
       counter = 0
 
-      plt.figure(0)
+      plt.figure(self.getFigureId())
       for i in range(row):
           for j in range(col):
               ax = plt.subplot2grid((row,col), (i,j), projection='3d')
@@ -28,9 +49,11 @@ class Vizulization():
               # ax.set_yticklabels([])
               # ax.set_xticklabels([])
               # ax.set_zticklabels([])
-              ax.set_xlim([-10,10])
-              ax.set_ylim([-10,10])
-              ax.set_zlim([-10,10])
+              ax.autoscale(False)
+
+              ax.set_xlim3d([-10,10])
+              ax.set_ylim3d([-10,10])
+              ax.set_zlim3d([-10,10])
               ax.margins(0.1)
               self.plots[(i,j)] = ax
               self.plotId[counter] = (i,j)
