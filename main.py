@@ -27,10 +27,10 @@ iter = 0
 energy = []
 force = []
 
-drone.C = np.array([[0, 1, 0, 1],
-[1, 0, 1, 0],
-[0, 1, 0, 1],
-[1, 0, 1, 0]])
+# drone.C = np.array([[0, 1, 0, 1],
+# [1, 0, 1, 0],
+# [0, 1, 0, 1],
+# [1, 0, 1, 0]])
 
 D, F, E, F_total, E_total = Solver.evalute(drone)
 print(E_total)
@@ -56,6 +56,7 @@ while (max_force > error_esp) and (iter < max_iter):
 
     if debug and iter%show==0:
         Viz.show(drone)
+        Viz.F(drone)
         Viz.plotGraph(EnergyGraph,E_total,iter)
         Viz.plotGraph(ForceGraph,max_force,iter)
         plt.show()

@@ -62,9 +62,10 @@ class Vizulization():
   def init(self):
     fig = plt.figure()
     ax = plt.axes(projection='3d')
+
   def F(self, structure, hold_on = False):
-     fig = plt.figure(1)
-     ax = plt.axes(projection='3d')
+     ax = self.plots[self.getPlotId(1)]
+     ax.cla()
 
      num = structure.numElements*2
 

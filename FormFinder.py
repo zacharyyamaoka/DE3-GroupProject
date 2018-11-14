@@ -53,10 +53,19 @@ class FormFinder():
 
       # Determine forces on each node
 
-      K = tensegrity.C.reshape(num_nodes,num_nodes,1)
+      K = tensegrity.C
 
+      L_curr = np.sqrt(np.sum((D*D),axis=2))
+      L_curr[np.diag_indices(num_nodes)] = -1 # to avoid nans displacement to your self
+      Delta = L_curr - tensegrity.L
+
+      F = Delta*K
+      F = F.reshape(num_nodes,num_nodes,1)
+
+      F = (D/L_curr.reshape(num_nodes,num_nodes,1)) * F
       #begin to do this for only certain rows.
-      F = D*K
+      tensegrity.F = F
+
       E = 0.5 * tensegrity.C * np.sum((D*D),axis=2)
       E_total = np.sum(E)
       E_total /= 2 # avoid double counting for elastics

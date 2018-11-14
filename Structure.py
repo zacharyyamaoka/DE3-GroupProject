@@ -56,7 +56,7 @@ class Structure():
       self.elements = []
       self.numElements = numStruts
       self.numStruts = numStruts
-
+      self.length = length
       for i in np.arange(numStruts):
            self.elements.append(Element(length=length, random=True))
           #Create a strut of given length in a random location
@@ -76,15 +76,28 @@ class Structure():
   def initConnections(self):
 
        C = np.random.rand(self.numElements*2,self.numElements*2)
-
+       L = np.zeros((self.numElements*2,self.numElements*2))
        #ensure symmetry
        C = C/2 + C.T/2
+
+       # Plant in a spy
+       C = np.array([[0, 1, 0, 1],
+       [1, 0, 1, 0],
+       [0, 1, 0, 1],
+       [1, 0, 1, 0]])
+
        C[C<0.5] = 0
+       L[C>=0.5] = 1 # intial wire length
        C[C>=0.5] = 1 # Spring Constant
+
        C[np.eye(self.numElements*2)==1] = 0
+       L[np.eye(self.numElements*2)==1] = -1 #small number to avoid nans
 
        for i in np.arange(self.numElements):
            C[i,i+self.numElements] = 0
            C[i+self.numElements,i] = 0
+           L[i+self.numElements,i] = self.length
+           L[i,i+self.numElements] = self.length
 
+       self.L = L
        self.C = C
