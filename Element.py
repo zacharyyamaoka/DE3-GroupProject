@@ -39,6 +39,7 @@ class Element():
           self.beta = pos[4]
           self.gamma = pos[5]
 
+      self.position = self.getFrame()
 
   def getRandomFrame(self):
 

@@ -45,16 +45,12 @@ class Vizulization():
           for j in range(col):
               ax = plt.subplot2grid((row,col), (i,j), projection='3d')
               # ax.grid(False)
-              ax.axis('equal')
               # ax.set_yticklabels([])
               # ax.set_xticklabels([])
               # ax.set_zticklabels([])
-              ax.autoscale(False)
+              # ax.autoscale(False)
 
-              ax.set_xlim3d([-10,10])
-              ax.set_ylim3d([-10,10])
-              ax.set_zlim3d([-10,10])
-              ax.margins(0.1)
+              # ax.margins(0.1)
               self.plots[(i,j)] = ax
               self.plotId[counter] = (i,j)
               counter += 1
@@ -123,6 +119,8 @@ class Vizulization():
 
       ax = self.plots[self.getPlotId(1)]
       ax.cla()
+
+
       num = structure.numElements
       for i in np.arange(num):
           rows = np.array([i,i+num])
@@ -136,3 +134,8 @@ class Vizulization():
                   ax.plot3D(structure.nodes[rows,np.array([0,0])], structure.nodes[rows,np.array([1,1])], structure.nodes[rows,np.array([2,2])], 'red')
 
       ax.scatter3D(structure.nodes[:,0], structure.nodes[:,1], structure.nodes[:,2], c=structure.nodes[:,2], cmap='Greens');
+      ax.set_xlim([-10,10])
+      ax.set_ylim([-10,10])
+      ax.set_zlim([-10,10])
+      ax.set_aspect(1) 
+      ax.axis('equal')

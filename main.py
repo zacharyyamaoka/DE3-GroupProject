@@ -13,14 +13,18 @@ strut = Element(0, 0, 0, 0, 0, 0, 2)
 # print(strut.getNodePos ition(1))
 # print(Finder.solve(1))
 
-drone = Structure(10,2)
+drone = Structure(10,3)
 
 plt.ion()
-debug = True
-wait = 0.01
+debug = False
+wait = 0.001
+
+checkin= False
+checkinfreq = 100
+checkinwait = 4
 Viz = Vizulization()
 show = 10
-error_esp = 0.1
+error_esp = 0.01
 max_iter = 10000
 
 iter = 0
@@ -33,17 +37,20 @@ force = []
 # [1, 0, 1, 0]])
 
 D, F, E, F_total, E_total = Solver.evalute(drone)
-print(E_total)
 
 drone.max_element = np.argmax(F_total)
 drone.max_force = np.amax(F_total)
 drone.E_total = E_total
+drone.F_total = F_total
+#
+# EnergyGraph = Viz.createGraph()
+# Viz.labelGraph(EnergyGraph,"EnergyGraph")
+# ForceGraph = Viz.createGraph()
+# Viz.labelGraph(ForceGraph,"ForceGraph")
 
-EnergyGraph = Viz.createGraph()
-Viz.labelGraph(EnergyGraph,"EnergyGraph")
-ForceGraph = Viz.createGraph()
-Viz.labelGraph(ForceGraph,"ForceGraph")
-
+Viz.show(drone)
+plt.pause(2)
+plt.show()
 max_force = drone.max_force
 while (max_force > error_esp) and (iter < max_iter):
     print(iter)
@@ -51,18 +58,21 @@ while (max_force > error_esp) and (iter < max_iter):
     energy.append(E_total)
     force.append(max_force)
     max_force, E_total, sample_E = Solver.update(drone)
-    print(E_total)
-    print(sample_E)
+    print("Energy: ", E_total)
+    print("Max Force: ", max_force)
 
     if debug and iter%show==0:
         Viz.show(drone)
-        Viz.F(drone)
+        # Viz.F(drone)
         Viz.plotGraph(EnergyGraph,E_total,iter)
         Viz.plotGraph(ForceGraph,max_force,iter)
         plt.show()
         plt.pause(wait)
+        if checkin and iter%checkinfreq==0:
+            plt.pause(checkinwait)
 
-plt.pause(1)
+Viz.show(drone)
+plt.pause(10)
 
 # Viz.F(drone)
 print(energy)

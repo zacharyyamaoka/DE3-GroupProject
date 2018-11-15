@@ -22,6 +22,7 @@ class Structure():
       self.max_force = 0
       self.E_total = 0
       self.old_Nodes = 0
+      self.F_total = np.zeros(numStruts)
 
   def setD(self, new_D):
       self.old_D.append(self.D)
@@ -73,6 +74,10 @@ class Structure():
       self.old_Nodes = self.nodes
       self.initNodes(self.elements)
 
+  def updateElementNodes(self,ind):
+      self.nodes[ind,:] = self.elements[ind].getNodePosition(1).T
+      self.nodes[ind + self.numStruts,:] = self.elements[ind].getNodePosition(2).T
+
   def initConnections(self):
 
        C = np.random.rand(self.numElements*2,self.numElements*2)
@@ -81,10 +86,17 @@ class Structure():
        C = C/2 + C.T/2
 
        # Plant in a spy
-       C = np.array([[0, 1, 0, 1],
-       [1, 0, 1, 0],
-       [0, 1, 0, 1],
-       [1, 0, 1, 0]])
+       # C = np.array([[0, 1, 0, 1],
+       # [1, 0, 1, 0],
+       # [0, 1, 0, 1],
+       # [1, 0, 1, 0]])
+
+       C = np.array([[0, 1, 1, 0, 1, 0],
+                     [1, 0, 1, 0, 0, 1],
+                     [1, 1, 0, 1, 0, 0],
+                     [0, 0, 1, 0, 1, 1],
+                     [1, 0, 0, 1, 0, 1],
+                     [0, 1, 0, 1, 1, 0]])
 
        C[C<0.5] = 0
        L[C>=0.5] = 1 # intial wire length
