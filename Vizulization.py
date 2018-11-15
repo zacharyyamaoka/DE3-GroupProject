@@ -44,11 +44,11 @@ class Vizulization():
       for i in range(row):
           for j in range(col):
               ax = plt.subplot2grid((row,col), (i,j), projection='3d')
-              # ax.grid(False)
-              # ax.set_yticklabels([])
-              # ax.set_xticklabels([])
-              # ax.set_zticklabels([])
-              # ax.autoscale(False)
+              ax.grid(False)
+              ax.set_yticklabels([])
+              ax.set_xticklabels([])
+              ax.set_zticklabels([])
+              ax.autoscale(False)
 
               # ax.margins(0.1)
               self.plots[(i,j)] = ax
@@ -115,9 +115,9 @@ class Vizulization():
       if not hold_on:
           plt.show()
 
-  def show(self, structure, hold_on = False):
+  def show(self, structure, ind, hold_on = False):
 
-      ax = self.plots[self.getPlotId(1)]
+      ax = self.plots[self.getPlotId(ind)]
       ax.cla()
 
 
@@ -137,5 +137,5 @@ class Vizulization():
       ax.set_xlim([-10,10])
       ax.set_ylim([-10,10])
       ax.set_zlim([-10,10])
-      ax.set_aspect(1) 
+      ax.set_aspect(1)
       ax.axis('equal')

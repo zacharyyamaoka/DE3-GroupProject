@@ -10,6 +10,7 @@ class Structure():
       # self.alpha_bounds =
       # self.alpha_bounds =
       self.numStruts = numStruts
+      self.num_nodes = numStruts * 2
       self.initStruts(numStruts, length)
       self.initNodes(self.elements)
       self.initConnections()
@@ -23,6 +24,7 @@ class Structure():
       self.E_total = 0
       self.old_Nodes = 0
       self.F_total = np.zeros(numStruts)
+      self.solved = False
 
   def setD(self, new_D):
       self.old_D.append(self.D)
@@ -40,7 +42,87 @@ class Structure():
       # self.D = self.old_D.pop()
       # self.F = self.old_F.pop()
       # self.elements[self.modified_elements.pop()].revertPosition()
+  def combine(self, mate):
+      p_comb = np.random.rand()
 
+      #Pad Nodes for Merge
+
+      # NOT BEING USED RN B/C Sturctures are the same shape
+
+      # Think about doing this for bc NODE shapes has changed now, will need to splice
+      # in two places two do this properly
+      new_num_nodes = int((self.num_nodes + mate.num_nodes)/2)
+      if new_num_nodes % 2 != 0:
+          new_num_nodes += 1
+
+      new_num_struts = int(new_num_nodes/2)
+
+      diff_mate = int(new_num_nodes - mate.num_nodes)
+      diff_mate_strut = new_num_struts - mate.numStruts
+      if (diff_mate >= 0):
+          # pad to increase size
+          mate_nodes = np.pad(mate.nodes,( (0,abs(diff_mate)),(0,0) ), mode='constant')
+          mate_connections = np.pad(mate.C,( (0,abs(diff_mate)),(0,abs(diff_mate)) ), mode='constant')
+      else:
+          mate_nodes = mate.nodes[0:new_num_nodes,:]
+          mate_connections = mate.C[0:new_num_nodes,0:new_num_nodes]
+
+      diff_self = int(new_num_nodes - self.num_nodes)
+      diff_self_strut = new_num_struts - self.numStruts
+
+      if (diff_self >= 0):
+          # pad to increase size
+          self_nodes = np.pad(self.nodes,( (0,abs(diff_self)),(0,0) ), mode='constant')
+          self_connections = np.pad(self.C,( (0,abs(diff_self)),(0,abs(diff_self)) ), mode='constant')
+
+      else:
+          self_nodes = self.nodes[0:new_num_nodes,:]
+          self_connections = self.C[0:new_num_nodes,0:new_num_nodes]
+
+      zero_base = new_num_nodes - max(diff_self, diff_mate)
+      new_nodes = (self_nodes + mate_nodes)
+      new_nodes[0:zero_base,:] /= 2
+
+      zero_base_upper = new_num_struts - max(diff_mate_strut, diff_self_strut)
+      zero_base_lower = 2*new_num_struts - max(diff_mate_strut, diff_self_strut)
+
+      print("diff self strut: ",diff_self_strut)
+      #mabye max this a max combine or a tit for tat in the future
+      new_connections = (self_connections + mate_connections)
+      print(new_connections)
+      print(zero_base_upper)
+      new_connections[:int(zero_base_upper),:int(zero_base)] = new_connections[:int(zero_base_upper),:]/2
+      new_connections[int(new_num_struts):int(zero_base_lower),:int(zero_base)] = new_connections[int(new_num_struts):int(zero_base_lower),:int(zero_base)]/2
+      print(new_connections)
+
+      mask = np.random.rand(new_num_nodes,new_num_nodes)
+      L = np.zeros((new_num_nodes,new_num_nodes))
+
+      new_connections[new_connections >= mask] = 1
+      L[new_connections >= mask] = 1
+      new_connections
+      # new_connections[new_num_struts:zero_base_lower,:] /= 2
+
+      # print(self.nodes.shape)
+      # print(self_nodes.shape)
+      # print(mate.nodes.shape)
+      # print(mate_nodes.shape)
+      print(np.sum(mate_nodes))
+      print(np.sum(self_nodes))
+      print(np.sum(new_nodes))
+
+      child = Structure(10,int(new_num_nodes/2))
+
+      for i in np.arange(new_num_struts):
+           new_connections[i,i+new_num_struts] = 0
+           new_connections[i+new_num_struts,i] = 0
+           L[i+new_num_struts,i] = 10
+           L[i,i+new_num_struts] = 10
+
+      new_connections[np.eye(self.numElements*2)==1] = 0
+      L[np.eye(self.numElements*2)==1] = -1 #small number to avoid nans
+
+      return p_comb
   def vibrate(self, elementInd, multipler=0.01):
       # Can I estimate the optimal movement online
       x = np.random.uniform(-1,1)*multipler

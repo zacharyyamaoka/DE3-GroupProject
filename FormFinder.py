@@ -9,6 +9,10 @@ class FormFinder():
       self.overflow = 30
       self.step = 1
       # self.min_step = 0.001
+  def reset(self):
+      self.reject = 0
+      self.overflow = 30
+      self.step = 1
   def update(self, tensegrity):
 
 
@@ -26,7 +30,7 @@ class FormFinder():
           self.step *= 0.5
           self.reject = 0
 
-      print("Step size: ", self.step)
+      # print("Step size: ", self.step)
       # ind = tensegrity.F_total
       tensegrity.vibrate(ind, self.step)
       tensegrity.updateElementNodes(ind)
@@ -36,7 +40,7 @@ class FormFinder():
       # see if energy went down
 
       if  E_total - tensegrity.E_total  < 0: # delta E is negative
-          print("Good Move")
+          # print("Good Move")
           self.reject = 0
           tensegrity.max_element = np.argmax(F_total)
           tensegrity.max_force = F_total[tensegrity.max_element]
@@ -44,7 +48,7 @@ class FormFinder():
           tensegrity.F_total = F_total
           # max_force = F_total[max_element]
       else: # did not go down
-          print("Bad Move")
+          # print("Bad Move")
           self.reject += 1
           tensegrity.revertElemement(ind)
           tensegrity.updateElementNodes(ind)
