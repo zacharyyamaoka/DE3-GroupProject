@@ -212,7 +212,7 @@ class Structure():
        #               [0, 1, 0, 1, 1, 0]])
 
        C[C<0.5] = 0
-       L[C>=0.5] = 5 # intial wire length
+       L[C>=0.5] = 1 # intial wire length
        C[C>=0.5] = 1 # Spring Constant
 
        C[np.eye(self.numElements*2)==1] = 0
