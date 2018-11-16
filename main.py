@@ -77,7 +77,7 @@ def Solve(drone, ind):
     Solver.reset() #for next time
 
 
-drone = Structure(10,2)
+drone = Structure(10,3)
 Solve(drone, 1)
 
 
