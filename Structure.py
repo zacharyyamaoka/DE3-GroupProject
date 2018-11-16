@@ -57,30 +57,51 @@ class Structure():
       p_comb = np.random.rand()
 
       new_num_nodes = int(p_comb*self.num_nodes + (1-p_comb)*mate.num_nodes)
+      # new_num_nodes = int((self.num_nodes + mate.num_nodes)/2)
 
       if new_num_nodes % 2 != 0:
           new_num_nodes += 1
 
-      new_num_nodes += 8
+      new_num_nodes += 0
       print(new_num_nodes)
 
       C_new = np.zeros((new_num_nodes,new_num_nodes))
       nodes_new = np.zeros((new_num_nodes,3))
       new_num_struts = int(new_num_nodes/2)
 
-      diff_mate = int(new_num_nodes - mate.num_nodes)
-      diff_mate_strut = new_num_struts - mate.numStruts
-      if (diff_mate >= 0):
+      # diff_mate = int(new_num_nodes - mate.num_nodes)
+      # diff_mate_strut = new_num_struts - mate.numStruts
+      # if (diff_mate >= 0):
+      #     # pad to increase size
+      #     nodes_new[0:mate.numStruts,:] += mate.nodes[0:mate.numStruts,:]
+      #     nodes_new[new_num_struts:new_num_struts+mate.numStruts,:] += mate.nodes[mate.numStruts:mate.numStruts+mate.numStruts,:]
+      #     C_new[0:mate.numStruts,0:mate.num_nodes] += mate.C[0:mate.numStruts,0:mate.num_nodes]
+      #     C_new[new_num_struts:new_num_struts+mate.numStruts,0:mate.num_nodes] += mate.C[mate.numStruts:mate.numStruts+mate.numStruts,0:mate.num_nodes]
+      #
+      # else:
+      #     nodes_new[0:new_num_struts,:] += mate.nodes[0:new_num_struts,:]
+      #     nodes_new[new_num_struts:new_num_struts+new_num_struts,:] += mate.nodes[mate.numStruts:mate.numStruts+new_num_struts,:]
+      #
+      #     C_new[0:new_num_struts,0:new_num_nodes] += mate.C[0:new_num_struts,0:new_num_nodes]
+      #     C_new[new_num_struts:new_num_struts+new_num_struts,0:mate.num_nodes] += mate.C[mate.numStruts:mate.numStruts+new_num_struts,0:new_num_nodes]
+
+      print(nodes_new)
+      diff_self = int(new_num_nodes - self.num_nodes)
+      diff_self_strut = new_num_struts - self.numStruts
+      if (diff_self >= 0):
           # pad to increase size
-          nodes_new[0:mate.numStruts,:] += mate.nodes[0:mate.numStruts,:]
-          nodes_new[new_num_struts:new_num_struts+mate.numStruts,:] += mate.nodes[mate.numStruts:mate.numStruts+mate.numStruts,:]
-          C_new[0:mate.numStruts,0:mate.num_nodes] += mate.C[0:mate.numStruts,0:mate.num_nodes]
-          C_new[new_num_struts:new_num_struts+mate.numStruts,0:mate.num_nodes] += mate.C[mate.numStruts:mate.numStruts+mate.numStruts,0:mate.num_nodes]
+          nodes_new[0:self.numStruts,:] += self.nodes[0:self.numStruts,:]
+          nodes_new[new_num_struts:new_num_struts+self.numStruts,:] += self.nodes[self.numStruts:self.numStruts+self.numStruts,:]
+          C_new[0:self.numStruts,0:self.num_nodes] += self.C[0:self.numStruts,0:self.num_nodes]
+          C_new[new_num_struts:new_num_struts+self.numStruts,0:self.num_nodes] += self.C[self.numStruts:self.numStruts+self.numStruts,0:self.num_nodes]
 
       else:
-          nodes_new += mate.nodes[0:new_num_nodes,:]
-          C_new[0:mate.numStruts,0:mate.num_nodes] += mate.C[0:mate.numStruts,0:mate.num_nodes]
-          C_new[new_num_struts:new_num_struts+mate.numStruts,0:mate.num_nodes] += mate.C[new_num_struts:new_num_struts+mate.numStruts,0:mate.num_nodes]
+          nodes_new[0:new_num_struts,:] += self.nodes[0:new_num_struts,:]
+          nodes_new[new_num_struts:new_num_struts+new_num_struts,:] += self.nodes[self.numStruts:self.numStruts+new_num_struts,:]
+
+          C_new[0:new_num_struts,0:new_num_nodes] += self.C[0:new_num_struts,0:new_num_nodes]
+          C_new[new_num_struts:new_num_struts+new_num_struts,0:self.num_nodes] += self.C[self.numStruts:self.numStruts+new_num_struts,0:new_num_nodes]
+      print(nodes_new)
 
       # diff_self = int(new_num_nodes - self.num_nodes)
       # diff_self_strut = new_num_struts - self.numStruts
@@ -93,12 +114,20 @@ class Structure():
       # else:
       #     self_nodes = self.nodes[0:new_num_nodes,:]
       #     self_connections = self.C[0:new_num_nodes,0:new_num_nodes]
+      zero_base_strut =  np.minimum(self.numStruts, mate.numStruts)
+      zero_base_node = np.minimum(self.num_nodes, mate.num_nodes)
+      # new_num_struts - max(diff_self_strut, diff_mate_strut)
+      # zero_base =  new_num_struts - max(diff_self_strut, diff_mate_strut)
 
-      print(C_new)
-      print(nodes_new)
-      return 0
+      C_new[0:zero_base_strut,0:zero_base_node] /= 2
+      C_new[new_num_struts:new_num_struts+zero_base_strut,0:zero_base_node] /= 2
+      # print(C_new)
+      # print(nodes_new)
+      return nodes_new
       #
-      # zero_base = new_num_nodes - max(diff_self, diff_mate)
+
+
+
       # new_nodes = (self_nodes + mate_nodes)
       # new_nodes[0:zero_base,:] /= 2
       #
@@ -202,10 +231,10 @@ class Structure():
        C = C/2 + C.T/2
 
        # Plant in a spy
-       C = np.array([[0, 1, 0, 1],
-       [1, 0, 1, 0],
-       [0, 1, 0, 1],
-       [1, 0, 1, 0]])
+       # C = np.array([[0, 1, 0, 1],
+       # [1, 0, 1, 0],
+       # [0, 1, 0, 1],
+       # [1, 0, 1, 0]])
        #
        # C = np.array([[0, 0, 0, 1],
        # [0, 0, 0, 0],

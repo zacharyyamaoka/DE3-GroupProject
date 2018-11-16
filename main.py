@@ -81,9 +81,10 @@ plt.show()
 
 A = Structure(10,2)
 B = Structure(10,2)
+# print(B.nodes)
 Viz.show(A,1)
 Viz.show(B,2)
-print(A.combine(B))
+A.combine(B)
 
 
 
