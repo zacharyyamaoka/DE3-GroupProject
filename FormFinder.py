@@ -15,6 +15,8 @@ class FormFinder():
       self.step = 1
   def update(self, tensegrity):
 
+      #NOTE TO SELF you will have to change the max iter and step Siz
+        # as the complexity of the sturcture changes
 
           # D, F, E, F_total, E_total = self.evalute(tensegrity) # initial Specs
           #

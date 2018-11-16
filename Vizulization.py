@@ -24,9 +24,9 @@ class Vizulization():
       ax1 = fig.add_subplot(1, 1, 1)
       self.graph.append(ax1)
       return len(self.graph)
-  def plotGraph(self,ind,x,y):
+  def plotGraph(self,ind,x,y,c='red'):
       ax = self.graph[ind-1]
-      ax.scatter([y],[x])
+      ax.scatter([y],[x],color=c)
       pass
   def labelGraph(self,ind,title="",xaxis="",yaxis=""):
       ax = self.graph[ind-1]
@@ -133,9 +133,12 @@ class Vizulization():
                   rows = np.array([i,j])
                   ax.plot3D(structure.nodes[rows,np.array([0,0])], structure.nodes[rows,np.array([1,1])], structure.nodes[rows,np.array([2,2])], 'red')
 
-      ax.scatter3D(structure.nodes[:,0], structure.nodes[:,1], structure.nodes[:,2], c=structure.nodes[:,2], cmap='Greens');
+      ax.scatter3D(structure.nodes[:,0], structure.nodes[:,1], structure.nodes[:,2], c="b");
       ax.set_xlim([-10,10])
       ax.set_ylim([-10,10])
       ax.set_zlim([-10,10])
+      ax.set_yticklabels([])
+      ax.set_xticklabels([])
+      ax.set_zticklabels([])
       ax.set_aspect(1)
       ax.axis('equal')

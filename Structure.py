@@ -1,7 +1,9 @@
 import numpy as np
 from Element import Element
+import copy
 
 class Structure():
+  uniqueId = 0
   def __init__(self, length = 0, numStruts = 0):
       # self.x_bounds = (-10,10)
       # self.y_bounds = (-10,10)
@@ -9,6 +11,9 @@ class Structure():
       # self.alpha_bounds =
       # self.alpha_bounds =
       # self.alpha_bounds =
+      self.mutated = False;
+      self.uniqueId = Structure.uniqueId
+      Structure.uniqueId += 1
       self.numStruts = numStruts
       self.num_nodes = numStruts * 2
       self.initStruts(numStruts, length)
@@ -25,7 +30,13 @@ class Structure():
       self.old_Nodes = 0
       self.F_total = np.zeros(numStruts)
       self.solved = False
-
+      self.fitness = 0
+  def duplicate(self):
+      new = copy.deepcopy(self)
+      new.uniqueId = Structure.uniqueId
+      Structure.uniqueId += 1
+      new.mutated = True
+      return new
   def setD(self, new_D):
       self.old_D.append(self.D)
       self.D = new_D
@@ -86,14 +97,11 @@ class Structure():
       zero_base_upper = new_num_struts - max(diff_mate_strut, diff_self_strut)
       zero_base_lower = 2*new_num_struts - max(diff_mate_strut, diff_self_strut)
 
-      print("diff self strut: ",diff_self_strut)
       #mabye max this a max combine or a tit for tat in the future
       new_connections = (self_connections + mate_connections)
-      print(new_connections)
-      print(zero_base_upper)
+
       new_connections[:int(zero_base_upper),:int(zero_base)] = new_connections[:int(zero_base_upper),:]/2
       new_connections[int(new_num_struts):int(zero_base_lower),:int(zero_base)] = new_connections[int(new_num_struts):int(zero_base_lower),:int(zero_base)]/2
-      print(new_connections)
 
       mask = np.random.rand(new_num_nodes,new_num_nodes)
       L = np.zeros((new_num_nodes,new_num_nodes))
@@ -103,13 +111,6 @@ class Structure():
       new_connections
       # new_connections[new_num_struts:zero_base_lower,:] /= 2
 
-      # print(self.nodes.shape)
-      # print(self_nodes.shape)
-      # print(mate.nodes.shape)
-      # print(mate_nodes.shape)
-      print(np.sum(mate_nodes))
-      print(np.sum(self_nodes))
-      print(np.sum(new_nodes))
 
       child = Structure(10,int(new_num_nodes/2))
 
@@ -135,6 +136,10 @@ class Structure():
       self.modified_elements.append(elementInd)
       self.elements[elementInd].wiggle(x,y,z,alpha,gamma,beta)
 
+  def resetElements(self):
+      for strut in self.elements:
+          strut.randomPosition()
+
   def initStruts(self, numStruts, length):
       self.elements = []
       self.numElements = numStruts
@@ -156,6 +161,27 @@ class Structure():
       self.old_Nodes = self.nodes
       self.initNodes(self.elements)
 
+  def mutateC(self):
+      self.C = self.C + np.random.normal(size=(self.num_nodes,self.num_nodes))
+
+      self.C = self.C/2 + self.C.T/2
+
+      mask1 = self.C<0.5
+      mask2 = self.C>=0.5
+      self.C[mask1] = 0
+      self.L[mask1] = 0
+      self.L[mask2] = 1 # intial wire length
+      self.C[mask2] = 1 # Spring Constant
+      mask3 = np.diag_indices(self.numElements*2)
+      self.C[mask3] = 0
+      self.L[mask3] = -1 #small number to avoid nans
+
+      for i in np.arange(self.numElements):
+          self.C[i,i+self.numElements] = 0
+          self.C[i+self.numElements,i] = 0
+          self.L[i+self.numElements,i] = self.length
+          self.L[i,i+self.numElements] = self.length
+
   def updateElementNodes(self,ind):
       self.nodes[ind,:] = self.elements[ind].getNodePosition(1).T
       self.nodes[ind + self.numStruts,:] = self.elements[ind].getNodePosition(2).T
@@ -173,12 +199,12 @@ class Structure():
        # [0, 1, 0, 1],
        # [1, 0, 1, 0]])
 
-       C = np.array([[0, 1, 1, 0, 1, 0],
-                     [1, 0, 1, 0, 0, 1],
-                     [1, 1, 0, 1, 0, 0],
-                     [0, 0, 1, 0, 1, 1],
-                     [1, 0, 0, 1, 0, 1],
-                     [0, 1, 0, 1, 1, 0]])
+       # C = np.array([[0, 1, 1, 0, 1, 0],
+       #               [1, 0, 1, 0, 0, 1],
+       #               [1, 1, 0, 1, 0, 0],
+       #               [0, 0, 1, 0, 1, 1],
+       #               [1, 0, 0, 1, 0, 1],
+       #               [0, 1, 0, 1, 1, 0]])
 
        C[C<0.5] = 0
        L[C>=0.5] = 1 # intial wire length
