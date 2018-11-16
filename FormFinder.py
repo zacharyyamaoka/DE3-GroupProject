@@ -25,7 +25,7 @@ class FormFinder():
 
       # move the highest force element
       # print(tensegrity.F_total.shape)
-      ind = np.argmax(np.random.rand(3)*tensegrity.F_total)
+      ind = np.argmax(np.random.rand(tensegrity.numStruts)*tensegrity.F_total)
       element_F = tensegrity.F_total[ind]
 
       if (self.reject > self.overflow):
