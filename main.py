@@ -81,10 +81,12 @@ plt.show()
 
 A = Structure(10,2)
 B = Structure(10,2)
+# A.mimic(B)
 # print(B.nodes)
-Viz.show(A,1)
-Viz.show(B,2)
-A.combine(B)
+Viz.show(A,0)
+Viz.show(B,1)
+C = A.combine(B)
+Viz.show(C,2)
 
 
 
