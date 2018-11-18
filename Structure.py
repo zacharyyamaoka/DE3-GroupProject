@@ -11,7 +11,7 @@ class Structure():
       # self.alpha_bounds =
       # self.alpha_bounds =
       # self.alpha_bounds =
-      self.mutated = False;
+      self.mutated = False
       self.uniqueId = Structure.uniqueId
       Structure.uniqueId += 1
       self.numStruts = numStruts
@@ -84,16 +84,19 @@ class Structure():
 
       new_num_nodes += 0
 
+
       child.C = np.zeros((new_num_nodes,new_num_nodes))
       child.nodes = np.zeros((new_num_nodes,3))
 
       p_node_self = np.random.rand(new_num_nodes,3)
       p_node_mate = np.ones((new_num_nodes,3)) - p_node_self
-      print("------MASK--------")
-      print(p_node_self)
-      print(p_node_mate)
+      # print("------MASK--------")
+      # print(p_node_self)
+      # print(p_node_mate)
       new_num_struts = int(new_num_nodes/2)
-
+      child.numStruts = new_num_struts
+      child.num_nodes = new_num_nodes
+      child.numElements = new_num_struts
       diff_mate = int(new_num_nodes - mate.num_nodes)
       diff_mate_strut = new_num_struts - mate.numStruts
 
@@ -138,10 +141,10 @@ class Structure():
           child.C[0:new_num_struts,0:new_num_nodes] += self.C[0:new_num_struts,0:new_num_nodes]
           child.C[new_num_struts:new_num_struts+new_num_struts,0:self.num_nodes] += self.C[self.numStruts:self.numStruts+new_num_struts,0:new_num_nodes]
 
-      print("---------- NODES ------------")
-      print(child.nodes)
-      print(self.nodes)
-      print(mate.nodes)
+      # print("---------- NODES ------------")
+      # print(child.nodes)
+      # print(self.nodes)
+      # print(mate.nodes)
 
       zero_base_strut =  np.minimum(self.numStruts, mate.numStruts)
       zero_base_node = np.minimum(self.num_nodes, mate.num_nodes)
@@ -154,6 +157,7 @@ class Structure():
       mask1 = child.C >= mask
       child.C[mask1] = 1
       child.L[mask1] = 1 #string connections
+
 
       #
       # for i in np.arange(new_num_struts):

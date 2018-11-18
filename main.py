@@ -79,8 +79,8 @@ def Solve(drone, ind):
 plt.show()
 
 
-A = Structure(10,2)
-B = Structure(10,2)
+A = Structure(10,4)
+B = Structure(10,8)
 # A.mimic(B)
 # print(B.nodes)
 Viz.show(A,0)
