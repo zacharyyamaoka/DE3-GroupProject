@@ -89,6 +89,9 @@ class Structure():
 
       p_node_self = np.random.rand(new_num_nodes,3)
       p_node_mate = np.ones((new_num_nodes,3)) - p_node_self
+      print("------MASK--------")
+      print(p_node_self)
+      print(p_node_mate)
       new_num_struts = int(new_num_nodes/2)
 
       diff_mate = int(new_num_nodes - mate.num_nodes)
@@ -97,8 +100,8 @@ class Structure():
 
       if (diff_mate >= 0):
           # pad to increase size
-          child.nodes[0:mate.numStruts,:] += mate.nodes[0:mate.numStruts,:] * 0.5 * np.ones((mate.numStruts,3))
-          child.nodes[new_num_struts:new_num_struts+mate.numStruts,:] += mate.nodes[mate.numStruts:mate.numStruts+mate.numStruts,:] * 0.5 * np.ones((mate.numStruts,3))
+          child.nodes[0:mate.numStruts,:] += mate.nodes[0:mate.numStruts,:] *  p_node_mate[0:mate.numStruts,:]#1 * np.ones((mate.numStruts,3))
+          child.nodes[new_num_struts:new_num_struts+mate.numStruts,:] += mate.nodes[mate.numStruts:mate.numStruts+mate.numStruts,:] * p_node_mate[new_num_struts:new_num_struts+mate.numStruts,:]#1 * np.ones((mate.numStruts,3))
 
           # # Weighted sum
           # nodes_new[0:mate.numStruts,:] *= 0.5 * np.ones((mate.numStruts,3)) #np.random.uniform(size=(mate.numStruts,3))
@@ -108,8 +111,8 @@ class Structure():
           child.C[new_num_struts:new_num_struts+mate.numStruts,0:mate.num_nodes] += mate.C[mate.numStruts:mate.numStruts+mate.numStruts,0:mate.num_nodes]
 
       else:
-          child.nodes[0:new_num_struts,:] += mate.nodes[0:new_num_struts,:] * 0.5 * np.ones((new_num_struts,3))
-          child.nodes[new_num_struts:new_num_struts+new_num_struts,:] += mate.nodes[mate.numStruts:mate.numStruts+new_num_struts,:] * 0.5 * np.ones((new_num_struts,3))
+          child.nodes[0:new_num_struts,:] += mate.nodes[0:new_num_struts,:] * p_node_mate[0:new_num_struts,:]# 1 * np.ones((new_num_struts,3))
+          child.nodes[new_num_struts:new_num_struts+new_num_struts,:] += mate.nodes[mate.numStruts:mate.numStruts+new_num_struts,:] * p_node_mate[new_num_struts:new_num_struts+new_num_struts,:]# 1 * np.ones((new_num_struts,3))
 
           child.C[0:new_num_struts,0:new_num_nodes] += mate.C[0:new_num_struts,0:new_num_nodes]
           child.C[new_num_struts:new_num_struts+new_num_struts,0:mate.num_nodes] += mate.C[mate.numStruts:mate.numStruts+new_num_struts,0:new_num_nodes]
@@ -118,8 +121,8 @@ class Structure():
       diff_self_strut = new_num_struts - self.numStruts
       if (diff_self >= 0):
           # pad to increase size
-          child.nodes[0:self.numStruts,:] += self.nodes[0:self.numStruts,:] * 0.5 * np.ones((self.numStruts,3))
-          child.nodes[new_num_struts:new_num_struts+self.numStruts,:] += self.nodes[self.numStruts:self.numStruts+self.numStruts,:] * 0.5 * np.ones((self.numStruts,3))
+          child.nodes[0:self.numStruts,:] += self.nodes[0:self.numStruts,:] * p_node_self[0:self.numStruts,:]
+          child.nodes[new_num_struts:new_num_struts+self.numStruts,:] += self.nodes[self.numStruts:self.numStruts+self.numStruts,:] * p_node_self[new_num_struts:new_num_struts+self.numStruts,:]
 
           # # Weighted sum
           # nodes_new[0:mate.numStruts,:] *= 0.5 * np.ones((mate.numStruts,3)) #np.random.uniform(size=(mate.numStruts,3))
@@ -129,8 +132,8 @@ class Structure():
           child.C[new_num_struts:new_num_struts+self.numStruts,0:self.num_nodes] += self.C[self.numStruts:self.numStruts+self.numStruts,0:self.num_nodes]
 
       else:
-          child.nodes[0:new_num_struts,:] += self.nodes[0:new_num_struts,:] * 0.5 * np.ones((new_num_struts,3))
-          child.nodes[new_num_struts:new_num_struts+new_num_struts,:] += self.nodes[self.numStruts:self.numStruts+new_num_struts,:] * 0.5 * np.ones((new_num_struts,3))
+          child.nodes[0:new_num_struts,:] += self.nodes[0:new_num_struts,:] * p_node_self[0:new_num_struts,:]
+          child.nodes[new_num_struts:new_num_struts+new_num_struts,:] += self.nodes[self.numStruts:self.numStruts+new_num_struts,:] * p_node_self[new_num_struts:new_num_struts+new_num_struts,:]
 
           child.C[0:new_num_struts,0:new_num_nodes] += self.C[0:new_num_struts,0:new_num_nodes]
           child.C[new_num_struts:new_num_struts+new_num_struts,0:self.num_nodes] += self.C[self.numStruts:self.numStruts+new_num_struts,0:new_num_nodes]
