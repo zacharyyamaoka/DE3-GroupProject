@@ -29,7 +29,7 @@ energy = []
 force = []
 fit_history = []
 #
-# EnergyGraph = Viz.createGraph()
+# EnergyGrapGAh = Viz.createGraph()
 # Viz.labelGraph(EnergyGraph,"EnergyGraph")
 # ForceGraph = Viz.createGraph()
 # Viz.labelGraph(ForceGraph,"ForceGraph")
