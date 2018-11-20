@@ -30,11 +30,11 @@ force = []
 fit_history = []
 
 EnergyGraph = Viz.createGraph()
-Viz.labelGraph(EnergyGraph,"EnergyGraph")
+Viz.labelGraph(EnergyGraph,"Energy Graph","Total Structural Energy [J]","Iterations")
 ForceGraph = Viz.createGraph()
-Viz.labelGraph(ForceGraph,"ForceGraph")
-FitnessGraph = Viz.createGraph()
-Viz.labelGraph(FitnessGraph,"FitnessGraph")
+Viz.labelGraph(ForceGraph,"Force Graph","Max Net Element Force [N]","Iterations")
+# FitnessGraph = Viz.createGraph()
+# Viz.labelGraph(FitnessGraph,"FitnessGraph")
 
 def Solve(drone, ind):
     # if (drone.solved):

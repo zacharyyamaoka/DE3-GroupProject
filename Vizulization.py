@@ -24,13 +24,15 @@ class Vizulization():
       ax1 = fig.add_subplot(1, 1, 1)
       self.graph.append(ax1)
       return len(self.graph)
-  def plotGraph(self,ind,x,y,c='red'):
+  def plotGraph(self,ind,x,y,c='black'):
       ax = self.graph[ind-1]
       ax.scatter([y],[x],color=c)
       pass
   def labelGraph(self,ind,title="",xaxis="",yaxis=""):
       ax = self.graph[ind-1]
       ax.set_title(title)
+      ax.set_xlabel(xaxis)
+      ax.set_ylabel(yaxis)
 
   def createGrid(self,row=2,col=2):
 
