@@ -110,7 +110,7 @@ Solve(drone, 1)
 #             plt.pause(wait)
 #
 #     if showViz:
-#         if GA.current_gen%50==0:
+#         if GA.current_gen%50==0:3bar_
 #             total_length = len(GA.eval_pop)
 #             lenth = 9
 #             for i in np.arange(lenth):

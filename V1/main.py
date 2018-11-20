@@ -23,8 +23,7 @@ show_viz = True
 for i in np.arange(num_population):
     num_node = np.random.randint(0,10,1)[0] #pick a random number of num_sticks
     drones.append(PaperDrone3D(num_node))
-
-Vizulizer = Viz(drones, 5, 5)
+Vizulizer = Viz(drones, 3, 3)
 
 # Vizulizer.updateDrones(drones)
 # Vizulizer.showDrones(1)

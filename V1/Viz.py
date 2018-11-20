@@ -23,7 +23,7 @@ class Viz:
         plt.figure(0)
         for i in range(row):
             for j in range(col):
-                ax = plt.subplot2grid((row,col), (i,j), projection='3d')
+                ax = plt.subplot2grid((row,col), (i,j))
                 self.plots[(i,j)] = ax
                 self.plotId[counter] = (i,j)
                 counter += 1
