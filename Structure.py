@@ -34,17 +34,7 @@ class Structure():
       self.F_total = np.zeros(numStruts)
       self.solved = False
       self.fitness = 0
-   # def userInit(self):
-   #   self.elements = []
-   #   self.numElements = numStruts
-   #   self.numStruts = numStruts
-   #   self.length = length
-   #   self.nodes = np.zeros((numStruts*2,3))
-   #   self.L = np.copy(mate.L)
-   #   self.C = np.copy(mate.C)
-   #   self.nodes = np.copy(mate.nodes)
-   #   self.elements = np.copy(mate.elements)
-   #
+
   def duplicate(self):
       new = copy.deepcopy(self)
       new.uniqueId = Structure.uniqueId
@@ -76,15 +66,19 @@ class Structure():
       p_comb = np.random.rand()
       child = self.duplicate()
 
-      new_num_nodes = int(p_comb*self.num_nodes + (1-p_comb)*mate.num_nodes)
+      element_self = int(p_comb*self.num_nodes)
+      element_mate = int((1-p_comb)*mate.num_nodes)
+
+      new_num_nodes = element_self + element_mate
       # new_num_nodes = int((self.num_nodes + mate.num_nodes)/2)
 
       if new_num_nodes % 2 != 0:
           new_num_nodes += 1
 
       new_num_nodes += 0
+      new_num_struts = int(new_num_nodes/2)
 
-
+      child = self.duplicate()
       child.C = np.zeros((new_num_nodes,new_num_nodes))
       child.nodes = np.zeros((new_num_nodes,3))
 
@@ -93,10 +87,22 @@ class Structure():
       # print("------MASK--------")
       # print(p_node_self)
       # print(p_node_mate)
-      new_num_struts = int(new_num_nodes/2)
       child.numStruts = new_num_struts
       child.num_nodes = new_num_nodes
       child.numElements = new_num_struts
+      child.elements = []
+
+      # don't do node operations
+
+      # for i in np.arange(new_num_nodes):
+      #     if i < element_self:
+      #         pass
+      #     if i < element_mate:
+      #         pass
+
+      p_element = np.random.rand()
+
+
       diff_mate = int(new_num_nodes - mate.num_nodes)
       diff_mate_strut = new_num_struts - mate.numStruts
 
