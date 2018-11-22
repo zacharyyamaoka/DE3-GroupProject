@@ -62,90 +62,92 @@ class Structure():
       # self.D = self.old_D.pop()
       # self.F = self.old_F.pop()
       # self.elements[self.modified_elements.pop()].revertPosition()
+
+  def getCombineElement(self, ind, mateMax, selfMax, mateElements, selfElements):
+
+      if (ind > mateMax) or (ind > selfMax):
+          if mateMax > selfMax:
+              return mateElements[ind]
+          else:
+              return selfElements[ind]
+
+      switch = (ind%2 == 0)
+
+      if switch:
+        return mateElements[ind]
+
+      else:
+          return selfElements[ind]
+
+
   def combine(self, mate):
       p_comb = np.random.rand()
       child = self.duplicate()
 
-      element_self = int(p_comb*self.num_nodes)
-      element_mate = int((1-p_comb)*mate.num_nodes)
+      element_self = int(p_comb*self.numStruts)
+      element_mate = int((1-p_comb)*mate.numStruts)
 
-      new_num_nodes = element_self + element_mate
-      # new_num_nodes = int((self.num_nodes + mate.num_nodes)/2)
-
-      if new_num_nodes % 2 != 0:
-          new_num_nodes += 1
-
-      new_num_nodes += 0
-      new_num_struts = int(new_num_nodes/2)
+      new_num_elements = element_self + element_mate
+      new_num_nodes = new_num_elements * 2
 
       child = self.duplicate()
       child.C = np.zeros((new_num_nodes,new_num_nodes))
       child.nodes = np.zeros((new_num_nodes,3))
 
-      p_node_self = np.random.rand(new_num_nodes,3)
-      p_node_mate = np.ones((new_num_nodes,3)) - p_node_self
-      # print("------MASK--------")
-      # print(p_node_self)
-      # print(p_node_mate)
-      child.numStruts = new_num_struts
+      child.numStruts = new_num_elements
       child.num_nodes = new_num_nodes
-      child.numElements = new_num_struts
-      child.elements = []
+      child.numElements = new_num_elements
+      print("Num element self: ", element_self)
+      print("Num element mate: ", element_mate)
 
-      # don't do node operations
+      # put the smaller one first
+      print("CHILD ELEMENTS")
+      print(child.elements)
+      print("Pushing")
+      if self.numStruts < mate.numStruts: #element self first
+        child.elements = child.elements[0:element_self]
+        print(child.elements)
 
-      # for i in np.arange(new_num_nodes):
-      #     if i < element_self:
-      #         pass
-      #     if i < element_mate:
-      #         pass
+        child.elements =  child.elements + mate.elements[element_self:element_self+element_mate]
+        print(child.elements)
+
+
+      else: #element mate first
+        child.elements = mate.elements[0:element_mate]
+        print(child.elements)
+
+        child.elements =  child.elements + child.elements[element_mate:element_mate+element_self]
+        print(child.elements)
+
 
       p_element = np.random.rand()
 
-
       diff_mate = int(new_num_nodes - mate.num_nodes)
-      diff_mate_strut = new_num_struts - mate.numStruts
+      diff_mate_strut = new_num_elements - mate.numStruts
 
 
       if (diff_mate >= 0):
-          # pad to increase size
-          child.nodes[0:mate.numStruts,:] += mate.nodes[0:mate.numStruts,:] *  p_node_mate[0:mate.numStruts,:]#1 * np.ones((mate.numStruts,3))
-          child.nodes[new_num_struts:new_num_struts+mate.numStruts,:] += mate.nodes[mate.numStruts:mate.numStruts+mate.numStruts,:] * p_node_mate[new_num_struts:new_num_struts+mate.numStruts,:]#1 * np.ones((mate.numStruts,3))
-
-          # # Weighted sum
-          # nodes_new[0:mate.numStruts,:] *= 0.5 * np.ones((mate.numStruts,3)) #np.random.uniform(size=(mate.numStruts,3))
-          # nodes_new[new_num_struts:new_num_struts+mate.numStruts,:] *= 0.5 * np.ones((mate.numStruts,3)) #np.random.uniform(size=(mate.numStruts,3))
 
           child.C[0:mate.numStruts,0:mate.num_nodes] += mate.C[0:mate.numStruts,0:mate.num_nodes]
-          child.C[new_num_struts:new_num_struts+mate.numStruts,0:mate.num_nodes] += mate.C[mate.numStruts:mate.numStruts+mate.numStruts,0:mate.num_nodes]
+          child.C[new_num_elements:new_num_elements+mate.numStruts,0:mate.num_nodes] += mate.C[mate.numStruts:mate.numStruts+mate.numStruts,0:mate.num_nodes]
 
       else:
-          child.nodes[0:new_num_struts,:] += mate.nodes[0:new_num_struts,:] * p_node_mate[0:new_num_struts,:]# 1 * np.ones((new_num_struts,3))
-          child.nodes[new_num_struts:new_num_struts+new_num_struts,:] += mate.nodes[mate.numStruts:mate.numStruts+new_num_struts,:] * p_node_mate[new_num_struts:new_num_struts+new_num_struts,:]# 1 * np.ones((new_num_struts,3))
 
-          child.C[0:new_num_struts,0:new_num_nodes] += mate.C[0:new_num_struts,0:new_num_nodes]
-          child.C[new_num_struts:new_num_struts+new_num_struts,0:mate.num_nodes] += mate.C[mate.numStruts:mate.numStruts+new_num_struts,0:new_num_nodes]
+          child.C[0:new_num_elements,0:new_num_nodes] += mate.C[0:new_num_elements,0:new_num_nodes]
+          child.C[new_num_elements:new_num_elements+new_num_elements,0:mate.num_nodes] += mate.C[mate.numStruts:mate.numStruts+new_num_elements,0:new_num_nodes]
 
       diff_self = int(new_num_nodes - self.num_nodes)
-      diff_self_strut = new_num_struts - self.numStruts
-      if (diff_self >= 0):
-          # pad to increase size
-          child.nodes[0:self.numStruts,:] += self.nodes[0:self.numStruts,:] * p_node_self[0:self.numStruts,:]
-          child.nodes[new_num_struts:new_num_struts+self.numStruts,:] += self.nodes[self.numStruts:self.numStruts+self.numStruts,:] * p_node_self[new_num_struts:new_num_struts+self.numStruts,:]
+      diff_self_strut = new_num_elements - self.numStruts
 
-          # # Weighted sum
-          # nodes_new[0:mate.numStruts,:] *= 0.5 * np.ones((mate.numStruts,3)) #np.random.uniform(size=(mate.numStruts,3))
-          # nodes_new[new_num_struts:new_num_struts+mate.numStruts,:] *= 0.5 * np.ones((mate.numStruts,3)) #np.random.uniform(size=(mate.numStruts,3))
+      if (diff_self >= 0):
 
           child.C[0:self.numStruts,0:self.num_nodes] += self.C[0:self.numStruts,0:self.num_nodes]
-          child.C[new_num_struts:new_num_struts+self.numStruts,0:self.num_nodes] += self.C[self.numStruts:self.numStruts+self.numStruts,0:self.num_nodes]
+          child.C[new_num_elements:new_num_elements+self.numStruts,0:self.num_nodes] += self.C[self.numStruts:self.numStruts+self.numStruts,0:self.num_nodes]
 
       else:
-          child.nodes[0:new_num_struts,:] += self.nodes[0:new_num_struts,:] * p_node_self[0:new_num_struts,:]
-          child.nodes[new_num_struts:new_num_struts+new_num_struts,:] += self.nodes[self.numStruts:self.numStruts+new_num_struts,:] * p_node_self[new_num_struts:new_num_struts+new_num_struts,:]
 
-          child.C[0:new_num_struts,0:new_num_nodes] += self.C[0:new_num_struts,0:new_num_nodes]
-          child.C[new_num_struts:new_num_struts+new_num_struts,0:self.num_nodes] += self.C[self.numStruts:self.numStruts+new_num_struts,0:new_num_nodes]
+          child.C[0:new_num_elements,0:new_num_nodes] += self.C[0:new_num_elements,0:new_num_nodes]
+          child.C[new_num_elements:new_num_elements+new_num_elements,0:self.num_nodes] += self.C[self.numStruts:self.numStruts+new_num_elements,0:new_num_nodes]
 
       # print("---------- NODES ------------")
       # print(child.nodes)
@@ -156,7 +158,7 @@ class Structure():
       zero_base_node = np.minimum(self.num_nodes, mate.num_nodes)
 
       child.C[0:zero_base_strut,0:zero_base_node] /= 2
-      child.C[new_num_struts:new_num_struts+zero_base_strut,0:zero_base_node] /= 2
+      child.C[new_num_elements:new_num_elements+zero_base_strut,0:zero_base_node] /= 2
       mask = np.random.rand(new_num_nodes,new_num_nodes)
       child.L = np.zeros((new_num_nodes,new_num_nodes))
 
@@ -166,11 +168,11 @@ class Structure():
 
 
       #
-      # for i in np.arange(new_num_struts):
-      #      C_new[i,i+new_num_struts] = 0
-      #      C_new[i+new_num_struts,i] = 0
-      #      L[i+new_num_struts,i] = 10
-      #      L[i,i+new_num_struts] = 10
+      # for i in np.arange(new_num_elements):
+      #      C_new[i,i+new_num_elements] = 0
+      #      C_new[i+new_num_elements,i] = 0
+      #      L[i+new_num_elements,i] = 10
+      #      L[i,i+new_num_elements] = 10
       #
       # new_connections[np.eye(self.numElements*2)==1] = 0
       # L[np.eye(self.numElements*2)==1] = -1 #small number to avoid nans
