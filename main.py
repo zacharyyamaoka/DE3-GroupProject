@@ -7,6 +7,7 @@ from Evolution import Evolution
 import matplotlib.pyplot as plt
 import numpy as np
 
+
 Solver = FormFinder()
 
 plt.ion()
@@ -80,14 +81,17 @@ plt.show()
 
 
 A = Structure(10,4)
-B = Structure(10,8)
+B = Structure(10,2)
 # A.mimic(B)
 # print(B.nodes)
 Viz.show(A,0)
 Viz.show(B,1)
 C = A.combine(B)
-# Viz.show(C,2)
+Viz.show(C,2)
 
+print(A.nodes)
+print(B.nodes)
+print(C.nodes)
 
 Solve(C, 1)
 

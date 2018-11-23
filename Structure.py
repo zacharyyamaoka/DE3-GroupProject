@@ -39,7 +39,7 @@ class Structure():
       new = copy.deepcopy(self)
       new.uniqueId = Structure.uniqueId
       Structure.uniqueId += 1
-      new.mutated = True
+      # new.mutated = True
       return new
   def setD(self, new_D):
       self.old_D.append(self.D)
@@ -80,12 +80,14 @@ class Structure():
           return selfElements[ind]
 
 
-  def combine(self, mate):
-      p_comb = np.random.rand()
+  def combine(self, mate, ratio=np.random.rand()):
+      #Pick Combine Ratio
+      p_comb = ratio
       child = self.duplicate()
 
-      element_self = int(p_comb*self.numStruts)
-      element_mate = int((1-p_comb)*mate.numStruts)
+      # Re-initalize class parameters
+      element_self = int(np.ceil(p_comb*self.numStruts))
+      element_mate = int(np.floor((1-p_comb)*mate.numStruts))
 
       new_num_elements = element_self + element_mate
       new_num_nodes = new_num_elements * 2
@@ -97,33 +99,21 @@ class Structure():
       child.numStruts = new_num_elements
       child.num_nodes = new_num_nodes
       child.numElements = new_num_elements
-      print("Num element self: ", element_self)
-      print("Num element mate: ", element_mate)
 
-      # put the smaller one first
-      print("CHILD ELEMENTS")
-      print(child.elements)
-      print("Pushing")
+      # Update Elements with cross over
       if self.numStruts < mate.numStruts: #element self first
-        child.elements = child.elements[0:element_self]
-        print(child.elements)
-
-        child.elements =  child.elements + mate.elements[element_self:element_self+element_mate]
-        print(child.elements)
-
+        new_elements = child.elements[0:element_self]
+        new_elements.extend(mate.elements[element_self:element_self+element_mate])
 
       else: #element mate first
-        child.elements = mate.elements[0:element_mate]
-        print(child.elements)
+        new_elements = mate.elements[0:element_mate]
+        new_elements.extend(self.elements[element_mate:element_self+element_mate])
 
-        child.elements =  child.elements + child.elements[element_mate:element_mate+element_self]
-        print(child.elements)
-
+      child.elements = new_elements
 
       p_element = np.random.rand()
 
       diff_mate = int(new_num_nodes - mate.num_nodes)
-      diff_mate_strut = new_num_elements - mate.numStruts
 
 
       if (diff_mate >= 0):
@@ -137,7 +127,6 @@ class Structure():
           child.C[new_num_elements:new_num_elements+new_num_elements,0:mate.num_nodes] += mate.C[mate.numStruts:mate.numStruts+new_num_elements,0:new_num_nodes]
 
       diff_self = int(new_num_nodes - self.num_nodes)
-      diff_self_strut = new_num_elements - self.numStruts
 
       if (diff_self >= 0):
 
@@ -163,21 +152,19 @@ class Structure():
       child.L = np.zeros((new_num_nodes,new_num_nodes))
 
       mask1 = child.C >= mask
-      child.C[mask1] = 1
+      child.C[mask1] = 1 #Elasticity of Connection
+      child.C[np.logical_not(mask1)] = 0
       child.L[mask1] = 1 #string connections
+      for i in np.arange(child.numStruts):
+          child.C[i,i+child.numStruts] = 0
+          child.C[i+child.numStruts,i] = 0
+          child.L[i+child.numStruts,i] = child.length
+          child.L[i,i+child.numStruts] = child.length
 
-
-      #
-      # for i in np.arange(new_num_elements):
-      #      C_new[i,i+new_num_elements] = 0
-      #      C_new[i+new_num_elements,i] = 0
-      #      L[i+new_num_elements,i] = 10
-      #      L[i,i+new_num_elements] = 10
-      #
-      # new_connections[np.eye(self.numElements*2)==1] = 0
-      # L[np.eye(self.numElements*2)==1] = -1 #small number to avoid nans
-      #
+      # Apply Changes to Object
+      child.refresh()
       return child
+
   def vibrate(self, elementInd, multipler=0.01):
       # Can I estimate the optimal movement online
       x = np.random.uniform(-1,1)*multipler
