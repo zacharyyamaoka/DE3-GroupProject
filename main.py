@@ -7,6 +7,7 @@ from Evolution import Evolution
 import matplotlib.pyplot as plt
 import numpy as np
 
+
 Solver = FormFinder()
 
 plt.ion()
@@ -24,7 +25,7 @@ error_esp = 0.0001
 max_iter = 5000
 
 #Viz Stuff
-Viz = Vizulization(3,3)
+Viz = Vizulization(2,2)
 energy = []
 force = []
 fit_history = []
@@ -33,8 +34,8 @@ fit_history = []
 # Viz.labelGraph(EnergyGraph,"EnergyGraph")
 # ForceGraph = Viz.createGraph()
 # Viz.labelGraph(ForceGraph,"ForceGraph")
-FitnessGraph = Viz.createGraph()
-Viz.labelGraph(FitnessGraph,"FitnessGraph")
+# FitnessGraph = Viz.createGraph()
+# Viz.labelGraph(FitnessGraph,"FitnessGraph")
 
 def Solve(drone, ind):
     # if (drone.solved):
@@ -76,56 +77,69 @@ def Solve(drone, ind):
         print("Over Iteration")
     Solver.reset() #for next time
 
-
-# drone = Structure(10,2)
-# Solve(drone, 1)
-
-
-max_gen = 10
-GA = Evolution(max_gen)
-GA.initPop(20)
-
 plt.show()
 
-while GA.alive():
-    print("----------------------")
-    print("Curr Gen: ", GA.current_gen)
-    print("Pop Size", len(GA.pop))
-    for i in np.arange(len(GA.pop)):
-        drone_structure = GA.pop[i][2]
-        print(drone_structure.uniqueId)
-        Solve(drone_structure, i) # drones have already been solved so they go very fast
-        fit = GA.fitness(drone_structure)
-        drone_structure.fitness = fit
-        GA.addToQueue(drone_structure, fit)
-    # Add functions to save popultion
-    # For debugging
-    max_fitness = GA.getMaxFitness()
-    # print(max_fitness)
-    if debug:
-        # fit_history.append(max_fitness)
 
-        if GA.current_gen%50==0:
-            Viz.plotGraph(FitnessGraph,max_fitness,GA.current_gen)
-            plt.pause(wait)
+A = Structure(10,4)
+B = Structure(10,2)
+# A.mimic(B)
+# print(B.nodes)
+Viz.show(A,0)
+Viz.show(B,1)
+C = A.combine(B,0.5)
+Viz.show(C,2)
 
-    if showViz:
-        if GA.current_gen%50==0:
-            total_length = len(GA.eval_pop)
-            lenth = 9
-            for i in np.arange(lenth):
-                Viz.show(GA.eval_pop[total_length-i-1][2],i)
-            plt.pause(wait)
+print(A.nodes)
+print(B.nodes)
+print(C.nodes)
 
-    GA.remove(0.5) # percent to remove from orginal population
-    GA.crossOver(0.5)
-    GA.mutate(0.5)
-    GA.nextGen()
+Solve(C, 1)
 
 
-for i in np.arange(len(GA.pop)):
-    Viz.show(GA.pop[i][2],i)
-# Solve(drone)
-plt.pause(20)
+# max_gen = 10
+# GA = Evolution(max_gen)
+# GA.initPop(20)
+
+#
+# while GA.alive():
+#     print("----------------------")
+#     print("Curr Gen: ", GA.current_gen)
+#     print("Pop Size", len(GA.pop))
+#     for i in np.arange(len(GA.pop)):
+#         drone_structure = GA.pop[i][2]
+#         print(drone_structure.uniqueId)
+#         Solve(drone_structure, i) # drones have already been solved so they go very fast
+#         fit = GA.fitness(drone_structure)
+#         drone_structure.fitness = fit
+#         GA.addToQueue(drone_structure, fit)
+#     # Add functions to save popultion
+#     # For debugging
+#     max_fitness = GA.getMaxFitness()
+#     # print(max_fitness)
+#     if debug:
+#         # fit_history.append(max_fitness)
+#
+#         if GA.current_gen%50==0:
+#             Viz.plotGraph(FitnessGraph,max_fitness,GA.current_gen)
+#             plt.pause(wait)
+#
+#     if showViz:
+#         if GA.current_gen%50==0:
+#             total_length = len(GA.eval_pop)
+#             lenth = 9
+#             for i in np.arange(lenth):
+#                 Viz.show(GA.eval_pop[total_length-i-1][2],i)
+#             plt.pause(wait)
+#
+#     GA.remove(0.5) # percent to remove from orginal population
+#     GA.crossOver(0.5)
+#     GA.mutate(0.5)
+#     GA.nextGen()
+#
+#
+# for i in np.arange(len(GA.pop)):
+#     Viz.show(GA.pop[i][2],i)
+# # Solve(drone)
+plt.pause(5)
 
 plt.close()

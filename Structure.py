@@ -4,21 +4,24 @@ import copy
 
 class Structure():
   uniqueId = 0
-  def __init__(self, length = 0, numStruts = 0):
+  def __init__(self, length = 0, numStruts = 0, init = True):
       # self.x_bounds = (-10,10)
       # self.y_bounds = (-10,10)
       # self.z_bounds = (-10,10)
       # self.alpha_bounds =
       # self.alpha_bounds =
       # self.alpha_bounds =
-      self.mutated = False;
+      self.mutated = False
       self.uniqueId = Structure.uniqueId
       Structure.uniqueId += 1
       self.numStruts = numStruts
       self.num_nodes = numStruts * 2
-      self.initStruts(numStruts, length)
-      self.initNodes(self.elements)
-      self.initConnections()
+
+      if init:
+          self.initStruts(numStruts, length)
+          self.initNodes(self.elements)
+          self.initConnections()
+
       self.D = np.zeros((numStruts*2,numStruts*2))
       self.F = np.zeros((numStruts*2,numStruts*2))
       self.modified_elements = [] #careful for memory?
@@ -31,11 +34,12 @@ class Structure():
       self.F_total = np.zeros(numStruts)
       self.solved = False
       self.fitness = 0
+
   def duplicate(self):
       new = copy.deepcopy(self)
       new.uniqueId = Structure.uniqueId
       Structure.uniqueId += 1
-      new.mutated = True
+      # new.mutated = True
       return new
   def setD(self, new_D):
       self.old_D.append(self.D)
@@ -47,83 +51,150 @@ class Structure():
 
   def revertElemement(self, ind):
       self.elements[ind].revertPosition()
-
+  def mimic(self, mate):
+      self.L = np.copy(mate.L)
+      self.C = np.copy(mate.C)
+      self.nodes = np.copy(mate.nodes)
+      self.elements = np.copy(mate.elements)
+      # self.nodes[:,:] = 0
   def revertStructure(self):
       self.nodes = self.old_Nodes
       # self.D = self.old_D.pop()
       # self.F = self.old_F.pop()
       # self.elements[self.modified_elements.pop()].revertPosition()
-  def combine(self, mate):
-      p_comb = np.random.rand()
 
-      #Pad Nodes for Merge
+  def getCombineElement(self, ind, mateMax, selfMax, mateElements, selfElements):
 
-      # NOT BEING USED RN B/C Sturctures are the same shape
+      if (ind > mateMax) or (ind > selfMax):
+          if mateMax > selfMax:
+              return mateElements[ind]
+          else:
+              return selfElements[ind]
 
-      # Think about doing this for bc NODE shapes has changed now, will need to splice
-      # in two places two do this properly
-      new_num_nodes = int((self.num_nodes + mate.num_nodes)/2)
-      if new_num_nodes % 2 != 0:
-          new_num_nodes += 1
+      switch = (ind%2 == 0)
 
-      new_num_struts = int(new_num_nodes/2)
+      if switch:
+        return mateElements[ind]
+
+      else:
+          return selfElements[ind]
+
+
+  def combine(self, mate, ratio=np.random.rand()):
+      #Pick Combine Ratio
+      p_comb = ratio
+      child = self.duplicate()
+
+      # Re-initalize class parameters
+      p_self = 1 - p_comb
+      p_mate = p_comb
+      element_self = int(np.ceil(p_self*self.numStruts))
+      element_mate = int(np.floor(p_mate*mate.numStruts))
+
+      new_num_elements = element_self + element_mate
+      new_num_nodes = new_num_elements * 2
+
+      mate_num_nodes = element_mate * 2
+      self_num_nodes = element_self * 2
+
+      child = self.duplicate()
+      child.C = np.zeros((new_num_nodes,new_num_nodes))
+      child.nodes = np.zeros((new_num_nodes,3))
+
+      child.numStruts = new_num_elements
+      child.num_nodes = new_num_nodes
+      child.numElements = new_num_elements
+
+      # Update Elements with cross over
+      if self.numStruts < mate.numStruts: #element self first
+        new_elements = child.elements[0:element_self]
+        new_elements.extend(mate.elements[element_self:element_self+element_mate])
+
+      else: #element mate first
+        new_elements = mate.elements[0:element_mate]
+        new_elements.extend(self.elements[element_mate:element_self+element_mate])
+
+      child.elements = new_elements
+
+      p_element = np.random.rand()
 
       diff_mate = int(new_num_nodes - mate.num_nodes)
-      diff_mate_strut = new_num_struts - mate.numStruts
-      if (diff_mate >= 0):
-          # pad to increase size
-          mate_nodes = np.pad(mate.nodes,( (0,abs(diff_mate)),(0,0) ), mode='constant')
-          mate_connections = np.pad(mate.C,( (0,abs(diff_mate)),(0,abs(diff_mate)) ), mode='constant')
+
+      # determine Hotzone
+      ind = np.minimum(element_self, element_mate)
+      hotzone_upper = (ind,ind*2)
+      hotzone_lower = (new_num_elements+ind,ind*2)
+
+      if (element_self < element_mate):
+          hotMat = self.C
+          coldMat = mate.C
       else:
-          mate_nodes = mate.nodes[0:new_num_nodes,:]
-          mate_connections = mate.C[0:new_num_nodes,0:new_num_nodes]
+          hotMat = mate.C
+          coldMat = self.C
+
+
+      if (diff_mate >= 0):
+
+          child.C[0:mate.numStruts,0:mate.num_nodes] += p_mate * mate.C[0:mate.numStruts,0:mate.num_nodes]
+          child.C[new_num_elements:new_num_elements+mate.numStruts,0:mate.num_nodes] += p_mate * mate.C[mate.numStruts:mate.numStruts+mate.numStruts,0:mate.num_nodes]
+
+      else:
+          #Other wise your bigger, this part just needs some consideration
+          child.C[0:self.numStruts,0:self.num_nodes] \
+          += p_mate * mate.C[0:self.numStruts,0:self.num_nodes]
+          child.C[new_num_elements:new_num_elements+self.numStruts,0:self.num_nodes] \
+          += p_mate * mate.C[self.numStruts:self.numStruts+self.numStruts,0:self.num_nodes]
+
+          child.C[self.numStruts:new_num_elements,self.num_nodes:new_num_nodes] \
+          += mate.C[self.numStruts:new_num_elements,self.num_nodes:new_num_nodes]
+
+          child.C[new_num_elements+self.numStruts:new_num_elements+new_num_elements,self.num_nodes:new_num_nodes] \
+          += mate.C[new_num_elements+self.numStruts:new_num_elements+new_num_elements,self.num_nodes:new_num_nodes]
 
       diff_self = int(new_num_nodes - self.num_nodes)
-      diff_self_strut = new_num_struts - self.numStruts
 
       if (diff_self >= 0):
-          # pad to increase size
-          self_nodes = np.pad(self.nodes,( (0,abs(diff_self)),(0,0) ), mode='constant')
-          self_connections = np.pad(self.C,( (0,abs(diff_self)),(0,abs(diff_self)) ), mode='constant')
+
+          child.C[0:self.numStruts,0:self.num_nodes] +=  p_self *self.C[0:self.numStruts,0:self.num_nodes]
+          child.C[new_num_elements:new_num_elements+self.numStruts,0:self.num_nodes] += p_self * self.C[self.numStruts:self.numStruts+self.numStruts,0:self.num_nodes]
 
       else:
-          self_nodes = self.nodes[0:new_num_nodes,:]
-          self_connections = self.C[0:new_num_nodes,0:new_num_nodes]
 
-      zero_base = new_num_nodes - max(diff_self, diff_mate)
-      new_nodes = (self_nodes + mate_nodes)
-      new_nodes[0:zero_base,:] /= 2
+          child.C[0:mate.numStruts,0:mate.num_nodes] \
+          += p_self * self.C[0:mate.numStruts,0:mate.num_nodes]
 
-      zero_base_upper = new_num_struts - max(diff_mate_strut, diff_self_strut)
-      zero_base_lower = 2*new_num_struts - max(diff_mate_strut, diff_self_strut)
+          child.C[new_num_elements:new_num_elements+mate.numStruts,0:mate.num_nodes] \
+          += p_self * self.C[mate.numStruts:mate.numStruts+mate.numStruts,0:mate.num_nodes]
 
-      #mabye max this a max combine or a tit for tat in the future
-      new_connections = (self_connections + mate_connections)
+          child.C[mate.numStruts:new_num_elements,mate.num_nodes:new_num_nodes] \
+          += self.C[mate.numStruts:new_num_elements,mate.num_nodes:new_num_nodes]
 
-      new_connections[:int(zero_base_upper),:int(zero_base)] = new_connections[:int(zero_base_upper),:]/2
-      new_connections[int(new_num_struts):int(zero_base_lower),:int(zero_base)] = new_connections[int(new_num_struts):int(zero_base_lower),:int(zero_base)]/2
+          child.C[new_num_elements+mate.numStruts:new_num_elements+new_num_elements,mate.num_nodes:new_num_nodes] \
+          += self.C[new_num_elements+mate.numStruts:new_num_elements+new_num_elements,mate.num_nodes:new_num_nodes]
+
+      zero_base_strut =  np.minimum(element_self, element_mate)
+      zero_base_node = zero_base_strut*2
+
+      child.C[0:zero_base_strut,0:zero_base_node] /= 2
+      child.C[new_num_elements:new_num_elements+zero_base_strut,0:zero_base_node] /= 2
 
       mask = np.random.rand(new_num_nodes,new_num_nodes)
-      L = np.zeros((new_num_nodes,new_num_nodes))
+      child.L = np.zeros((new_num_nodes,new_num_nodes))
 
-      new_connections[new_connections >= mask] = 1
-      L[new_connections >= mask] = 1
-      new_connections
-      # new_connections[new_num_struts:zero_base_lower,:] /= 2
+      mask1 = child.C >= mask
+      child.C[mask1] = 1 #Elasticity of Connection
+      child.C[np.logical_not(mask1)] = 0
+      child.L[mask1] = 5 #string connections
+      for i in np.arange(child.numStruts):
+          child.C[i,i+child.numStruts] = 0
+          child.C[i+child.numStruts,i] = 0
+          child.L[i+child.numStruts,i] = child.length
+          child.L[i,i+child.numStruts] = child.length
 
+      # Apply Changes to Object
+      child.refresh()
+      return child
 
-      child = Structure(10,int(new_num_nodes/2))
-
-      for i in np.arange(new_num_struts):
-           new_connections[i,i+new_num_struts] = 0
-           new_connections[i+new_num_struts,i] = 0
-           L[i+new_num_struts,i] = 10
-           L[i,i+new_num_struts] = 10
-
-      new_connections[np.eye(self.numElements*2)==1] = 0
-      L[np.eye(self.numElements*2)==1] = -1 #small number to avoid nans
-
-      return p_comb
   def vibrate(self, elementInd, multipler=0.01):
       # Can I estimate the optimal movement online
       x = np.random.uniform(-1,1)*multipler
@@ -216,7 +287,7 @@ class Structure():
        C[C>=0.5] = 1 # Spring Constant
 
        C[np.eye(self.numElements*2)==1] = 0
-       L[np.eye(self.numElements*2)==1] = -1 #small number to avoid nans
+       L[np.eye(self.numElements*2)==1] = 0 #small number to avoid nans
 
        for i in np.arange(self.numElements):
            C[i,i+self.numElements] = 0
