@@ -29,10 +29,10 @@ energy = []
 force = []
 fit_history = []
 
-EnergyGraph = Viz.createGraph()
-Viz.labelGraph(EnergyGraph,"Energy Graph","Total Structural Energy [J]","Iterations")
-ForceGraph = Viz.createGraph()
-Viz.labelGraph(ForceGraph,"Force Graph","Max Net Element Force [N]","Iterations")
+# EnergyGraph = Viz.createGraph()
+# Viz.labelGraph(EnergyGraph,"Energy Graph","Total Structural Energy [J]","Iterations")
+# ForceGraph = Viz.createGraph()
+# Viz.labelGraph(ForceGraph,"Force Graph","Max Net Element Force [N]","Iterations")
 # FitnessGraph = Viz.createGraph()
 # Viz.labelGraph(FitnessGraph,"FitnessGraph")
 
@@ -48,6 +48,7 @@ def Solve(drone, ind):
     drone.E_total = E_total
     drone.F_total = F_total
 
+    plt.pause(3)
     max_force = drone.max_force
     while (max_force > error_esp) and (iter < max_iter):
         iter += 1
@@ -59,15 +60,17 @@ def Solve(drone, ind):
 
         if debug and iter%10==0:
             if iter%iterfreq==0:
+
                 print(iter)
             # if drone.mutated:
             #     Viz.show(drone, ind)
             #     plt.pause(wait)
             # Viz.F(drone)
             Viz.show(drone, ind)
-            Viz.plotGraph(EnergyGraph,E_total,iter)
-            Viz.plotGraph(ForceGraph,max_force,iter)
+            # Viz.plotGraph(EnergyGraph,E_total,iter)
+            # Viz.plotGraph(ForceGraph,max_force,iter)
             plt.show()
+            # if iter%1 == 0:
             plt.pause(0.01)
             # if checkin and iter%checkinfreq==0:
             #     plt.pause(checkinwait)
