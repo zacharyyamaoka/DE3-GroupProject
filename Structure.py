@@ -162,7 +162,7 @@ class Structure():
 
           child.C[0:mate.numStruts,0:mate.num_nodes] \
           += p_self * self.C[0:mate.numStruts,0:mate.num_nodes]
-          
+
           child.C[new_num_elements:new_num_elements+mate.numStruts,0:mate.num_nodes] \
           += p_self * self.C[mate.numStruts:mate.numStruts+mate.numStruts,0:mate.num_nodes]
 
@@ -172,20 +172,12 @@ class Structure():
           child.C[new_num_elements+mate.numStruts:new_num_elements+new_num_elements,mate.num_nodes:new_num_nodes] \
           += self.C[new_num_elements+mate.numStruts:new_num_elements+new_num_elements,mate.num_nodes:new_num_nodes]
 
-      # print("---------- NODES ------------")
-      # print(child.nodes)
-      # print(self.nodes)
-      # print(mate.nodes)
-
       zero_base_strut =  np.minimum(element_self, element_mate)
       zero_base_node = zero_base_strut*2
-      print("zero_base_strut: ",zero_base_strut)
-      print(child.C)
+
       child.C[0:zero_base_strut,0:zero_base_node] /= 2
-      print(child.C)
       child.C[new_num_elements:new_num_elements+zero_base_strut,0:zero_base_node] /= 2
-      print(child.C)
-      print("------------C-------------- ^^")
+
       mask = np.random.rand(new_num_nodes,new_num_nodes)
       child.L = np.zeros((new_num_nodes,new_num_nodes))
 

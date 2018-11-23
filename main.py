@@ -86,7 +86,7 @@ B = Structure(10,2)
 # print(B.nodes)
 Viz.show(A,0)
 Viz.show(B,1)
-C = A.combine(B)
+C = A.combine(B,0.5)
 Viz.show(C,2)
 
 print(A.nodes)
