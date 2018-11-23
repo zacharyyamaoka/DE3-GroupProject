@@ -86,11 +86,16 @@ class Structure():
       child = self.duplicate()
 
       # Re-initalize class parameters
-      element_self = int(np.ceil(p_comb*self.numStruts))
-      element_mate = int(np.floor((1-p_comb)*mate.numStruts))
+      p_self = 1 - p_comb
+      p_mate = p_comb
+      element_self = int(np.ceil(p_self*self.numStruts))
+      element_mate = int(np.floor(p_mate*mate.numStruts))
 
       new_num_elements = element_self + element_mate
       new_num_nodes = new_num_elements * 2
+
+      mate_num_nodes = element_mate * 2
+      self_num_nodes = element_self * 2
 
       child = self.duplicate()
       child.C = np.zeros((new_num_nodes,new_num_nodes))
@@ -115,46 +120,79 @@ class Structure():
 
       diff_mate = int(new_num_nodes - mate.num_nodes)
 
+      # determine Hotzone
+      ind = np.minimum(element_self, element_mate)
+      hotzone_upper = (ind,ind*2)
+      hotzone_lower = (new_num_elements+ind,ind*2)
+
+      if (element_self < element_mate):
+          hotMat = self.C
+          coldMat = mate.C
+      else:
+          hotMat = mate.C
+          coldMat = self.C
+
 
       if (diff_mate >= 0):
 
-          child.C[0:mate.numStruts,0:mate.num_nodes] += mate.C[0:mate.numStruts,0:mate.num_nodes]
-          child.C[new_num_elements:new_num_elements+mate.numStruts,0:mate.num_nodes] += mate.C[mate.numStruts:mate.numStruts+mate.numStruts,0:mate.num_nodes]
+          child.C[0:mate.numStruts,0:mate.num_nodes] += p_mate * mate.C[0:mate.numStruts,0:mate.num_nodes]
+          child.C[new_num_elements:new_num_elements+mate.numStruts,0:mate.num_nodes] += p_mate * mate.C[mate.numStruts:mate.numStruts+mate.numStruts,0:mate.num_nodes]
 
       else:
+          #Other wise your bigger, this part just needs some consideration
+          child.C[0:self.numStruts,0:self.num_nodes] \
+          += p_mate * mate.C[0:self.numStruts,0:self.num_nodes]
+          child.C[new_num_elements:new_num_elements+self.numStruts,0:self.num_nodes] \
+          += p_mate * mate.C[self.numStruts:self.numStruts+self.numStruts,0:self.num_nodes]
 
-          child.C[0:new_num_elements,0:new_num_nodes] += mate.C[0:new_num_elements,0:new_num_nodes]
-          child.C[new_num_elements:new_num_elements+new_num_elements,0:mate.num_nodes] += mate.C[mate.numStruts:mate.numStruts+new_num_elements,0:new_num_nodes]
+          child.C[self.numStruts:new_num_elements,self.num_nodes:new_num_nodes] \
+          += mate.C[self.numStruts:new_num_elements,self.num_nodes:new_num_nodes]
+
+          child.C[new_num_elements+self.numStruts:new_num_elements+new_num_elements,self.num_nodes:new_num_nodes] \
+          += mate.C[new_num_elements+self.numStruts:new_num_elements+new_num_elements,self.num_nodes:new_num_nodes]
 
       diff_self = int(new_num_nodes - self.num_nodes)
 
       if (diff_self >= 0):
 
-          child.C[0:self.numStruts,0:self.num_nodes] += self.C[0:self.numStruts,0:self.num_nodes]
-          child.C[new_num_elements:new_num_elements+self.numStruts,0:self.num_nodes] += self.C[self.numStruts:self.numStruts+self.numStruts,0:self.num_nodes]
+          child.C[0:self.numStruts,0:self.num_nodes] +=  p_self *self.C[0:self.numStruts,0:self.num_nodes]
+          child.C[new_num_elements:new_num_elements+self.numStruts,0:self.num_nodes] += p_self * self.C[self.numStruts:self.numStruts+self.numStruts,0:self.num_nodes]
 
       else:
 
-          child.C[0:new_num_elements,0:new_num_nodes] += self.C[0:new_num_elements,0:new_num_nodes]
-          child.C[new_num_elements:new_num_elements+new_num_elements,0:self.num_nodes] += self.C[self.numStruts:self.numStruts+new_num_elements,0:new_num_nodes]
+          child.C[0:mate.numStruts,0:mate.num_nodes] \
+          += p_self * self.C[0:mate.numStruts,0:mate.num_nodes]
+          
+          child.C[new_num_elements:new_num_elements+mate.numStruts,0:mate.num_nodes] \
+          += p_self * self.C[mate.numStruts:mate.numStruts+mate.numStruts,0:mate.num_nodes]
+
+          child.C[mate.numStruts:new_num_elements,mate.num_nodes:new_num_nodes] \
+          += self.C[mate.numStruts:new_num_elements,mate.num_nodes:new_num_nodes]
+
+          child.C[new_num_elements+mate.numStruts:new_num_elements+new_num_elements,mate.num_nodes:new_num_nodes] \
+          += self.C[new_num_elements+mate.numStruts:new_num_elements+new_num_elements,mate.num_nodes:new_num_nodes]
 
       # print("---------- NODES ------------")
       # print(child.nodes)
       # print(self.nodes)
       # print(mate.nodes)
 
-      zero_base_strut =  np.minimum(self.numStruts, mate.numStruts)
-      zero_base_node = np.minimum(self.num_nodes, mate.num_nodes)
-
+      zero_base_strut =  np.minimum(element_self, element_mate)
+      zero_base_node = zero_base_strut*2
+      print("zero_base_strut: ",zero_base_strut)
+      print(child.C)
       child.C[0:zero_base_strut,0:zero_base_node] /= 2
+      print(child.C)
       child.C[new_num_elements:new_num_elements+zero_base_strut,0:zero_base_node] /= 2
+      print(child.C)
+      print("------------C-------------- ^^")
       mask = np.random.rand(new_num_nodes,new_num_nodes)
       child.L = np.zeros((new_num_nodes,new_num_nodes))
 
       mask1 = child.C >= mask
       child.C[mask1] = 1 #Elasticity of Connection
       child.C[np.logical_not(mask1)] = 0
-      child.L[mask1] = 1 #string connections
+      child.L[mask1] = 5 #string connections
       for i in np.arange(child.numStruts):
           child.C[i,i+child.numStruts] = 0
           child.C[i+child.numStruts,i] = 0
@@ -257,7 +295,7 @@ class Structure():
        C[C>=0.5] = 1 # Spring Constant
 
        C[np.eye(self.numElements*2)==1] = 0
-       L[np.eye(self.numElements*2)==1] = -1 #small number to avoid nans
+       L[np.eye(self.numElements*2)==1] = 0 #small number to avoid nans
 
        for i in np.arange(self.numElements):
            C[i,i+self.numElements] = 0
