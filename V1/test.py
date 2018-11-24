@@ -1,3 +1,3 @@
 import numpy as np
 
-print(max(1,0))
+print(np.random.normal(loc=0.0, scale=0, size=None))

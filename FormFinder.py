@@ -76,7 +76,7 @@ class FormFinder():
 
       # Determine forces on each node
 
-      K = tensegrity.C
+      K = tensegrity.C * tensegrity.k #spring constant assume all strings are of the same material, but you change the intial length which seems fair.
 
       L_curr = np.sqrt(np.sum((D*D),axis=2))
       L_curr[np.diag_indices(num_nodes)] = -1 # to avoid nans displacement to your self

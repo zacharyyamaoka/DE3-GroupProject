@@ -16,7 +16,7 @@ class Structure():
       Structure.uniqueId += 1
       self.numStruts = numStruts
       self.num_nodes = numStruts * 2
-
+      self.k = 5
       if init:
           self.initStruts(numStruts, length)
           self.initNodes(self.elements)
@@ -35,6 +35,12 @@ class Structure():
       self.solved = False
       self.fitness = 0
 
+
+
+      # Mutation Information
+      self.wire_mutate_step = 1
+      self.strut_mutate_step = 1
+      self.connection_mutate_scale = 1
   def duplicate(self):
       new = copy.deepcopy(self)
       new.uniqueId = Structure.uniqueId
@@ -219,6 +225,7 @@ class Structure():
       for i in np.arange(numStruts):
            self.elements.append(Element(length=length, random=True))
           #Create a strut of given length in a random location
+
   def initNodes(self, elements):
       numStruts = len(elements)
       self.nodes = np.zeros((numStruts*2,3))
@@ -231,27 +238,51 @@ class Structure():
   def refresh(self):
       self.old_Nodes = self.nodes
       self.initNodes(self.elements)
+  def mutateL(self):
+      selector = self.C == 1 # where you have a elastic connection
+      large_mutator = np.random.normal(scale = self.wire_mutate_step, size=(self.num_nodes,self.num_nodes))
+      large_mutator = (large_mutator + large_mutator.T)/2 #ensure symmetry
+      self.L[selector] += large_mutator[selector]
+      # self.C = self.C + np.random.normal(size=(self.num_nodes,self.num_nodes))
+      for i in np.arange(self.numElements): # mutate the bar lengths by some amount aswell
+          mutation = np.random.normal(scale = self.strut_mutate_step)
+          self.L[i+self.numElements,i] += mutation
+          self.L[i,i+self.numElements] += mutation
+          self.elements[i].mutateLength(mutation)
 
   def mutateC(self):
-      self.C = self.C + np.random.normal(size=(self.num_nodes,self.num_nodes))
+      self.C = self.C + np.random.normal(scale = self.connection_mutate_scale, size=(self.num_nodes,self.num_nodes))
+      self.C = (self.C + self.C.T)/2
 
-      self.C = self.C/2 + self.C.T/2
+      new_C = np.zeros((self.num_nodes,self.num_nodes))
+      # new_L = np.zeros((self.num_nodes,self.num_nodes))
 
-      mask1 = self.C<0.5
-      mask2 = self.C>=0.5
-      self.C[mask1] = 0
-      self.L[mask1] = 0
-      self.L[mask2] = 1 # intial wire length
-      self.C[mask2] = 1 # Spring Constant
-      mask3 = np.diag_indices(self.numElements*2)
-      self.C[mask3] = 0
-      self.L[mask3] = -1 #small number to avoid nans
+      remove_connection = self.C<0.5
+      new_connection = self.C>=0.5
+      remove_length = np.copy(remove_connection)
+      zero = self.L == 0
+
+      for i in np.arange(self.numElements):
+          new_connection[i,i+self.numElements] = False #don't connect to you self
+          new_connection[i+self.numElements,i] = False
+          remove_length[i+self.numElements,i] = False
+          remove_length[i,i+self.numElements] = False
+
+      print(self.L)
+      self.L[remove_length] = 0
+      print(self.L)
+
+      self.L[(new_connection) & (zero)] = \
+      np.random.uniform(0,self.length,size=(self.num_nodes,self.num_nodes))[(new_connection) & (zero)]  # Reinitalize with random resting length
+      print(self.L)
+
+      new_C[new_connection] = 1
 
       for i in np.arange(self.numElements):
           self.C[i,i+self.numElements] = 0
           self.C[i+self.numElements,i] = 0
-          self.L[i+self.numElements,i] = self.length
-          self.L[i,i+self.numElements] = self.length
+          # self.L[i+self.numElements,i] = self.length
+          # self.L[i,i+self.numElements] = self.length
 
   def updateElementNodes(self,ind):
       self.nodes[ind,:] = self.elements[ind].getNodePosition(1).T

@@ -6,7 +6,29 @@ from Structure import Structure
 from Vizulization import Vizulization
 from Evolution import Evolution
 import numpy as np
+
+
+# To test:
+
+#does the solver work for random values of theta ? past pi and -pi
 class TestMain(unittest.TestCase):
+    def test_mutate_L(self):
+        X = Structure(10,8)
+        X.mutateL()
+
+        #ensure that length table is consitent with elements
+        for i in np.arange(X.numElements): # mutate the bar lengths by some amount aswell
+             self.assertEqual(X.L[i+X.numElements,i],X.L[i,i+X.numElements])
+             self.assertEqual(X.L[i+X.numElements,i],X.elements[i].length)
+
+    def test_mutate_C(self):
+        X = Structure(10,8)
+        Y = X.duplicate()
+        X.connection_mutate_scale = 0
+        X.mutateC()
+        self.assertTrue(np.array_equal(X.C,Y.C))
+        self.assertTrue(np.array_equal(X.L,Y.L))
+
 
     def test_combine_L(self):
         X = Structure(10,8)

@@ -25,6 +25,13 @@ class Element():
 
       self.old_positions = []
       self.position = self.getFrame()
+  def getLenght(self):
+      return self.length
+
+  def mutateLength(self,mutation):
+      self.length += mutation
+      self.node1 = np.array([[-self.length/2],[0],[0]])
+      self.node2 = np.array([[self.length/2],[0],[0]])
 
   def savePosition(self):
       self.old_positions.append([self.x,self.y,self.z,self.alpha,self.beta,self.gamma])
