@@ -15,6 +15,8 @@ plt.ion()
 # Control Panel
 debug = True
 showViz = True
+updatefreq = 1
+
 wait = 0.001
 iterfreq = 500
 checkin= False
@@ -25,7 +27,9 @@ error_esp = 0.0001
 max_iter = 5000
 
 #Viz Stuff
-Viz = Vizulization(2,2)
+viz_row = 4
+viz_col = 4
+Viz = Vizulization(viz_row,viz_col)
 energy = []
 force = []
 fit_history = []
@@ -36,6 +40,8 @@ fit_history = []
 # Viz.labelGraph(ForceGraph,"ForceGraph")
 FitnessGraph = Viz.createGraph()
 Viz.labelGraph(FitnessGraph,"FitnessGraph")
+Viz.legendGraph(FitnessGraph,"Max Fitness",c="red")
+# Viz.legendGraph(FitnessGraph,"Avg Fitness",c="black")
 
 def Solve(drone, ind):
     # if (drone.solved):
@@ -74,12 +80,13 @@ def Solve(drone, ind):
             #     plt.pause(checkinwait)
     # drone.solved = True
     if (iter >= max_iter):
-        print("Over Iteration")
+        pass
+        # print("Over Iteration")
     Solver.reset() #for next time
 
-population = 3
-GA = Evolution(max_gen=4, pop_size=population, mutation_rate=0.01, \
-selection_rate = 0.5, selection_pressure = 1.5)
+population = 20
+GA = Evolution(max_gen=10, pop_size=population, mutation_rate=0.05, \
+selection_rate = 0.4, selection_pressure = 1.8,elite_rate=0.1)
 # GA.kill()
 
 while GA.alive():
@@ -96,32 +103,29 @@ while GA.alive():
         GA.addToQueue(drone_structure, fit) # add drone the the queue
 
     GA.rankQueue()
-    # Add functions to save popultion
-    # For debugging
 
-    # Rank Order
-    # Each time a change of mutation
-    # Select remaining population by crossing over children
+    if debug:
+        # fit_history.append(max_fitness)
 
-    # print(max_fitness)
-    # if debug:
-    #     # fit_history.append(max_fitness)
-    #
-    #     if GA.current_gen%50==0:
-    #         Viz.plotGraph(FitnessGraph,max_fitness,GA.current_gen)
-    #         plt.pause(wait)
-    #
-    # if showViz:
-    #     if GA.current_gen%50==0:
-    #         total_length = len(GA.eval_pop)
-    #         lenth = 9
-    #         for i in np.arange(lenth):
-    #             Viz.show(GA.eval_pop[total_length-i-1][2],i)
-    #         plt.pause(wait)
+        if GA.current_gen%updatefreq==0:
+            Viz.plotGraph(FitnessGraph,GA.getMaxFitness(),GA.current_gen,c='red')
+            Viz.plotGraph(FitnessGraph,GA.getAvgFitness(),GA.current_gen,c='black')
+            plt.pause(wait)
 
+    if showViz:
+        if GA.current_gen%updatefreq==0:
+            total_length = len(GA.eval_pop)
+            lenth = viz_row*viz_col
+            for i in np.arange(lenth):
+                Viz.show(GA.eval_pop[total_length-i-1][2],i) # show the top drones
+            plt.pause(wait)
+
+    print(GA.eval_pop)
     GA.selection() #p constant that first is selected.
+    print(GA.new_pop)
+    GA.mutate()
     GA.crossOver()
-    # GA.mutate()
+    print(GA.new_pop)
     GA.nextGen()
 
 

@@ -1,6 +1,8 @@
 import numpy as np
 from mpl_toolkits import mplot3d
 import matplotlib.pyplot as plt
+import matplotlib.patches as mpatches
+
 
 class Vizulization():
   def __init__(self,rows=1,cols=1):
@@ -28,6 +30,11 @@ class Vizulization():
       ax = self.graph[ind-1]
       ax.scatter([y],[x],color=c)
       pass
+  def legendGraph(self,ind,label="",c="black"):
+      ax = self.graph[ind-1]
+      red_patch = mpatches.Patch(color=c, label=label)
+      ax.legend(handles=[red_patch])
+
   def labelGraph(self,ind,title="",xaxis="",yaxis=""):
       ax = self.graph[ind-1]
       ax.set_title(title)

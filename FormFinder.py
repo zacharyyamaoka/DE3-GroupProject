@@ -24,7 +24,6 @@ class FormFinder():
           # max_force = F_total[max_element]
 
       # move the highest force element
-      # print(tensegrity.F_total.shape)
       ind = np.argmax(np.random.rand(tensegrity.numStruts)*tensegrity.F_total)
       element_F = tensegrity.F_total[ind]
 
@@ -32,7 +31,6 @@ class FormFinder():
           self.step *= 0.5
           self.reject = 0
 
-      # print("Step size: ", self.step)
       # ind = tensegrity.F_total
       tensegrity.vibrate(ind, self.step)
       tensegrity.updateElementNodes(ind)
@@ -42,7 +40,6 @@ class FormFinder():
       # see if energy went down
 
       if  E_total - tensegrity.E_total  < 0: # delta E is negative
-          # print("Good Move")
           self.reject = 0
           tensegrity.max_element = np.argmax(F_total)
           tensegrity.max_force = F_total[tensegrity.max_element]
@@ -50,7 +47,6 @@ class FormFinder():
           tensegrity.F_total = F_total
           # max_force = F_total[max_element]
       else: # did not go down
-          # print("Bad Move")
           self.reject += 1
           tensegrity.revertElemement(ind)
           tensegrity.updateElementNodes(ind)

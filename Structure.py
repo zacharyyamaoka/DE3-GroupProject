@@ -268,13 +268,10 @@ class Structure():
           remove_length[i+self.numElements,i] = False
           remove_length[i,i+self.numElements] = False
 
-      print(self.L)
       self.L[remove_length] = 0
-      print(self.L)
 
       self.L[(new_connection) & (zero)] = \
       np.random.uniform(0,self.length,size=(self.num_nodes,self.num_nodes))[(new_connection) & (zero)]  # Reinitalize with random resting length
-      print(self.L)
 
       new_C[new_connection] = 1
 
