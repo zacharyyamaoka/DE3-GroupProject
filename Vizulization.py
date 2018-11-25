@@ -127,6 +127,7 @@ class Vizulization():
       ax = self.plots[self.getPlotId(ind)]
       ax.cla()
 
+      ax.text2D(0.05, 0.95, 'ID: %d Fit: %0.3f' % (structure.uniqueId, structure.fitness), transform=ax.transAxes)
 
       num = structure.numElements
       for i in np.arange(num):

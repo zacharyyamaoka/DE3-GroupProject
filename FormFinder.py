@@ -39,7 +39,6 @@ class FormFinder():
         if (self.reject_rotate > self.overflow_rotate):
             self.step_rotate *= 0.5
             self.reject_rotate = 0
-            print("Lower rotate step")
 
         tensegrity.vibrate(ind, type='rotate', multipler=self.step_rotate)
         tensegrity.updateElementNodes(ind)
@@ -49,15 +48,13 @@ class FormFinder():
         if (self.reject_move > self.overflow_move):
             self.step_move *= 0.5
             self.reject_move = 0
-            print("Lower move step")
 
         tensegrity.vibrate(ind, type='move', multipler=self.step_move)
         tensegrity.updateElementNodes(ind)
 
 
     D, F, E, F_total, E_total, F_vec_total, Delta = self.evalute(tensegrity)
-    print(type)
-    print(F_vec_total)
+
     # see if energy went down
 
     if  E_total - tensegrity.E_total  < 0: # delta E is negative
@@ -123,7 +120,6 @@ class FormFinder():
       F_nodes = np.sum(F,axis=1)
 
       # F_node_abs = np.sum(np.abs(F),axis=1)
-      # print(F_node_abs)
       #Determine net forces on each element
       #SPLITING HELPS :) I think there
       F_vec_total = F_nodes[:num_struts,:] + F_nodes[num_struts:,:]

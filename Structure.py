@@ -14,6 +14,7 @@ class Structure():
       self.mutated = False
       self.uniqueId = Structure.uniqueId
       Structure.uniqueId += 1
+      self.parentId = 0
       self.numStruts = numStruts
       self.num_nodes = numStruts * 2
       self.k = 5
@@ -25,7 +26,7 @@ class Structure():
       self.D = np.zeros((numStruts*2,numStruts*2))
       self.F = np.zeros((numStruts*2,numStruts*2))
       self.F = np.zeros((numStruts*2,numStruts*2))
-
+      self.Delta = np.zeros((numStruts*2,numStruts*2))
       self.modified_elements = [] #careful for memory?
       self.old_D = []
       self.old_F = []
@@ -38,14 +39,15 @@ class Structure():
       self.fitness = 0
 
 
-
+      self.overIterated = False
       # Mutation Information
-      self.wire_mutate_step = 1
-      self.strut_mutate_step = 1
+      self.wire_mutate_step = np.sqrt(self.length/4)
+      self.strut_mutate_step = np.sqrt(self.length/4)
       self.connection_mutate_scale = 1
   def duplicate(self):
       new = copy.deepcopy(self)
       new.uniqueId = Structure.uniqueId
+      new.parentId = self.uniqueId
       Structure.uniqueId += 1
       # new.mutated = True
       return new
@@ -105,7 +107,6 @@ class Structure():
       mate_num_nodes = element_mate * 2
       self_num_nodes = element_self * 2
 
-      child = self.duplicate()
       child.C = np.zeros((new_num_nodes,new_num_nodes))
       child.L = np.zeros((new_num_nodes,new_num_nodes))
       # child.nodes = np.zeros((new_num_nodes,3))
@@ -140,8 +141,9 @@ class Structure():
       new_length = np.copy(new_connection)
       child.C[new_connection] = 1 #Elasticity of Connection
 
+      new_L_connect = np.random.uniform(0,self.length,size=(self.num_nodes,self.num_nodes))
       zero = new_L == 0
-
+      new_L[zero & new_length] = ((new_L_connect + new_L_connect.T)/2)[zero & new_length]## you need to add
       for i in np.arange(self.numElements): #ensure valid C
           child.elements[i].length = new_L[i,i+self.numElements]
           new_length[i,i+self.numElements] = True #don't connect to you self
@@ -206,7 +208,8 @@ class Structure():
           self.L[i+self.numElements,i] += mutation
           self.L[i,i+self.numElements] += mutation
           self.elements[i].mutateLength(mutation)
-      self.L = np.abs(self.L) # ensure lengths remain postive
+      self.L = np.minimum(self.L,self.length)
+      self.L = np.maximum(self.L,0)
   def mutateC(self):
       self.C = self.C + np.random.normal(scale = self.connection_mutate_scale, size=(self.num_nodes,self.num_nodes))
       self.C = (self.C + self.C.T)/2
