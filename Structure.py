@@ -24,6 +24,8 @@ class Structure():
 
       self.D = np.zeros((numStruts*2,numStruts*2))
       self.F = np.zeros((numStruts*2,numStruts*2))
+      self.F = np.zeros((numStruts*2,numStruts*2))
+
       self.modified_elements = [] #careful for memory?
       self.old_D = []
       self.old_F = []
@@ -105,7 +107,8 @@ class Structure():
 
       child = self.duplicate()
       child.C = np.zeros((new_num_nodes,new_num_nodes))
-      child.nodes = np.zeros((new_num_nodes,3))
+      child.L = np.zeros((new_num_nodes,new_num_nodes))
+      # child.nodes = np.zeros((new_num_nodes,3))
 
       child.numStruts = new_num_elements
       child.num_nodes = new_num_nodes
@@ -122,94 +125,48 @@ class Structure():
 
       child.elements = new_elements
 
-      p_element = np.random.rand()
+      p_mate_L = np.random.rand(new_num_nodes,new_num_nodes)
+      p_mate_L = np.ones((new_num_nodes,new_num_nodes)) * p_mate
+      p_mate_L[mate.L==0] = 0
+      p_mate_L[self.L==0] = 1
+      p_self_L = -p_mate_L + 1
 
-      diff_mate = int(new_num_nodes - mate.num_nodes)
-
-      # determine Hotzone
-      ind = np.minimum(element_self, element_mate)
-      hotzone_upper = (ind,ind*2)
-      hotzone_lower = (new_num_elements+ind,ind*2)
-
-      if (element_self < element_mate):
-          hotMat = self.C
-          coldMat = mate.C
-      else:
-          hotMat = mate.C
-          coldMat = self.C
-
-
-      if (diff_mate >= 0):
-
-          child.C[0:mate.numStruts,0:mate.num_nodes] += p_mate * mate.C[0:mate.numStruts,0:mate.num_nodes]
-          child.C[new_num_elements:new_num_elements+mate.numStruts,0:mate.num_nodes] += p_mate * mate.C[mate.numStruts:mate.numStruts+mate.numStruts,0:mate.num_nodes]
-
-      else:
-          #Other wise your bigger, this part just needs some consideration
-          child.C[0:self.numStruts,0:self.num_nodes] \
-          += p_mate * mate.C[0:self.numStruts,0:self.num_nodes]
-          child.C[new_num_elements:new_num_elements+self.numStruts,0:self.num_nodes] \
-          += p_mate * mate.C[self.numStruts:self.numStruts+self.numStruts,0:self.num_nodes]
-
-          child.C[self.numStruts:new_num_elements,self.num_nodes:new_num_nodes] \
-          += mate.C[self.numStruts:new_num_elements,self.num_nodes:new_num_nodes]
-
-          child.C[new_num_elements+self.numStruts:new_num_elements+new_num_elements,self.num_nodes:new_num_nodes] \
-          += mate.C[new_num_elements+self.numStruts:new_num_elements+new_num_elements,self.num_nodes:new_num_nodes]
-
-      diff_self = int(new_num_nodes - self.num_nodes)
-
-      if (diff_self >= 0):
-
-          child.C[0:self.numStruts,0:self.num_nodes] +=  p_self *self.C[0:self.numStruts,0:self.num_nodes]
-          child.C[new_num_elements:new_num_elements+self.numStruts,0:self.num_nodes] += p_self * self.C[self.numStruts:self.numStruts+self.numStruts,0:self.num_nodes]
-
-      else:
-
-          child.C[0:mate.numStruts,0:mate.num_nodes] \
-          += p_self * self.C[0:mate.numStruts,0:mate.num_nodes]
-
-          child.C[new_num_elements:new_num_elements+mate.numStruts,0:mate.num_nodes] \
-          += p_self * self.C[mate.numStruts:mate.numStruts+mate.numStruts,0:mate.num_nodes]
-
-          child.C[mate.numStruts:new_num_elements,mate.num_nodes:new_num_nodes] \
-          += self.C[mate.numStruts:new_num_elements,mate.num_nodes:new_num_nodes]
-
-          child.C[new_num_elements+mate.numStruts:new_num_elements+new_num_elements,mate.num_nodes:new_num_nodes] \
-          += self.C[new_num_elements+mate.numStruts:new_num_elements+new_num_elements,mate.num_nodes:new_num_nodes]
-
-      zero_base_strut =  np.minimum(element_self, element_mate)
-      zero_base_node = zero_base_strut*2
-
-      child.C[0:zero_base_strut,0:zero_base_node] /= 2
-      child.C[new_num_elements:new_num_elements+zero_base_strut,0:zero_base_node] /= 2
+      new_C = p_mate*mate.C + p_self * self.C
+      new_L = p_mate_L*mate.L + p_self_L * self.L
 
       mask = np.random.rand(new_num_nodes,new_num_nodes)
-      child.L = np.zeros((new_num_nodes,new_num_nodes))
 
-      mask1 = child.C >= mask
-      child.C[mask1] = 1 #Elasticity of Connection
-      child.C[np.logical_not(mask1)] = 0
-      child.L[mask1] = 5 #string connections
-      for i in np.arange(child.numStruts):
-          child.C[i,i+child.numStruts] = 0
-          child.C[i+child.numStruts,i] = 0
-          child.L[i+child.numStruts,i] = child.length
-          child.L[i,i+child.numStruts] = child.length
+      new_connection = new_C >= mask
+      new_length = np.copy(new_connection)
+      child.C[new_connection] = 1 #Elasticity of Connection
 
-      # Apply Changes to Object
+      zero = new_L == 0
+
+      for i in np.arange(self.numElements): #ensure valid C
+          child.elements[i].length = new_L[i,i+self.numElements]
+          new_length[i,i+self.numElements] = True #don't connect to you self
+          new_length[i+self.numElements,i] = True
+      child.L[new_length] = new_L[new_length]
+
       child.refresh()
       return child
 
-  def vibrate(self, elementInd, multipler=0.01):
+  def vibrate(self, elementInd, type, multipler=0.01):
       # Can I estimate the optimal movement online
-      x = np.random.uniform(-1,1)*multipler
-      y = np.random.uniform(-1,1)*multipler
-      z = np.random.uniform(-1,1)*multipler
-      alpha = np.random.uniform(-3.14,3.14)*multipler
-      beta = np.random.uniform(-3.14,3.14)*multipler
-      gamma = np.random.uniform(-3.14,3.14)*multipler
-
+      if type == 'move':
+          x = np.random.uniform(-1,1)*multipler
+          y = np.random.uniform(-1,1)*multipler
+          z = np.random.uniform(-1,1)*multipler
+          alpha = 0
+          beta = 0
+          gamma = 0
+      if type == 'rotate':
+          x = 0
+          y = 0
+          z = 0
+          alpha = np.random.uniform(-3.14,3.14)*multipler
+          beta = np.random.uniform(-3.14,3.14)*multipler
+          gamma = np.random.uniform(-3.14,3.14)*multipler
       self.modified_elements.append(elementInd)
       self.elements[elementInd].wiggle(x,y,z,alpha,gamma,beta)
 
@@ -223,7 +180,7 @@ class Structure():
       self.numStruts = numStruts
       self.length = length
       for i in np.arange(numStruts):
-           self.elements.append(Element(length=length, random=True))
+           self.elements.append(Element(length=np.random.uniform(length), random=True))
           #Create a strut of given length in a random location
 
   def initNodes(self, elements):
@@ -249,24 +206,26 @@ class Structure():
           self.L[i+self.numElements,i] += mutation
           self.L[i,i+self.numElements] += mutation
           self.elements[i].mutateLength(mutation)
-
+      self.L = np.abs(self.L) # ensure lengths remain postive
   def mutateC(self):
       self.C = self.C + np.random.normal(scale = self.connection_mutate_scale, size=(self.num_nodes,self.num_nodes))
       self.C = (self.C + self.C.T)/2
 
       new_C = np.zeros((self.num_nodes,self.num_nodes))
       # new_L = np.zeros((self.num_nodes,self.num_nodes))
+      for i in np.arange(self.numElements): #ensure valid C
+          self.C[i,i] = 0
+          self.C[i,i+self.numElements] = 0 #don't connect to you self
+          self.C[i+self.numElements,i] = 0
 
       remove_connection = self.C<0.5
       new_connection = self.C>=0.5
       remove_length = np.copy(remove_connection)
-      zero = self.L == 0
-
-      for i in np.arange(self.numElements):
-          new_connection[i,i+self.numElements] = False #don't connect to you self
-          new_connection[i+self.numElements,i] = False
+      for i in np.arange(self.numElements): #ensure valid C
+          remove_length[i,i+self.numElements] = False #don't connect to you self
           remove_length[i+self.numElements,i] = False
-          remove_length[i,i+self.numElements] = False
+
+      zero = self.L == 0
 
       self.L[remove_length] = 0
 
@@ -274,13 +233,12 @@ class Structure():
       np.random.uniform(0,self.length,size=(self.num_nodes,self.num_nodes))[(new_connection) & (zero)]  # Reinitalize with random resting length
 
       new_C[new_connection] = 1
-
-      for i in np.arange(self.numElements):
-          self.C[i,i+self.numElements] = 0
-          self.C[i+self.numElements,i] = 0
+      self.C = new_C
+      # for i in np.arange(self.numElements):
+      #     self.C[i,i+self.numElements] = 0
+      #     self.C[i+self.numElements,i] = 0
           # self.L[i+self.numElements,i] = self.length
           # self.L[i,i+self.numElements] = self.length
-
   def updateElementNodes(self,ind):
       self.nodes[ind,:] = self.elements[ind].getNodePosition(1).T
       self.nodes[ind + self.numStruts,:] = self.elements[ind].getNodePosition(2).T
@@ -310,18 +268,22 @@ class Structure():
        #               [1, 0, 0, 1, 0, 1],
        #               [0, 1, 0, 1, 1, 0]])
 
+       # C = np.array([[0, 1, 0, 0],
+       #             [1, 0, 1, 0],
+       #             [0, 1, 0, 1],
+       #             [0, 0, 1, 0]])
+       new_connection = C>=0.5
        C[C<0.5] = 0
-       L[C>=0.5] = 5 # intial wire length
-       C[C>=0.5] = 1 # Spring Constant
-
-       C[np.eye(self.numElements*2)==1] = 0
-       L[np.eye(self.numElements*2)==1] = 0 #small number to avoid nans
+       L[new_connection] = 4 # intial wire length
+       C[new_connection] = 1 # Spring Constant
 
        for i in np.arange(self.numElements):
+           C[i,i] = 0
            C[i,i+self.numElements] = 0
            C[i+self.numElements,i] = 0
-           L[i+self.numElements,i] = self.length
-           L[i,i+self.numElements] = self.length
+           L[i,i] = 0
+           L[i+self.numElements,i] = self.elements[i].length
+           L[i,i+self.numElements] = self.elements[i].length
 
        self.L = L
        self.C = C

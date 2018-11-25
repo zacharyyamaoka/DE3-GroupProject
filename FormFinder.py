@@ -5,55 +5,83 @@ class FormFinder():
       pass
       self.error_esp = 0.01
       self.max_iter = 10
-      self.reject = 0
-      self.overflow = 30
-      self.step = 1
+      self.reject_move = 0
+      self.overflow_move = 30
+      self.reject_rotate = 0
+      self.overflow_rotate = 30
+      self.step_move = 1
+      self.step_rotate = 1
       # self.min_step = 0.001
   def reset(self):
-      self.reject = 0
-      self.overflow = 30
-      self.step = 1
-  def update(self, tensegrity):
+      self.reject_move = 0
+      self.overflow_move = 30
+      self.reject_rotate = 0
+      self.overflow_rotate = 30
+      self.step_rotate = 1
+      self.step_move = 1
 
-      #NOTE TO SELF you will have to change the max iter and step Siz
-        # as the complexity of the sturcture changes
+  def update(self, tensegrity, type=''):
 
-          # D, F, E, F_total, E_total = self.evalute(tensegrity) # initial Specs
-          #
-          # max_element = np.argmax(F_total)
-          # max_force = F_total[max_element]
+    #NOTE TO SELF you will have to change the max iter and step Siz
+      # as the complexity of the sturcture changes
 
-      # move the highest force element
-      ind = np.argmax(np.random.rand(tensegrity.numStruts)*tensegrity.F_total)
-      element_F = tensegrity.F_total[ind]
+        # D, F, E, F_total, E_total = self.evalute(tensegrity) # initial Specs
+        #
+        # max_element = np.argmax(F_total)
+        # max_force = F_total[max_element]
 
-      if (self.reject > self.overflow):
-          self.step *= 0.5
-          self.reject = 0
+    # move the highest force element
+    ind = np.argmax(np.random.rand(tensegrity.numStruts)*tensegrity.F_total)
+    element_F = tensegrity.F_total[ind]
 
-      # ind = tensegrity.F_total
-      tensegrity.vibrate(ind, self.step)
-      tensegrity.updateElementNodes(ind)
+    if type == 'rotate':
 
-      D, F, E, F_total, E_total = self.evalute(tensegrity)
+        if (self.reject_rotate > self.overflow_rotate):
+            self.step_rotate *= 0.5
+            self.reject_rotate = 0
+            print("Lower rotate step")
 
-      # see if energy went down
+        tensegrity.vibrate(ind, type='rotate', multipler=self.step_rotate)
+        tensegrity.updateElementNodes(ind)
 
-      if  E_total - tensegrity.E_total  < 0: # delta E is negative
-          self.reject = 0
-          tensegrity.max_element = np.argmax(F_total)
-          tensegrity.max_force = F_total[tensegrity.max_element]
-          tensegrity.E_total = E_total
-          tensegrity.F_total = F_total
-          # max_force = F_total[max_element]
-      else: # did not go down
-          self.reject += 1
-          tensegrity.revertElemement(ind)
-          tensegrity.updateElementNodes(ind)
+    if type == 'move':
 
-      info = (tensegrity.max_force, tensegrity.E_total, E_total)
-      return info
+        if (self.reject_move > self.overflow_move):
+            self.step_move *= 0.5
+            self.reject_move = 0
+            print("Lower move step")
 
+        tensegrity.vibrate(ind, type='move', multipler=self.step_move)
+        tensegrity.updateElementNodes(ind)
+
+
+    D, F, E, F_total, E_total, F_vec_total, Delta = self.evalute(tensegrity)
+    print(type)
+    print(F_vec_total)
+    # see if energy went down
+
+    if  E_total - tensegrity.E_total  < 0: # delta E is negative
+        if type == 'rotate':
+            self.reject_rotate = 0
+        if type == 'move':
+            self.reject_move = 0
+        tensegrity.max_element = np.argmax(F_total)
+        tensegrity.max_force = F_total[tensegrity.max_element]
+        tensegrity.E_total = E_total
+        tensegrity.F_total = F_total
+        tensegrity.Delta = Delta
+        # max_force = F_total[max_element]
+    else: # did not go down
+        if type == 'rotate':
+            self.reject_rotate += 1
+        if type == 'move':
+            self.reject_move += 1
+
+        tensegrity.revertElemement(ind)
+        tensegrity.updateElementNodes(ind)
+
+    info = (tensegrity.max_force, tensegrity.E_total, E_total)
+    return info
 
   def evalute(self, tensegrity):
 
@@ -78,8 +106,8 @@ class FormFinder():
       L_curr[np.diag_indices(num_nodes)] = -1 # to avoid nans displacement to your self
       Delta = L_curr - tensegrity.L
 
-      Delta[Delta<0] = 0 #strings are not taught
 
+      Delta[Delta<0] = 0 #strings are not taught
       F = Delta*K
       F = F.reshape(num_nodes,num_nodes,1)
 
@@ -94,10 +122,12 @@ class FormFinder():
       #Determine force on each node
       F_nodes = np.sum(F,axis=1)
 
+      # F_node_abs = np.sum(np.abs(F),axis=1)
+      # print(F_node_abs)
       #Determine net forces on each element
       #SPLITING HELPS :) I think there
-      F_total = F_nodes[:num_struts,:] + F_nodes[num_struts:,:]
-      F_total = np.sum(F_total*F_total,axis=1)
-
-      info = (D, F, E, F_total, E_total)
+      F_vec_total = F_nodes[:num_struts,:] + F_nodes[num_struts:,:]
+      F_total = np.sum(F_vec_total*F_vec_total,axis=1)
+      # F_vec_total[1,:] *= 1.1
+      info = (D, F, E, F_total, E_total, F_vec_total, Delta)
       return info

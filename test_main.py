@@ -12,6 +12,13 @@ import numpy as np
 
 #does the solver work for random values of theta ? past pi and -pi
 class TestMain(unittest.TestCase):
+
+    def test_solver(self):
+        Solver = FormFinder()
+        X = Structure(10,8)
+        D, F, E, F_total, E_total, F_vec_total, delta = Solver.evalute(X)
+        self.assertTrue(np.isclose(np.sum(F_vec_total,axis=0), np.zeros((1,3))).all())
+
     def test_mutate_L(self):
         X = Structure(10,8)
         X.mutateL()
@@ -20,6 +27,13 @@ class TestMain(unittest.TestCase):
         for i in np.arange(X.numElements): # mutate the bar lengths by some amount aswell
              self.assertEqual(X.L[i+X.numElements,i],X.L[i,i+X.numElements])
              self.assertEqual(X.L[i+X.numElements,i],X.elements[i].length)
+
+        X = Structure(10,4)
+        Y = X.duplicate()
+        Y.L *= 2
+        Z = Y.combine(X,0.5)
+        self.assertTrue(np.array_equal(Z.L,X.L*1.5))
+
 
     def test_mutate_C(self):
         X = Structure(10,8)
@@ -31,23 +45,33 @@ class TestMain(unittest.TestCase):
 
 
     def test_combine_L(self):
-        X = Structure(10,8)
+        X = Structure(10,3)
         D = X.duplicate()
         Y = Structure(10,3)
-        Z = X.combine(Y,0.5)
+        Z = Y.combine(Y,0.5)
         self.assertTrue(np.array_equal(D.L,X.L))
         self.assertTrue(np.array_equal(D.C,X.C))
         self.assertTrue(np.array_equal(D.nodes,X.nodes))
         for i in np.arange(Z.numStruts):
-            self.assertEqual(Z.L[i+Z.numStruts,i],Z.length)
-            self.assertEqual(Z.L[i,i+Z.numStruts],Z.length)
+            self.assertEqual(Z.L[i+Z.numStruts,i],Z.elements[i].length)
+            self.assertEqual(Z.L[i,i+Z.numStruts],Z.elements[i].length)
+            self.assertEqual(Z.L[i,i],0)
+
+        Z = Y.combine(X)
+        for i in np.arange(Z.numStruts):
+            self.assertEqual(Z.L[i+Z.numStruts,i],Z.elements[i].length)
+            self.assertEqual(Z.L[i,i+Z.numStruts],Z.elements[i].length)
             self.assertEqual(Z.L[i,i],0)
 
         Z = X.combine(Y,0)
         self.assertEqual(Z.numStruts,X.numStruts)
+
         self.assertTrue(np.array_equal(Z.L,X.L))
         self.assertTrue(np.array_equal(Z.C,X.C))
         self.assertTrue(np.array_equal(Z.nodes,X.nodes))
+
+        Z = X.combine(D)
+        self.assertTrue(np.array_equal(Z.L,X.L))
 
         Z = X.combine(Y,1)
 
@@ -55,8 +79,10 @@ class TestMain(unittest.TestCase):
         self.assertTrue(np.array_equal(Z.L,Y.L))
         self.assertTrue(np.array_equal(Z.C,Y.C))
         self.assertTrue(np.array_equal(Z.nodes,Y.nodes))
+
+
     def test_combine_C(self):
-        X = Structure(10,8)
+        X = Structure(10,3)
         Y = Structure(10,3)
         Z = X.combine(Y,0.5)
 
@@ -67,17 +93,20 @@ class TestMain(unittest.TestCase):
 
     def test_combine_nodes(self):
 
-        X = Structure(10,8)
-        Y = Structure(10,3)
-        Z = X.combine(Y,0.5)
-
+        X = Structure(10,5)
+        Y = Structure(10,5)
+        Z = X.combine(Y,1)
         self.assertEqual(Z.numStruts,5)
         self.assertEqual(Z.num_nodes,10)
         self.assertTrue((Z.nodes[0,:] == Y.nodes[0,:]).all())
-        self.assertTrue((Z.nodes[5,:] == Y.nodes[3,:]).all())
+        self.assertTrue((Z.nodes[3,:] == Y.nodes[3,:]).all())
+        self.assertTrue((Z.nodes[1,:] == Y.nodes[1,:]).all())
+        Z = X.combine(Y,0)
+        self.assertEqual(Z.numStruts,5)
+        self.assertEqual(Z.num_nodes,10)
+        self.assertTrue((Z.nodes[0,:] == X.nodes[0,:]).all())
+        self.assertTrue((Z.nodes[3,:] == X.nodes[3,:]).all())
         self.assertTrue((Z.nodes[1,:] == X.nodes[1,:]).all())
-        self.assertTrue((Z.nodes[6,:] == X.nodes[9,:]).all())
-
     def test_combine(self):
         A = Structure(10,4)
         B = A.duplicate()

@@ -30,6 +30,7 @@ class Element():
 
   def mutateLength(self,mutation):
       self.length += mutation
+      self.length = abs(self.length)
       self.node1 = np.array([[-self.length/2],[0],[0]])
       self.node2 = np.array([[self.length/2],[0],[0]])
 
