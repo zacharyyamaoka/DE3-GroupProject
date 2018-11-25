@@ -228,9 +228,9 @@ class Structure():
       zero = self.L == 0
 
       self.L[remove_length] = 0
-
-      self.L[(new_connection) & (zero)] = \
-      np.random.uniform(0,self.length,size=(self.num_nodes,self.num_nodes))[(new_connection) & (zero)]  # Reinitalize with random resting length
+      new_L = np.random.uniform(0,self.length,size=(self.num_nodes,self.num_nodes))
+      new_L =  (new_L + new_L.T)/2
+      self.L[(new_connection) & (zero)] = new_L[(new_connection) & (zero)]  # Reinitalize with random resting length
 
       new_C[new_connection] = 1
       self.C = new_C
@@ -274,7 +274,8 @@ class Structure():
        #             [0, 0, 1, 0]])
        new_connection = C>=0.5
        C[C<0.5] = 0
-       L[new_connection] = 4 # intial wire length
+       new_L = np.random.uniform(0,self.length,size=(self.num_nodes,self.num_nodes))
+       L[new_connection] =  ((new_L + new_L.T)/2)[new_connection]# intial wire length
        C[new_connection] = 1 # Spring Constant
 
        for i in np.arange(self.numElements):
