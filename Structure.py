@@ -205,11 +205,14 @@ class Structure():
       # self.C = self.C + np.random.normal(size=(self.num_nodes,self.num_nodes))
       for i in np.arange(self.numElements): # mutate the bar lengths by some amount aswell
           mutation = np.random.normal(scale = self.strut_mutate_step)
-          self.L[i+self.numElements,i] += mutation
-          self.L[i,i+self.numElements] += mutation
-          self.elements[i].mutateLength(mutation)
-      self.L = np.minimum(self.L,self.length)
-      self.L = np.maximum(self.L,0)
+          curr_length = self.L[i+self.numElements,i]
+          new_length = curr_length + mutation
+          new_length = np.minimum(new_length,self.length)
+          self.L[i+self.numElements,i] = new_length
+          self.L[i,i+self.numElements] = new_length
+          self.elements[i].mutateLength(new_length)
+
+      self.L = np.abs(self.L)
   def mutateC(self):
       self.C = self.C + np.random.normal(scale = self.connection_mutate_scale, size=(self.num_nodes,self.num_nodes))
       self.C = (self.C + self.C.T)/2

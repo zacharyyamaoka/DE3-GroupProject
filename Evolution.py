@@ -115,7 +115,8 @@ class Evolution():
                 offspring = self.eval_pop[i][2]
             else:
                 offspring = self.new_pop[i][2].duplicate()
-            offspring.mutateC()
+            if 0.05 > np.random.rand(): 
+                offspring.mutateC()
             offspring.mutateL()
             # if 0.1 > np.random.rand(): # uniform mutation rate
             offspring.resetElements()
