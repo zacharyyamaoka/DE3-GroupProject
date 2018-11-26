@@ -101,7 +101,7 @@ class Evolution():
           print(n1,n2)
           p1 = self.new_pop[n1][2]
           p2 = self.new_pop[n2][2] #can have case where you mate with your self..... but hopefully note very likely I can prune these away in a later step
-          child = p1.combine(p2)
+          child = p1.combine(p2,ratio=0.5)
           self.new_pop.append((0, child.uniqueId, child))
 
   def mutate(self, inplace = False):
@@ -118,6 +118,7 @@ class Evolution():
 
             ran_num = np.random.rand()
             if 0.1 > ran_num:
+                print("MUTATING C")
                 offspring.mutateC() # so infruentely fails that you never get any good results with the L
             else:
                 offspring.mutateL()

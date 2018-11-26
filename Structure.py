@@ -126,8 +126,8 @@ class Structure():
 
       child.elements = new_elements
 
-      p_mate_L = np.random.rand(new_num_nodes,new_num_nodes)
-      p_mate_L = (p_mate_L + p_mate_L.T)/2
+      # p_mate_L = np.random.rand(new_num_nodes,new_num_nodes)
+      # p_mate_L = (p_mate_L + p_mate_L.T)/2
       p_mate_L = np.ones((new_num_nodes,new_num_nodes)) * p_mate
       p_mate_L[mate.L==0] = 0
       p_mate_L[self.L==0] = 1
@@ -137,7 +137,7 @@ class Structure():
       new_L = p_mate_L*mate.L + p_self_L * self.L
 
       mask = np.random.rand(new_num_nodes,new_num_nodes)
-
+      mask = (mask + mask.T)/2
       new_connection = new_C >= mask
       new_length = np.copy(new_connection)
       child.C[new_connection] = 1 #Elasticity of Connection
@@ -151,6 +151,16 @@ class Structure():
           new_length[i+self.numElements,i] = True
       child.L[new_length] = new_L[new_length]
 
+      print("------------- COMBINE ---------------")
+      print("C")
+      print(self.C, "\n")
+      print(mate.C, "\n")
+      print(child.C, "\n")
+
+      # print("L")
+      # print(self.L)
+      # print(mate.L)
+      # print(child.L)
       child.refresh()
       return child
 
@@ -217,7 +227,6 @@ class Structure():
       self.L = np.abs(self.L) #ensures no negative lengths
 
   def mutateC(self):
-      print(self.C)
       self.C = self.C + np.random.normal(scale = self.connection_mutate_scale, size=(self.num_nodes,self.num_nodes))
       self.C = (self.C + self.C.T)/2
 
@@ -228,7 +237,6 @@ class Structure():
           self.C[i+self.numElements,i+self.numElements] = 0
           self.C[i,i+self.numElements] = 0 #don't connect to you self
           self.C[i+self.numElements,i] = 0
-      print(self.C)
       remove_connection = self.C<0.5
       new_connection = self.C>=0.5
       remove_length = np.copy(remove_connection)
@@ -245,7 +253,6 @@ class Structure():
 
       new_C[new_connection] = 1
       self.C = new_C
-      print(self.C)
 
   def updateElementNodes(self,ind):
       self.nodes[ind,:] = self.elements[ind].getNodePosition(1).T
@@ -280,10 +287,10 @@ class Structure():
        #             [1, 0, 1, 0],
        #             [0, 1, 0, 1],
        #             [0, 0, 1, 0]])
-       C = np.array([[0, 0, 0, 0],
-                  [0, 0, 0, 0],
-                  [0, 0, 0, 0],
-                  [0, 0, 0, 0]])
+       # C = np.array([[0, 0, 0, 0],
+       #            [0, 0, 0, 0],
+       #            [0, 0, 0, 0],
+       #            [0, 0, 0, 0]])
        new_connection = C>=0.5
        C[C<0.5] = 0
        new_L = np.random.uniform(0,self.length/2,size=(self.num_nodes,self.num_nodes))

@@ -85,8 +85,8 @@ def Solve(drone, ind):
 # A = Structure(10,2)
 # Solve(A,1)
 # Viz.show(A, 1)
-population = 2
-num_bars = 2
+population = 3
+num_bars = 3
 Viz.setStruts(num_bars)
 #smaller struts, less play but faster convergence.....
 GA = Evolution(num_struts = num_bars, strut_length = 10, max_gen=1000,init_size = 1, pop_size=population, mutation_rate=1, \
@@ -129,7 +129,7 @@ while GA.alive():
     num_selection = len(GA.new_pop) - num_elite
     GA.mutate() #avoiding mutating the elites
     num_mutate = len(GA.new_pop) - num_elite - num_selection
-    # GA.crossOver()
+    GA.crossOver()
     num_cross = len(GA.new_pop) - num_elite - num_selection - num_mutate
     GA.nextGen()
     print("Num elite: ", num_elite)
