@@ -1,10 +1,11 @@
+-> cache current population,
+allow for hand tuning of step size
 
 
+-> really need to make sure that it is covering the entire search space. FOr the 3 bar tensegrity I would expect it to find a tensegrity configuration quite fast.....
 
--> Genetic Algorithm that can find the correct structure given any fitness of constraints.....
+-> something definetly not right.... So what did I just spend all my weekend on?
 
--> constraints rules on creation (pre proccessor)
+-> select bars unfiromly from 0 to length in the mutation step
 
--> enter the herd
-
--> evalation (post procesor)
+-> user input to dynamically change step size....

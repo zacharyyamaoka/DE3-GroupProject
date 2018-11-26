@@ -9,9 +9,12 @@ class Vizulization():
       self.on = False
       self.drone_figure = 0
       self.graph = []
+      self.figures_list = []
       self.figures = 0
       self.createGrid(rows,cols)
-
+      self.struts = 0
+  def setStruts(self, num):
+      self.struts= num
   def getFigureId(self):
       id = self.figures
       self.figures += 1
@@ -23,6 +26,7 @@ class Vizulization():
 
   def createGraph(self):
       fig = plt.figure(self.getFigureId())
+      self.figures_list.append(fig)
       ax1 = fig.add_subplot(1, 1, 1)
       self.graph.append(ax1)
       return len(self.graph)
@@ -47,7 +51,8 @@ class Vizulization():
       self.plots = dict()
       counter = 0
 
-      plt.figure(self.getFigureId())
+      fig = plt.figure(self.getFigureId())
+      self.figures_list.append(fig)
       for i in range(row):
           for j in range(col):
               ax = plt.subplot2grid((row,col), (i,j), projection='3d')
@@ -121,7 +126,9 @@ class Vizulization():
 
       if not hold_on:
           plt.show()
-
+  def saveFigs(self):
+      for i in range(len(self.figures_list)):
+        self.figures_list[i].savefig('bar_%d_fig_%d' %(self.struts,i))
   def show(self, structure, ind, hold_on = False):
 
       ax = self.plots[self.getPlotId(ind)]

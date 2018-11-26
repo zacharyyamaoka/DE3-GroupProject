@@ -44,7 +44,7 @@ class Evolution():
       return self.eval_pop[-1][0]
 
   def elite(self):
-       num_elite = round(self.num_pop * self.p_elite)
+       num_elite = np.ceil(self.num_pop * self.p_elite)
        num = np.minimum(num_elite,len(self.eval_pop))
        for i in np.arange(num):
            self.new_pop.append(self.eval_pop.pop())
@@ -115,11 +115,16 @@ class Evolution():
                 offspring = self.eval_pop[i][2]
             else:
                 offspring = self.new_pop[i][2].duplicate()
-            if 0.05 > np.random.rand(): 
-                offspring.mutateC()
-            offspring.mutateL()
+
+            ran_num = np.random.rand()
+            if 0.1 > ran_num:
+                offspring.mutateC() # so infruentely fails that you never get any good results with the L
+            else:
+                offspring.mutateL()
+
+            if 0 > ran_num:
+                offspring.resetElements()
             # if 0.1 > np.random.rand(): # uniform mutation rate
-            offspring.resetElements()
             offspring.refresh()
             if not inplace:
                 self.new_pop.append((0, offspring.uniqueId, offspring))

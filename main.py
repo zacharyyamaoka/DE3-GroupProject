@@ -15,7 +15,7 @@ plt.ion()
 # Control Panel
 debug = False
 showViz = True
-updatefreq = 10
+updatefreq = 1
 
 wait = 0.001
 iterfreq = 25
@@ -85,11 +85,12 @@ def Solve(drone, ind):
 # A = Structure(10,2)
 # Solve(A,1)
 # Viz.show(A, 1)
-
-
-population = 9
-GA = Evolution(num_struts = 2, strut_length = 10, max_gen=200,init_size = population, pop_size=population, mutation_rate=0.5, \
-selection_rate = 0.3, selection_pressure = 1.8,elite_rate=0.2)
+population = 2
+num_bars = 2
+Viz.setStruts(num_bars)
+#smaller struts, less play but faster convergence.....
+GA = Evolution(num_struts = num_bars, strut_length = 10, max_gen=1000,init_size = 1, pop_size=population, mutation_rate=1, \
+selection_rate = 0.3, selection_pressure = 1.6,elite_rate=0.2)
 
 while GA.alive():
     print("----------------------")
@@ -105,6 +106,7 @@ while GA.alive():
         GA.addToQueue(drone_structure, fit) # add drone the the queue
 
     GA.rankQueue()
+
     if showViz:
         print("---------- DRAWING ----------")
         if GA.current_gen%updatefreq==0:
@@ -123,11 +125,11 @@ while GA.alive():
             plt.pause(wait)
     GA.elite() #p constant that first is selected.
     num_elite = len(GA.new_pop)
-    GA.selection() #p constant that first is selected.
+    # GA.selection() #p constant that first is selected.
     num_selection = len(GA.new_pop) - num_elite
     GA.mutate() #avoiding mutating the elites
     num_mutate = len(GA.new_pop) - num_elite - num_selection
-    GA.crossOver()
+    # GA.crossOver()
     num_cross = len(GA.new_pop) - num_elite - num_selection - num_mutate
     GA.nextGen()
     print("Num elite: ", num_elite)
@@ -139,5 +141,7 @@ total_length = len(GA.pop)
 plots = min(total_length,viz_col*viz_row)
 for i in np.arange(plots):
     Viz.show(GA.pop[i][2],i) # best are now at the front....
+
+Viz.saveFigs()
 plt.pause(5)
 plt.close()

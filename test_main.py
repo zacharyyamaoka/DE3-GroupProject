@@ -71,7 +71,7 @@ class TestMain(unittest.TestCase):
         self.assertTrue(np.array_equal(Z.nodes,X.nodes))
 
         Z = X.combine(D)
-        self.assertTrue(np.array_equal(Z.L,X.L))
+        self.assertTrue(np.isclose(Z.L,X.L).all())
 
         Z = X.combine(Y,1)
 
