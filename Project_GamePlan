@@ -4,10 +4,10 @@ allow for hand tuning of step size
 
 -> really need to make sure that it is covering the entire search space. FOr the 3 bar tensegrity I would expect it to find a tensegrity configuration quite fast.....
 
--> something definetly not right.... So what did I just spend all my weekend on?
-
 -> select bars unfiromly from 0 to length in the mutation step
 
 -> user input to dynamically change step size....
 
 -> impose symetry by flipping during mutation......
+
+-> allow for caching and then displaying of the solution afterwards

@@ -151,11 +151,11 @@ class Structure():
           new_length[i+self.numElements,i] = True
       child.L[new_length] = new_L[new_length]
 
-      print("------------- COMBINE ---------------")
-      print("C")
-      print(self.C, "\n")
-      print(mate.C, "\n")
-      print(child.C, "\n")
+      # print("------------- COMBINE ---------------")
+      # print("C")
+      # print(self.C, "\n")
+      # print(mate.C, "\n")
+      # print(child.C, "\n")
 
       # print("L")
       # print(self.L)

@@ -85,12 +85,12 @@ def Solve(drone, ind):
 # A = Structure(10,2)
 # Solve(A,1)
 # Viz.show(A, 1)
-population = 3
-num_bars = 3
+population = 9
+num_bars = 2
 Viz.setStruts(num_bars)
-#smaller struts, less play but faster convergence.....
-GA = Evolution(num_struts = num_bars, strut_length = 10, max_gen=1000,init_size = 1, pop_size=population, mutation_rate=1, \
-selection_rate = 0.3, selection_pressure = 1.6,elite_rate=0.2)
+#smaller stru  ts, less play but faster convergence.....
+GA = Evolution(num_struts = num_bars, strut_length = 10, max_gen=1000,init_size =population, pop_size=population, mutation_rate=0.8, \
+selection_rate = 0.3, selection_pressure = 1.85,elite_rate=0.2) #Essentailly just have an autmated hill climber rn, b/c mutation rate is so highself.
 
 while GA.alive():
     print("----------------------")
@@ -106,6 +106,7 @@ while GA.alive():
         GA.addToQueue(drone_structure, fit) # add drone the the queue
 
     GA.rankQueue()
+    GA.niche()
 
     if showViz:
         print("---------- DRAWING ----------")
@@ -125,7 +126,7 @@ while GA.alive():
             plt.pause(wait)
     GA.elite() #p constant that first is selected.
     num_elite = len(GA.new_pop)
-    # GA.selection() #p constant that first is selected.
+    GA.selection() #p constant that first is selected.
     num_selection = len(GA.new_pop) - num_elite
     GA.mutate() #avoiding mutating the elites
     num_mutate = len(GA.new_pop) - num_elite - num_selection

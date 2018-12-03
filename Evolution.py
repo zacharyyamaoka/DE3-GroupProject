@@ -89,6 +89,7 @@ class Evolution():
       curr_pop_num = len(self.new_pop)
       old_pop_num = len(self.eval_pop)
       num_cross = self.num_pop - curr_pop_num
+      num_cross = np.minimum(curr_pop_num,num_cross) #for story telling
       #pick two random integers that are not the same
       for i in np.arange(num_cross):
           n1 = np.random.randint(curr_pop_num)
