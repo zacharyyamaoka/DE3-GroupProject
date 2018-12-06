@@ -1,17 +1,26 @@
 import numpy as np
+import matplotlib.pyplot as plt
 
 class FormFinder():
   def __init__(self, max_iter = 1000, error_esp = 0.001, viz = None, show = False):
       self.error_esp = error_esp
       self.max_iter = max_iter
       self.reject_move = 0
-      self.overflow_move = 30
+      self.overflow_move = 10
       self.reject_rotate = 0
-      self.overflow_rotate = 30
+      self.overflow_rotate = 10
       self.step_move = 1
       self.step_rotate = 1
       self.viz = viz
       self.show = show
+      self.rejected_rotate = False
+      self.rejected_move = False
+
+      if self.show:
+          self.EnergyGraph = self.viz.createGraph()
+          self.viz.labelGraph(self.EnergyGraph,"EnergyGraph")
+          self.ForceGraph = self.viz.createGraph()
+          self.viz.labelGraph(self.EnergyGraph,"ForceGraph")
       # self.min_step = 0.001
   def reset(self):
       self.reject_move = 0
@@ -21,8 +30,8 @@ class FormFinder():
       self.step_rotate = 1
       self.step_move = 1
 
-  def solve(self, drone, ind):
-
+  def solve(self, drone, ind=0):
+      print("------Solving-----")
       force = []
       energy = []
 
@@ -36,21 +45,34 @@ class FormFinder():
       max_force = drone.max_force
       while (max_force > self.error_esp) and (iter < self.max_iter):
           iter += 1
-
           max_force, E_total, sample_E = self.update(drone, 'move')
           max_force, E_total, sample_E = self.update(drone, 'rotate')
           if self.show:
               energy.append(E_total)
               force.append(max_force)
 
-              # if iter%1==0:
-              #     print("Energy: ", E_total)
-              #     print("Max Force: ", max_force)
-              if iter%10==0:
-                  self.viz.show(drone, ind)
-                  # self.viz.plotGraph(EnergyGraph,E_total,iter)
-                  # self.viz.plotGraph(ForceGraph,max_force,iter)
+              if iter%2==0:
 
+                  c = 'black'
+                  if self.rejected_rotate:
+                      self.rejected_rotate = False
+                      c = 'red'
+                  if self.rejected_move:
+                      self.rejected_move = False
+                      c = 'green'
+                  self.viz.plotGraph(self.EnergyGraph,E_total,iter,c=c)
+                  self.viz.plotGraph(self.ForceGraph,max_force,iter,c=c)
+              if iter%10==0:
+                  print("Energy: ", E_total)
+                  print("Max Force: ", max_force)
+                  print("ITER: ", iter)
+                  self.viz.show(drone, ind)
+                  plt.show()
+                  plt.pause(0.1)
+
+      if self.show:
+          self.viz.clearGraph(self.EnergyGraph)
+          self.viz.clearGraph(self.ForceGraph)
       drone.solved = True
       if (iter >= self.max_iter):
           drone.overIterated = True
@@ -78,6 +100,7 @@ class FormFinder():
         if (self.reject_rotate > self.overflow_rotate):
             self.step_rotate *= 0.5
             self.reject_rotate = 0
+            self.rejected_rotate = True
 
         tensegrity.vibrate(ind, type='rotate', multipler=self.step_rotate)
         tensegrity.updateElementNodes(ind)
@@ -87,6 +110,8 @@ class FormFinder():
         if (self.reject_move > self.overflow_move):
             self.step_move *= 0.5
             self.reject_move = 0
+            self.rejected_move = True
+
 
         tensegrity.vibrate(ind, type='move', multipler=self.step_move)
         tensegrity.updateElementNodes(ind)

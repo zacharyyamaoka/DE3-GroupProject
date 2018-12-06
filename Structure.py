@@ -151,16 +151,6 @@ class Structure():
           new_length[i+self.numElements,i] = True
       child.L[new_length] = new_L[new_length]
 
-      # print("------------- COMBINE ---------------")
-      # print("C")
-      # print(self.C, "\n")
-      # print(mate.C, "\n")
-      # print(child.C, "\n")
-
-      # print("L")
-      # print(self.L)
-      # print(mate.L)
-      # print(child.L)
       child.refresh()
       return child
 
@@ -187,6 +177,7 @@ class Structure():
       for strut in self.elements:
           strut.randomPosition()
 
+
   def initStruts(self, numStruts, length):
       self.elements = []
       self.numElements = numStruts
@@ -199,7 +190,6 @@ class Structure():
   def initNodes(self, elements):
       numStruts = len(elements)
       self.nodes = np.zeros((numStruts*2,3))
-
       for i in np.arange(numStruts):
 
           self.nodes[i,:] = elements[i].getNodePosition(1).T
@@ -208,27 +198,29 @@ class Structure():
   def refresh(self):
       self.old_Nodes = self.nodes
       self.initNodes(self.elements)
+
   def mutateL(self, step_size=1):
-      selector = self.C == 1 # where you have a elastic connection
-      large_mutator = np.random.normal(scale = step_size * self.wire_mutate_step, size=(self.num_nodes,self.num_nodes))
-      large_mutator = (large_mutator + large_mutator.T)/2 #ensure symmetry
-      self.L[selector] += large_mutator[selector]
+      # selector = self.C == 1 # where you have a elastic connection
+      # large_mutator = np.random.normal(scale = step_size * self.wire_mutate_step, size=(self.num_nodes,self.num_nodes))
+      # large_mutator = (large_mutator + large_mutator.T)/2 #ensure symmetry
+      # self.L[selector] += large_mutator[selector]
+      # print(large_mutator)
       # self.C = self.C + np.random.normal(size=(self.num_nodes,self.num_nodes))
-      for i in np.arange(self.numElements): # mutate the bar lengths by some amount aswell
-          mutation = np.random.normal(scale = step_size * self.strut_mutate_step)
-          curr_length = self.L[i+self.numElements,i]
-          new_length = curr_length + mutation
-          new_length = abs(new_length)
-          new_length = np.minimum(new_length,self.length) # caps bars at maxiumum length
-          self.L[i+self.numElements,i] = new_length
-          self.L[i,i+self.numElements] = new_length
-          self.elements[i].mutateLength(new_length)
+      i = np.random.randint(self.numElements)
+      # for i in np.arange(self.numElements): # mutate the bar lengths by some amount aswell
+      mutation = np.random.normal(scale = step_size * self.strut_mutate_step)
+      curr_length = self.L[i+self.numElements,i]
+      new_length = curr_length + mutation
+      new_length = abs(new_length)
+      new_length = np.minimum(new_length,self.length) # caps bars at maxiumum length
+      self.L[i+self.numElements,i] = new_length
+      self.L[i,i+self.numElements] = new_length
+      self.elements[i].mutateLength(new_length)
 
       self.L = np.abs(self.L) #ensures no negative lengths
 
   def mutateC(self, step_size=1):
       noise = np.random.normal(scale = step_size * self.connection_mutate_scale, size=(self.num_nodes,self.num_nodes))
-      # print(noise)
       self.C = self.C + noise
       self.C = (self.C + self.C.T)/2
 

@@ -12,10 +12,21 @@ import matplotlib.pyplot as plt
 
 #does the solver work for random values of theta ? past pi and -pi
 class TestMain(unittest.TestCase):
+    def test_reset(self):
+        droneA = Structure(10,2)
+        before = droneA.nodes
+        droneA.resetElements()
+        droneA.refresh()
+        now = droneA.nodes
+        self.assertTrue(np.sum(before-now) != 0)
+
+
+
+
     def test_length_search(self):
         plt.ion()
-        Viz = Vizulization(1,1)
-        Solver = FormFinder(max_iter = 700)
+        Viz = Vizulization(2,2)
+        Solver = FormFinder(max_iter = 700, error_esp = 0.001, viz = Viz, show = False)
 
         GA = Evolution(num_struts = 3, strut_length = 10, max_gen=5,init_size =3, pop_size=3, mutation_rate=0.8, \
         selection_rate = 0.3, selection_pressure = 1.85,elite_rate=1)
@@ -37,29 +48,33 @@ class TestMain(unittest.TestCase):
         # for i in np.arange(size):
         #     droneA.L[i+size,i] = droneA.elements[i].length
         #     droneA.L[i,i+size] = droneA.elements[i].length
-        print("-----------TESTING LENGTHS -----------")
-        print(droneA.L)
-        print(droneA.C)
+        # print(droneA.L)
+        # print(droneA.C)
 
         last_fit = 0
         for i in np.arange(max_iter):
             # print(droneA.C)
             # print(droneA.L)
             droneB = droneA.duplicate()
+            # droneA.resetElements()
+            # droneA.refresh()
+            # print(droneA.nodes)
             droneB.mutateL(step_size = 1)
+            print(droneB.L)
+            droneB.refresh()
             Solver.solve(droneB, 1) # drones have already been solved so they go very fast
             fit = GA.fitness(droneB)
-            print("curr: ", fit)
-            print("last: ",last_fit)
-
-            print(droneA.L-droneB.L)
-
-            if fit > last_fit:
+            # print("curr: ", fit)
+            # print("last: ",last_fit)
+            # print(droneA.L-droneB.L)
+            Viz.show(droneB,3)
+            Viz.show(droneA,2)
+            if fit >= last_fit:
                 last_fit = fit
                 droneA = droneB
-                Viz.show(droneB,1)
-                plt.show()
-                plt.pause(0.1)
+            plt.show()
+            plt.pause(0.1)
+        plt.close()
 
     def test_space_search(self):
         size = 3
@@ -80,7 +95,7 @@ class TestMain(unittest.TestCase):
             droneA.mutateC()
             diff = np.sum(np.abs(droneA.C - full))
             if (np.array_equal(droneA.C,full)):
-                print(droneA.C)
+                # print(droneA.C)
                 self.assertTrue(True)
                 break
 

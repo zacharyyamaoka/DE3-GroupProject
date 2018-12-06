@@ -36,7 +36,8 @@ class Element():
 
   def savePosition(self):
       self.old_positions.append([self.x,self.y,self.z,self.alpha,self.beta,self.gamma])
-
+  def __str__(self):
+      return "x: {} y: {} z:{}".format(self.x, self.y, self.z)
   def randomPosition(self):
       x, y, z, alpha, beta, gamma = self.getRandomFrame()
       self.x = x
@@ -45,6 +46,9 @@ class Element():
       self.alpha = alpha
       self.beta = beta
       self.gamma = gamma
+      
+      self.position = self.getFrame()
+
   def revertPosition(self):
       if len(self.old_positions) != 0:
           pos = self.old_positions.pop()

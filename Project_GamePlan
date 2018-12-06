@@ -5,3 +5,5 @@ allow for hand tuning of step size
 - Ensure that its crossing the space correctly
 - Modularize code so you can easily cahnge Fitness
 - Speed up simulation and checking
+
+Testing coverengce. Can I write down the formulas closed form?

@@ -30,6 +30,9 @@ class Vizulization():
       ax1 = fig.add_subplot(1, 1, 1)
       self.graph.append(ax1)
       return len(self.graph)
+  def clearGraph(self,ind):
+      ax = self.graph[ind-1]
+      ax.cla()
   def plotGraph(self,ind,x,y,c='black'):
       ax = self.graph[ind-1]
       ax.scatter([y],[x],color=c)
@@ -153,11 +156,21 @@ class Vizulization():
                   ax.plot3D(structure.nodes[rows,np.array([0,0])], structure.nodes[rows,np.array([1,1])], structure.nodes[rows,np.array([2,2])],c=colour)
 
       ax.scatter3D(structure.nodes[:,0], structure.nodes[:,1], structure.nodes[:,2], c="b");
+      X = np.arange(-10,10)
+      Y = np.arange(-10,10)
+      Z = np.arange(-10,10)
+
+      max_range = np.array([X.max()-X.min(), Y.max()-Y.min(), Z.max()-Z.min()]).max()
+      Xb = 0.5*max_range*np.mgrid[-1:2:2,-1:2:2,-1:2:2][0].flatten() + 0.5*(X.max()+X.min())
+      Yb = 0.5*max_range*np.mgrid[-1:2:2,-1:2:2,-1:2:2][1].flatten() + 0.5*(Y.max()+Y.min())
+      Zb = 0.5*max_range*np.mgrid[-1:2:2,-1:2:2,-1:2:2][2].flatten() + 0.5*(Z.max()+Z.min())
+      for xb, yb, zb in zip(Xb, Yb, Zb):
+          ax.plot([xb], [yb], [zb], 'w')
       ax.set_xlim([-10,10])
       ax.set_ylim([-10,10])
       ax.set_zlim([-10,10])
       ax.set_yticklabels([])
       ax.set_xticklabels([])
       ax.set_zticklabels([])
-      ax.set_aspect(1)
-      ax.axis('equal')
+      # ax.set_aspect(1)
+      ax.set_aspect('equal')
