@@ -1,8 +1,21 @@
-import numpy as np
-x = np.arange(20)
-print(x[:10])
-print(x[10:20])
+from FormFinder import FormFinder
+from Element import Element
+from Structure import Structure
+from Vizulization import Vizulization
+from Evolution import Evolution
+from StructureFunction import *
 
-x = np.random.normal(loc=10,size=(3,3),scale=np.sqrt(10/3))
-print(x)
-print(np.minimum(x,10))
+import matplotlib.pyplot as plt
+import numpy as np
+
+A = Structure(10,3)
+B = Structure(10,3)
+
+Viz = Vizulization(1,2)
+
+print(similar(A,B))
+Viz.show(A, 1)
+Viz.show(B, 0)
+
+plt.show()
+plt.close()

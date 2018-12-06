@@ -1,16 +1,17 @@
 import numpy as np
 
 class FormFinder():
-  def __init__(self):
-      pass
-      self.error_esp = 0.01
-      self.max_iter = 10
+  def __init__(self, max_iter = 1000, error_esp = 0.001, viz = None, show = False):
+      self.error_esp = error_esp
+      self.max_iter = max_iter
       self.reject_move = 0
       self.overflow_move = 30
       self.reject_rotate = 0
       self.overflow_rotate = 30
       self.step_move = 1
       self.step_rotate = 1
+      self.viz = viz
+      self.show = show
       # self.min_step = 0.001
   def reset(self):
       self.reject_move = 0
@@ -19,6 +20,44 @@ class FormFinder():
       self.overflow_rotate = 30
       self.step_rotate = 1
       self.step_move = 1
+
+  def solve(self, drone, ind):
+
+      force = []
+      energy = []
+
+      iter = 0
+      D, F, E, F_total, E_total, F_vec_total, Delta = self.evalute(drone)
+      drone.max_element = np.argmax(F_total)
+      drone.max_force = np.amax(F_total)
+      drone.E_total = E_total
+      drone.F_total = F_total
+      drone.Delta = Delta
+      max_force = drone.max_force
+      while (max_force > self.error_esp) and (iter < self.max_iter):
+          iter += 1
+
+          max_force, E_total, sample_E = self.update(drone, 'move')
+          max_force, E_total, sample_E = self.update(drone, 'rotate')
+          if self.show:
+              energy.append(E_total)
+              force.append(max_force)
+
+              # if iter%1==0:
+              #     print("Energy: ", E_total)
+              #     print("Max Force: ", max_force)
+              if iter%10==0:
+                  self.viz.show(drone, ind)
+                  # self.viz.plotGraph(EnergyGraph,E_total,iter)
+                  # self.viz.plotGraph(ForceGraph,max_force,iter)
+
+      drone.solved = True
+      if (iter >= self.max_iter):
+          drone.overIterated = True
+          print("Over Iteration")
+      else:
+          drone.overIterated = False
+      self.reset() #reset internal parameters for next time
 
   def update(self, tensegrity, type=''):
 

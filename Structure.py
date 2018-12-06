@@ -4,7 +4,7 @@ import copy
 
 class Structure():
   uniqueId = 0
-  def __init__(self, length = 0, numStruts = 0, init = True):
+  def __init__(self, length = 0, numStruts = 0, init = True, seed_C = 0, seed = False):
       # self.x_bounds = (-10,10)
       # self.y_bounds = (-10,10)
       # self.z_bounds = (-10,10)
@@ -21,7 +21,7 @@ class Structure():
       if init:
           self.initStruts(numStruts, length)
           self.initNodes(self.elements)
-          self.initConnections()
+          self.initConnections(seed_C, seed)
 
       self.D = np.zeros((numStruts*2,numStruts*2))
       self.F = np.zeros((numStruts*2,numStruts*2))
@@ -208,14 +208,14 @@ class Structure():
   def refresh(self):
       self.old_Nodes = self.nodes
       self.initNodes(self.elements)
-  def mutateL(self):
+  def mutateL(self, step_size=1):
       selector = self.C == 1 # where you have a elastic connection
-      large_mutator = np.random.normal(scale = self.wire_mutate_step, size=(self.num_nodes,self.num_nodes))
+      large_mutator = np.random.normal(scale = step_size * self.wire_mutate_step, size=(self.num_nodes,self.num_nodes))
       large_mutator = (large_mutator + large_mutator.T)/2 #ensure symmetry
       self.L[selector] += large_mutator[selector]
       # self.C = self.C + np.random.normal(size=(self.num_nodes,self.num_nodes))
       for i in np.arange(self.numElements): # mutate the bar lengths by some amount aswell
-          mutation = np.random.normal(scale = self.strut_mutate_step)
+          mutation = np.random.normal(scale = step_size * self.strut_mutate_step)
           curr_length = self.L[i+self.numElements,i]
           new_length = curr_length + mutation
           new_length = abs(new_length)
@@ -226,8 +226,10 @@ class Structure():
 
       self.L = np.abs(self.L) #ensures no negative lengths
 
-  def mutateC(self):
-      self.C = self.C + np.random.normal(scale = self.connection_mutate_scale, size=(self.num_nodes,self.num_nodes))
+  def mutateC(self, step_size=1):
+      noise = np.random.normal(scale = step_size * self.connection_mutate_scale, size=(self.num_nodes,self.num_nodes))
+      # print(noise)
+      self.C = self.C + noise
       self.C = (self.C + self.C.T)/2
 
       new_C = np.zeros((self.num_nodes,self.num_nodes))
@@ -258,13 +260,15 @@ class Structure():
       self.nodes[ind,:] = self.elements[ind].getNodePosition(1).T
       self.nodes[ind + self.numStruts,:] = self.elements[ind].getNodePosition(2).T
 
-  def initConnections(self):
+  def initConnections(self, seed_C = 0, seed = False):
+
 
        C = np.random.rand(self.numElements*2,self.numElements*2)
        L = np.zeros((self.numElements*2,self.numElements*2))
        #ensure symmetry
        C = C/2 + C.T/2
-
+       if seed:
+           C = seed_C
        # Plant in a spy
        # C = np.array([[0, 1, 0, 1],
        # [1, 0, 1, 0],
@@ -291,6 +295,7 @@ class Structure():
        #            [0, 0, 0, 0],
        #            [0, 0, 0, 0],
        #            [0, 0, 0, 0]])
+
        new_connection = C>=0.5
        C[C<0.5] = 0
        new_L = np.random.uniform(0,self.length/2,size=(self.num_nodes,self.num_nodes))
