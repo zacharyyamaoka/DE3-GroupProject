@@ -19,7 +19,7 @@ class Structure():
       self.num_nodes = numStruts * 2
       self.k = 5
       if init:
-          self.initStruts(numStruts, length)
+          self.initStruts(numStruts, length, seed)
           self.initNodes(self.elements)
           self.initConnections(seed_C, seed)
 
@@ -178,13 +178,15 @@ class Structure():
           strut.randomPosition()
 
 
-  def initStruts(self, numStruts, length):
+  def initStruts(self, numStruts, length, seed = False):
       self.elements = []
       self.numElements = numStruts
       self.numStruts = numStruts
       self.length = length
       for i in np.arange(numStruts):
-           self.elements.append(Element(length=np.random.uniform(length), random=True))
+           if not seed:
+               length=np.random.uniform(length)
+           self.elements.append(Element(length=length, random=True))
           #Create a strut of given length in a random location
 
   def initNodes(self, elements):
@@ -198,24 +200,43 @@ class Structure():
   def refresh(self):
       self.old_Nodes = self.nodes
       self.initNodes(self.elements)
+  def getMutateLMask(self, num_of_connections):
 
-  def mutateL(self, step_size=1):
-      # selector = self.C == 1 # where you have a elastic connection
-      # large_mutator = np.random.normal(scale = step_size * self.wire_mutate_step, size=(self.num_nodes,self.num_nodes))
-      # large_mutator = (large_mutator + large_mutator.T)/2 #ensure symmetry
-      # self.L[selector] += large_mutator[selector]
-      # print(large_mutator)
-      # self.C = self.C + np.random.normal(size=(self.num_nodes,self.num_nodes))
-      i = np.random.randint(self.numElements)
-      # for i in np.arange(self.numElements): # mutate the bar lengths by some amount aswell
-      mutation = np.random.normal(scale = step_size * self.strut_mutate_step)
-      curr_length = self.L[i+self.numElements,i]
-      new_length = curr_length + mutation
-      new_length = abs(new_length)
-      new_length = np.minimum(new_length,self.length) # caps bars at maxiumum length
-      self.L[i+self.numElements,i] = new_length
-      self.L[i,i+self.numElements] = new_length
-      self.elements[i].mutateLength(new_length)
+      n = int(np.sum(self.C)/2) #divide by 2 to avoid double counting
+      inds = np.random.choice(n,num_of_connections,replace=False)
+      # inds = np.array([1, 2])
+      start = 0
+      end = self.numElements*2
+      new_mask = np.zeros((self.num_nodes,self.num_nodes))
+      pointer = 0
+      for i in np.arange(end):
+          start += 1
+          for j in np.arange(start,end):
+              if self.C[i,j] == 1:
+                  if np.any(inds == pointer):
+                      new_mask[i,j] = 1
+                      new_mask[j,i] = 1
+                  pointer += 1
+      return new_mask == 1
+
+  def mutateL(self, step_size=1, num_mutate = 4, p_c = 0.5):
+      #be ware the bad apple principle
+      if 1-p_c < np.random.rand():
+          selector = self.getMutateLMask(num_mutate)# where you have a elastic connection
+          large_mutator = np.random.normal(scale = step_size * self.wire_mutate_step, size=(self.num_nodes,self.num_nodes))
+          large_mutator = (large_mutator + large_mutator.T)/2 #ensure symmetry
+          self.L[selector] += large_mutator[selector]
+          # i = np.random.randint(self.numElements)
+      else:
+          for i in np.arange(self.numElements): # mutate the bar lengths by some amount aswell
+              mutation = np.random.normal(scale = step_size * self.strut_mutate_step)
+              curr_length = self.L[i+self.numElements,i]
+              new_length = curr_length + mutation
+              new_length = abs(new_length)
+              new_length = np.minimum(new_length,self.length) # caps bars at maxiumum length
+              self.L[i+self.numElements,i] = new_length
+              self.L[i,i+self.numElements] = new_length
+              self.elements[i].mutateLength(new_length)
 
       self.L = np.abs(self.L) #ensures no negative lengths
 

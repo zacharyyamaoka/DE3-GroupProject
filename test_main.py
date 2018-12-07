@@ -50,20 +50,22 @@ class TestMain(unittest.TestCase):
         #     droneA.L[i,i+size] = droneA.elements[i].length
         # print(droneA.L)
         # print(droneA.C)
+        droneB = droneA.duplicate()
+        droneB.mutateL(step_size = 1, num_mutate = 0, p_c = 1)
+        self.assertTrue(np.array_equal(droneA.L,droneB.L))
+
+        droneB.mutateL(step_size = 1, num_mutate = 2, p_c = 1)
+        self.assertEqual(np.sum(droneA.L != droneB.L),4)
 
         last_fit = 0
         for i in np.arange(max_iter):
-            # print(droneA.C)
-            # print(droneA.L)
+
             droneB = droneA.duplicate()
-            # droneA.resetElements()
-            # droneA.refresh()
-            # print(droneA.nodes)
-            droneB.mutateL(step_size = 1)
-            print(droneB.L)
+            droneB.mutateL(step_size = 1, num_mutate = int(np.ceil(droneB.numElements*0.1)), p_c = 1)
             droneB.refresh()
             Solver.solve(droneB, 1) # drones have already been solved so they go very fast
             fit = GA.fitness(droneB)
+            print(droneB.L)
             # print("curr: ", fit)
             # print("last: ",last_fit)
             # print(droneA.L-droneB.L)
