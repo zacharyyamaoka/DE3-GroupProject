@@ -114,13 +114,12 @@ class Evolution():
                 break
             if curr_pop_num == 1:
                 break
-          print(n1,n2)
           p1 = self.new_pop[n1][2]
           p2 = self.new_pop[n2][2] #can have case where you mate with your self..... but hopefully note very likely I can prune these away in a later step
           child = p1.combine(p2,ratio=0.5)
           self.new_pop.append((0, child.uniqueId, child))
 
-  def mutate(self, inplace = False, p_c = 0.1, step_c = 1, step_l = 1):
+  def mutate(self, inplace = False, p_c = 0.1, p_reset = 0.1, p_mutateL = 0.5, step_c = 1, step_l = 1):
       if inplace:
           pop_size = len(self.eval_pop)
       else:
@@ -132,14 +131,15 @@ class Evolution():
             else:
                 offspring = self.new_pop[i][2].duplicate()
 
-            ran_num = np.random.rand()
-            if p_c > ran_num:
-                print("MUTATING C")
+            if p_c > np.random.rand():
                 offspring.mutateC(step_c) # so infruentely fails that you never get any good results with the L
             else:
-                offspring.mutateL(step_l)
+                if p_mutateL == 0:
+                    num = 0
+                else: num = np.random.randint(1,np.ceil(p_mutateL*offspring.numStruts)+1)
+                offspring.mutateL(step_size = step_l, num_mutate = num, p_c = 1)
 
-            if 0 > ran_num:
+            if p_reset > np.random.rand():
                 offspring.resetElements()
             # if 0.1 > np.random.rand(): # uniform mutation rate
             offspring.refresh()

@@ -26,7 +26,7 @@ class TestMain(unittest.TestCase):
     def test_length_search(self):
         plt.ion()
         Viz = Vizulization(2,2)
-        Solver = FormFinder(max_iter = 700, error_esp = 0.001, viz = Viz, show = False)
+        Solver = FormFinder(max_iter = 1000, error_esp = 0.001, viz = Viz, show = False)
 
         GA = Evolution(num_struts = 3, strut_length = 10, max_gen=5,init_size =3, pop_size=3, mutation_rate=0.8, \
         selection_rate = 0.3, selection_pressure = 1.85,elite_rate=1)
@@ -61,7 +61,11 @@ class TestMain(unittest.TestCase):
         for i in np.arange(max_iter):
 
             droneB = droneA.duplicate()
-            droneB.mutateL(step_size = 1, num_mutate = int(np.ceil(droneB.numElements*0.1)), p_c = 1)
+            num = np.random.randint(1,np.ceil(1*droneB.numStruts)+1)
+            print("Num Mutate", num)
+            droneB.mutateL(step_size = 1, num_mutate = num, p_c = 1)
+            if 0.1 > np.random.rand():
+                droneB.resetElements()
             droneB.refresh()
             Solver.solve(droneB, 1) # drones have already been solved so they go very fast
             fit = GA.fitness(droneB)

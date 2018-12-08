@@ -31,7 +31,6 @@ class FormFinder():
       self.step_move = 1
 
   def solve(self, drone, ind=0):
-      print("------Solving-----")
       force = []
       energy = []
 
