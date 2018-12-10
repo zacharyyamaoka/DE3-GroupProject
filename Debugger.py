@@ -30,6 +30,21 @@ class Debugger():
       ax.set_xlim([-10,10])
       ax.set_ylim([-10,10])
       ax.set_zlim([-10,10])
+  def draw_C(self, D, K, L, X):
+      ax = self.ax
+      n = D.shape[0]
+      delta = D - L
+      for i in np.arange(n):
+          row = K[i]
+          for j in np.arange(n):
+              if row[j] > 0:
+                  rows = np.array([i,j])
+                  cols = np.array([0,0])
+                  if delta[i,j] > 0: #pulling togther
+                      colour = 'blue'
+                  else:
+                      colour = 'red' #pushing apart
+                  ax.plot3D(X[rows,cols,np.array([0,0])], X[rows,cols,np.array([1,1])], X[rows,cols,np.array([2,2])],c=colour)
 
   def draw_D(self, D, X):
       # print(D)
