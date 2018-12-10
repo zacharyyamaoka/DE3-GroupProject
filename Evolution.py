@@ -2,7 +2,7 @@ import numpy as np
 from Structure import Structure
 import heapq
 from StructureFunction import *
-import _pickle as pickle
+import pickle
 
 class Evolution():
   def __init__(self,num_struts = 2, strut_length = 10, max_gen = 100,init_size = 1, pop_size=10,mutation_rate=0.01,selection_rate=0.5,selection_pressure=1.5,elite_rate=0.1):
@@ -23,7 +23,7 @@ class Evolution():
       self.p_elite = elite_rate
       self.niche_alpha = 1
       self.niche_radius = 4
-      self.filename = 'population'
+      self.filename = 'cache/population'
       self.eps = 1
   def initPop(self,num, num_struts, strut_length):
       # self.fitness = np.zeros()
@@ -36,13 +36,25 @@ class Evolution():
       return self.current_gen < self.max_gen
   def kill(self):
       self.current_gen = self.max_gen
-  def save(self):
-      file = open(self.filename,'wb')
-      # pickle.dump(drone, file, pickle.HIGHEST_PROTOCOL)
-      pickle.dump(self.pop, file, -1)
-  def load(self):
-      file = open(self.filename,'rb')
-      self.pop = pickle.load(file)
+  def save(self, num = 1):
+      store = []
+      for i in np.arange(num):
+          curr_structure = self.pop[i][2]
+          store.append([curr_structure.C, curr_structure.L])
+      with open(self.filename + str(self.current_gen),'wb') as f:
+          pickle.dump(store, f, pickle.HIGHEST_PROTOCOL)
+      # pickle.dump(self.pop[:num], file, -1)
+  def load(self, iter):
+      with open(self.filename+str(iter),'rb') as f:
+          store = pickle.load(f)
+          for i in np.arange(len(store)):
+              curr_struct = self.pop[i][2]
+              loaded_struct = store[i]
+              curr_struct.C = loaded_struct[0]
+              curr_struct.L = loaded_struct[1]
+              for i in range(curr_struct.numElements):
+                   curr_struct.elements[i].mutateLength(curr_struct.L[i+curr_struct.numElements,i]) #update lengths
+              curr_struct.refresh()
 
   def nextGen(self):
       self.pop = self.new_pop
@@ -119,7 +131,7 @@ class Evolution():
           child = p1.combine(p2,ratio=0.5)
           self.new_pop.append((0, child.uniqueId, child))
 
-  def mutate(self, inplace = False, p_c = 0.1, p_reset = 0.1, p_mutateL = 0.5, step_c = 1, step_l = 1):
+  def mutate(self, inplace = False, p_c = 0.1, p_reset = 0.1, p_mutateL = 0.5, p_mutateLofCB = 0.5, step_c = 1, step_l = 1):
       if inplace:
           pop_size = len(self.eval_pop)
       else:
@@ -136,8 +148,8 @@ class Evolution():
             else:
                 if p_mutateL == 0:
                     num = 0
-                else: num = np.random.randint(1,np.ceil(p_mutateL*offspring.numStruts)+1)
-                offspring.mutateL(step_size = step_l, num_mutate = num, p_c = 1)
+                else: num = np.random.randint(1,np.ceil(p_mutateL*offspring.numStruts)+1) #pick number of struts to modify. Number of strings to modify can 
+                offspring.mutateL(step_size = step_l, num_mutate = num, p_c = p_mutateLofCB)
 
             if p_reset > np.random.rand():
                 offspring.resetElements()
@@ -149,7 +161,7 @@ class Evolution():
   def addToQueue(self, drone, fitness):
       self.eval_pop.append((fitness, drone.uniqueId, drone))
       self.count += 1
-  def niche(self):
+  def niche(self, niche_radius = 2):
       """This Function loops through a queue and applies a penalty multipler to
       each fitness, proportional to how similar it is to the other drone_structure
       in the gene pool."""
@@ -161,10 +173,10 @@ class Evolution():
             for B in self.eval_pop:
                 dist = similar(A[2],B[2])
 
-                if dist >= self.niche_radius:
+                if dist >= niche_radius:
                     pass
                 else:
-                    sharing_mul += 1 - (dist/self.niche_radius)**self.niche_alpha
+                    sharing_mul += 1 - (dist/niche_radius)**self.niche_alpha
             new_eval.append((A[0]/sharing_mul, A[1], A[2]))
       self.eval_pop = new_eval
 

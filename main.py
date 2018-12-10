@@ -17,6 +17,27 @@ debug = False
 showViz = True
 updatefreq = 1
 
+# Variables you tune
+#-----------------------------------
+population = 9
+num_bars = 4
+niche_radius = int(np.ceil((num_bars * 2)*0.1))
+print(niche_radius)
+load = 50
+p_c = 0.1 #proability that you mutate the connections when you mutate
+p_reset = 0.1 # proability that you reset the bars when you mutate
+p_mutateL = 0.25 # amount of bars to mutate when you do mutate
+p_mutateLofCB = 0.75 #proability that you mutate a cable vs a strut when you mutate the lengths
+step_c = 1
+step_l = 2
+
+e_rate = 0.1
+s_pressure = 1.8
+s_rate = 0.5
+m_rate = 0.75
+#-----------------------------------
+
+##
 wait = 0.001
 iterfreq = 25
 checkin= False
@@ -25,13 +46,13 @@ checkinwait = 4
 show = 1
 
 # Solver Info
-error_esp = 0.000001
+error_esp = 0.01
 max_iter = 2000
 Solver = FormFinder(max_iter,error_esp)
 
 #Viz Stuff
-viz_row = 1
-viz_col = 2
+viz_row = 3
+viz_col = 3
 Viz = Vizulization(viz_row,viz_col)
 energy = []
 force = []
@@ -42,18 +63,19 @@ if showViz:
     Viz.labelGraph(FitnessGraph,"FitnessGraph")
     Viz.legendGraph(FitnessGraph,"Max Fitness",c="red")
 
-population = 2
-num_bars = 2
 Viz.setStruts(num_bars)
 #smaller stru  ts, less play but faster convergence.....
-GA = Evolution(num_struts = num_bars, strut_length = 10, max_gen=1000,init_size =population, pop_size=population, mutation_rate=1, \
-selection_rate = 0.1, selection_pressure = 1.85,elite_rate=0.2) #Essentailly just have an autmated hill climber rn, b/c mutation rate is so highself.
-# GA.load()
+GA = Evolution(num_struts = num_bars, strut_length = 10, max_gen=1000,init_size =population, pop_size=population, mutation_rate=m_rate, \
+selection_rate = s_rate, selection_pressure = s_pressure,elite_rate=e_rate) #Essentailly just have an autmated hill climber rn, b/c mutation rate is so highself.
+GA.load(load)
+
 GA.eps = 1
 while GA.alive():
+    if GA.current_gen % 25 == 0:
+        GA.save(population)
     print("----------------------")
     print("Curr Gen: ", GA.current_gen)
-    print("Pop Size", len(GA.pop))
+    print("Pop Sicze", len(GA.pop))
 
     for i in np.arange(len(GA.pop)):
         drone_structure = GA.pop[i][2] # loop through current population
@@ -61,7 +83,7 @@ while GA.alive():
         fit = GA.fitness(drone_structure) # evaluate drone
         drone_structure.fitness = fit # update fitness
         GA.addToQueue(drone_structure, fit) # add drone the the queue
-    # GA.niche()
+    GA.niche(niche_radius)
     GA.rankQueue()
 
     if showViz:
@@ -79,13 +101,11 @@ while GA.alive():
                     print("GOING TO FALL!")
                 Viz.show(drone,i) # show the top drones
             plt.pause(wait)
-    if GA.current_gen % 250:
-        GA.save()
     GA.elite() #p constant that first is selected.
     num_elite = len(GA.new_pop)
     GA.selection() #p constant that first is selected.
     num_selection = len(GA.new_pop) - num_elite
-    GA.mutate(p_c = 0.1, p_reset = 0.1, p_mutateL = 0.1, step_c = 1, step_l = 0.1) #avoiding mutating the elites
+    GA.mutate(p_c = p_c, p_reset = p_reset, p_mutateL = p_mutateL, p_mutateLofCB=p_mutateLofCB, step_c = step_c, step_l = step_l) #avoiding mutating the elites
     num_mutate = len(GA.new_pop) - num_elite - num_selection
     GA.crossOver()
     num_cross = len(GA.new_pop) - num_elite - num_selection - num_mutate

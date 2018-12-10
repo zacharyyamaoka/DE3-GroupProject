@@ -90,7 +90,15 @@ class Structure():
           return selfElements[ind]
 
 
-  def combine(self, mate, ratio=np.random.rand()):
+
+  def getMateMask(self, total_nodes, mate_nodes):
+      inds = np.random.choice(total_nodes,mate_nodes,replace=False)
+      mask = np.zeros((total_nodes,total_nodes))
+      for i in inds:
+          mask[i,i:] = 1 #set row to 1
+          mask[i:,i] = 1 #set all cols
+      return mask
+  def combine(self, mate, ratio=np.random.rand(), seed = False):
       #Pick Combine Ratio
       p_comb = ratio
       child = self.duplicate()
@@ -116,7 +124,7 @@ class Structure():
       child.numElements = new_num_elements
 
       # Update Elements with cross over
-      if element_mate < element_self: #element self first
+      if 0.5 > np.random.rand(): #Swtich order that you combine then two -- You just take element positon from here, you do a full combine of the lengths
         new_elements = child.elements[0:element_self]
         new_elements.extend(mate.elements[element_self:element_self+element_mate])
 
@@ -131,18 +139,21 @@ class Structure():
       p_mate_L = np.ones((new_num_nodes,new_num_nodes)) * p_mate
       p_mate_L[mate.L==0] = 0
       p_mate_L[self.L==0] = 1
+      # go through and make some of the 0.3's to 1s min and maxing essentially.
+      # p_mate_L = self.getMateMask(new_num_nodes,mate_num_nodes);
       p_self_L = -p_mate_L + 1
-
       new_C = p_mate*mate.C + p_self * self.C
       new_L = p_mate_L*mate.L + p_self_L * self.L
 
       mask = np.random.rand(new_num_nodes,new_num_nodes)
+      if seed:
+          mask = np.zeros((new_num_nodes,new_num_nodes)) + 0.01
       mask = (mask + mask.T)/2
       new_connection = new_C >= mask
       new_length = np.copy(new_connection)
       child.C[new_connection] = 1 #Elasticity of Connection
 
-      new_L_connect = np.random.uniform(0,self.length/2,size=(self.num_nodes,self.num_nodes))
+      new_L_connect = np.random.uniform(0,self.length,size=(self.num_nodes,self.num_nodes))
       zero = new_L == 0
       new_L[zero & new_length] = ((new_L_connect + new_L_connect.T)/2)[zero & new_length]## you need to add
       for i in np.arange(self.numElements): #ensure valid C
@@ -200,14 +211,39 @@ class Structure():
   def refresh(self):
       self.old_Nodes = self.nodes
       self.initNodes(self.elements)
-  def getMutateLMask(self, num_of_connections):
 
-      n = int(np.sum(self.C)/2) #divide by 2 to avoid double counting
+  def getCombineLMask(self,n,L):
+      new_mask = np.zeros((self.num_nodes,self.num_nodes))
+
+      if n == 0:
+          return new_mask == 1
+
       inds = np.random.choice(n,num_of_connections,replace=False)
       # inds = np.array([1, 2])
       start = 0
       end = self.numElements*2
+      pointer = 0
+      for i in np.arange(end):
+          start += 1
+          for j in np.arange(start,end):
+              if self.C[i,j] == 1:
+                  if np.any(inds == pointer):
+                      new_mask[i,j] = 1
+                      new_mask[j,i] = 1
+                  pointer += 1
+      return new_mask == 1
+
+  def getMutateLMask(self, num_of_connections*2):
+
+      n = int(np.sum(self.C)/2) #divide by 2 to avoid double counting
       new_mask = np.zeros((self.num_nodes,self.num_nodes))
+
+      if n == 0:
+          return new_mask == 1
+      inds = np.random.choice(n,num_of_connections,replace=False)
+      # inds = np.array([1, 2])
+      start = 0
+      end = self.numElements*2
       pointer = 0
       for i in np.arange(end):
           start += 1
@@ -229,6 +265,7 @@ class Structure():
           # i = np.random.randint(self.numElements)
       else:
           for i in np.arange(self.numElements): # mutate the bar lengths by some amount aswell
+
               mutation = np.random.normal(scale = step_size * self.strut_mutate_step)
               curr_length = self.L[i+self.numElements,i]
               new_length = curr_length + mutation

@@ -7,11 +7,54 @@ from Vizulization import Vizulization
 from Evolution import Evolution
 import numpy as np
 import matplotlib.pyplot as plt
-
+import copy
 # To test:
 
 #does the solver work for random values of theta ? past pi and -pi
 class TestMain(unittest.TestCase):
+    def test_save(self):
+        GA1 = Evolution(num_struts = 3, strut_length = 10, max_gen=5,init_size =3, pop_size=3, mutation_rate=0.8, \
+        selection_rate = 0.3, selection_pressure = 1.85,elite_rate=1)
+
+        GA4 = Evolution(num_struts = 3, strut_length = 10, max_gen=5,init_size =3, pop_size=3, mutation_rate=0.8, \
+        selection_rate = 0.3, selection_pressure = 1.85,elite_rate=1)
+        GA1.current_gen = 25
+        GA1.save(1)
+        old_First = GA1.pop[0][2]
+        old_Second = GA1.pop[1][2]
+
+        GA4.current_gen = 50
+        GA4.save(2)
+        second_GA4 = GA4.pop[1][2]
+
+        GA2 = Evolution(num_struts = 3, strut_length = 10, max_gen=5,init_size =3, pop_size=3, mutation_rate=0.8, \
+        selection_rate = 0.3, selection_pressure = 1.85,elite_rate=1)
+        GA2.load(25)
+        new_First = GA2.pop[0][2]
+        new_Second = GA2.pop[1][2]
+
+        print(old_First.L)
+        print(new_First.L)
+        self.assertTrue(np.array_equal(old_First.L,new_First.L))
+        self.assertTrue(np.array_equal(old_First.C,new_First.C))
+        self.assertFalse(np.array_equal(old_Second.C,new_Second.C))
+        self.assertFalse(np.array_equal(old_Second.C,new_Second.C))
+
+        GA2.load(50)
+        second_GA4_copy = GA2.pop[1][2]
+
+        self.assertTrue(np.array_equal(second_GA4.L,second_GA4_copy.L))
+        self.assertTrue(np.array_equal(second_GA4.C,second_GA4_copy.C))
+
+
+    def test_getMateMask(self):
+        droneA = Structure(10,2)
+        mask = droneA.getMateMask(10,5)
+        self.assertEqual(np.sum(mask[-1,:]),5)
+        mask = droneA.getMateMask(10,0)
+        self.assertEqual(np.sum(mask[-1,:]),0)
+        mask = droneA.getMateMask(10,10)
+        self.assertEqual(np.sum(mask[-1,:]),10)
     def test_reset(self):
         droneA = Structure(10,2)
         before = droneA.nodes
@@ -22,9 +65,39 @@ class TestMain(unittest.TestCase):
 
 
 
+    def test_combine_evolve(self):
+        size = 2
+        C = np.array([[0, 1, 0, 1],
+                    [1, 0, 1, 0],
+                    [0, 1, 0, 1],
+                    [1, 0, 1, 0]])
+        p1 = Structure(10,size,seed_C=C, seed = True)
+        p2 = Structure(10,size,seed_C=C, seed = True)
+        p = 0.99
+        child = p1.combine(p2,ratio=p)
+        p_c = 1 - p
+        p_m = p
+        test_L = p1.L * p_c + p2.L * p_m
+
+        self.assertTrue(np.array_equal(test_L,child.L))
+        C1 = np.array([[0, 1, 0, 1],
+                    [1, 0, 1, 0],
+                    [0, 0, 0, 0],
+                    [0, 0, 0, 0]])
+        C2 = np.array([[0, 0, 0, 0],
+                    [0, 0, 0, 0],
+                    [0, 1, 0, 1],
+                    [1, 0, 1, 0]])
+        p1 = Structure(10,size,seed_C=C1, seed = True)
+        p2 = Structure(10,size,seed_C=C2, seed = True)
+        child = p1.combine(p2,ratio=0.4,seed=True)
+
+        self.assertTrue(np.array_equal(child.L[:2,:],p1.L[:2,:]))
+        self.assertTrue(np.array_equal(child.L[2:4,:],p2.L[2:4,:]))
+
+
 
     def test_length_search(self):
-        plt.ion()
         Viz = Vizulization(2,2)
         Solver = FormFinder(max_iter = 1000, error_esp = 0.001, viz = Viz, show = False)
 
@@ -44,12 +117,7 @@ class TestMain(unittest.TestCase):
                       [1, 0, 0, 1, 0, 1],
                       [0, 1, 0, 1, 1, 0]])
         droneA = Structure(10,size,seed_C=C, seed = True)
-        # droneA.L = np.zeros((n,n))
-        # for i in np.arange(size):
-        #     droneA.L[i+size,i] = droneA.elements[i].length
-        #     droneA.L[i,i+size] = droneA.elements[i].length
-        # print(droneA.L)
-        # print(droneA.C)
+
         droneB = droneA.duplicate()
         droneB.mutateL(step_size = 1, num_mutate = 0, p_c = 1)
         self.assertTrue(np.array_equal(droneA.L,droneB.L))
@@ -58,35 +126,26 @@ class TestMain(unittest.TestCase):
         self.assertEqual(np.sum(droneA.L != droneB.L),4)
 
         last_fit = 0
-        for i in np.arange(max_iter):
+        for i in np.arange(2):
 
             droneB = droneA.duplicate()
             num = np.random.randint(1,np.ceil(1*droneB.numStruts)+1)
-            print("Num Mutate", num)
             droneB.mutateL(step_size = 1, num_mutate = num, p_c = 1)
             if 0.1 > np.random.rand():
                 droneB.resetElements()
             droneB.refresh()
             Solver.solve(droneB, 1) # drones have already been solved so they go very fast
             fit = GA.fitness(droneB)
-            print(droneB.L)
-            # print("curr: ", fit)
-            # print("last: ",last_fit)
-            # print(droneA.L-droneB.L)
-            Viz.show(droneB,3)
-            Viz.show(droneA,2)
+
             if fit >= last_fit:
                 last_fit = fit
                 droneA = droneB
-            plt.show()
-            plt.pause(0.1)
-        plt.close()
+
 
     def test_space_search(self):
         size = 3
         n = size * 2
         comb = (n*(n+1)/2) - (1.5*n)
-        # print("Posibilties: ", 2**comb)
         n_comb = 2**comb
         full = np.ones((size*2,size*2))
         for i in np.arange(size): #ensure valid C
@@ -97,11 +156,9 @@ class TestMain(unittest.TestCase):
         max_iter = n_comb*2
         droneA = Structure(10,size)
         for i in np.arange(max_iter):
-                        # print(droneA.C)
             droneA.mutateC()
             diff = np.sum(np.abs(droneA.C - full))
             if (np.array_equal(droneA.C,full)):
-                # print(droneA.C)
                 self.assertTrue(True)
                 break
 
@@ -134,10 +191,7 @@ class TestMain(unittest.TestCase):
         GA.addToQueue(droneB, 10)
         GA.addToQueue(droneC, 10)
         GA.addToQueue(droneD, 10)
-
-        print(GA.eval_pop)
         GA.niche()
-        print(GA.eval_pop)
         self.assertEqual(GA.eval_pop[0][0],GA.eval_pop[1][0])
         self.assertEqual(GA.eval_pop[2][0],GA.eval_pop[3][0])
     def test_evolution(self):
@@ -151,7 +205,6 @@ class TestMain(unittest.TestCase):
         while GA.alive():
             for i in np.arange(len(GA.pop)):
                 drone_structure = GA.pop[i][2] # loop through current population
-                print(drone_structure.uniqueId)
                 self.assertEqual(Solver.step_move, 1)
                 self.assertEqual(Solver.step_rotate, 1)
                 Solver.solve(drone_structure, i) # drones have already been solved so they go very fast
@@ -160,13 +213,6 @@ class TestMain(unittest.TestCase):
                 GA.addToQueue(drone_structure, fit)
             GA.elite() #p constant that first is selected.
 
-            # plt.show()
-            # plt.pause(0.1)
-
-
-            # print("----------------------")
-            # print("Curr Gen: ", GA.current_gen)
-            # print("Pop Size", len(GA.pop))
             GA.nextGen()
 
 

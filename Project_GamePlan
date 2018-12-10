@@ -1,9 +1,2 @@
+
 -> cache current population,
-allow for hand tuning of step size
-
-- Implement Niching
-- Ensure that its crossing the space correctly
-- Modularize code so you can easily cahnge Fitness
-- Speed up simulation and checking
-
-Testing coverengce. Can I write down the formulas closed form?
