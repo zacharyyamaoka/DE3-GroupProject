@@ -233,8 +233,8 @@ class Structure():
                   pointer += 1
       return new_mask == 1
 
-  def getMutateLMask(self, num_of_connections*2):
-
+  def getMutateLMask(self, num_of_connections):
+      num_of_connections *= 2
       n = int(np.sum(self.C)/2) #divide by 2 to avoid double counting
       new_mask = np.zeros((self.num_nodes,self.num_nodes))
 

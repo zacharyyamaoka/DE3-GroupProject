@@ -9,6 +9,8 @@ class Debugger():
       plt.ion()
       self.fig = plt.figure(1)
       self.ax = self.fig.add_subplot(111,projection='3d',proj_type = 'ortho')
+      # self.ax = self.fig.add_subplot(111,projection='3d')
+
   def draw_X(self, X):
       ax = self.ax
       for node in X:
@@ -47,7 +49,6 @@ class Debugger():
                   ax.plot3D(X[rows,cols,np.array([0,0])], X[rows,cols,np.array([1,1])], X[rows,cols,np.array([2,2])],c=colour)
 
   def draw_D(self, D, X):
-      # print(D)
       z_offset = 0
       ax = self.ax
       num = D.shape[0]
@@ -58,14 +59,13 @@ class Debugger():
           for j in np.arange(num):
               if j != i:
                   end = row[j]
-                  print(start)
-                  print(end)
                   ax.quiver(start[0], start[1], start[2]-z_offset, end[0], end[1], end[2], normalize = False)
                   # ax.quiver(start[0], start[1], start[2], end[0], end[1], end[2], normalize = True)
 
 
-  def display(self, time=1):
-      self.ax.view_init(90,0)
+  def display(self,  time=1, azimuth=0, altitude=90):
+      # self.ax.view_init(15,45)
+      self.ax.view_init(altitude,azimuth)
       self.fix_ratio()
       plt.show()
       plt.pause(time)
