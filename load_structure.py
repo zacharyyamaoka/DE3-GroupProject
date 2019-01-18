@@ -8,7 +8,7 @@ def load(filename, dtype):
         info = np.fromstring(lines[0], dtype, sep=',')
     return info
 
-def loadFusionStructure():
+def loadFusionStructure(strut_K = 50, elastic_K = 10, strut_D = 1):
     K_s = -1
     K_e = 1
 
@@ -22,11 +22,15 @@ def loadFusionStructure():
     nodes = int(np.sqrt(n)) #there are n by n entries in K b/c its flat, #nodes is n
     K_mixed = K_mixed.reshape(nodes,nodes) #reshape into square matrix
     L_mixed = L_mixed.reshape(nodes,nodes) #reshape into square matrix
-    X_mixed = X_mixed.reshape(nodes,3)
+    X_mixed = X_mixed.reshape(nodes,1,3)
 
     K = K_mixed
     X = X_mixed
     L = L_mixed
+
+    K[K==K_s] = strut_K
+    K[K==K_e] = elastic_K
+
     return K, L, X
 loadFusionStructure()
 def loadStructure(filename = 'droneK'):

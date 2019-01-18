@@ -11,6 +11,10 @@ class TestMain(unittest.TestCase):
     def test_structure_loading(self):
         K, L, X = loadFusionStructure()
         n = K.shape[0]
+        Debugger.clear()
+        Debugger.draw_X(X)
+        Debugger.draw_K_strut(K, L, X)
+        Debugger.display(5, 45, 20)
         self.assertEqual(L.shape[0], n)
         self.assertEqual(X.shape[0], n)
 

@@ -32,6 +32,21 @@ class Debugger():
       ax.set_xlim([-10,10])
       ax.set_ylim([-10,10])
       ax.set_zlim([-10,10])
+  def draw_K_strut(self, K, L, X, strut_K = 50):
+      ax = self.ax
+      print(X[[0,0],[0,0]])
+      n = K.shape[0]
+      for i in np.arange(n):
+          row = K[i]
+          for j in np.arange(n):
+              if row[j] > 0:
+                  rows = np.array([i,j])
+                  cols = np.array([0,0])
+                  colour = 'blue'
+                  if row[j] == strut_K: #struts different colours
+                      colour = 'red'
+                  ax.plot3D(X[rows,cols,np.array([0,0])], X[rows,cols,np.array([1,1])], X[rows,cols,np.array([2,2])],c=colour)
+
   def draw_C(self, D, K, L, X):
       ax = self.ax
       n = D.shape[0]
