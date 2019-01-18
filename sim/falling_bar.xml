@@ -1,0 +1,23 @@
+<mujoco>
+   <option timestep="0.01" />
+   <worldbody>
+      <light diffuse=".5 .5 .5" pos="0 0 3" dir="0 0 -1"/>
+
+      <geom type="plane" size="1 1 0.1" rgba=".9 0 0 1"/>
+      <site name="end2" pos="0.5 0 0.2" type="sphere" size="0.01"/>
+
+      <body name="rod" pos="0 0 10" euler="0 45 0">
+         <joint name="box1" type="free"/>
+         <site name="end1" pos="0.1 0 0.2" type="sphere" size="0.01"/>
+         <geom fromto="0 0 1 0 0 -1"  density="1000" type="cylinder" size="0.014"/>
+      </body>
+
+   </worldbody>
+
+    <sensor>
+        <accelerometer name="accel" site="end1" />
+        <velocimeter name="velo" site="end1" />
+    </sensor>
+
+
+</mujoco>

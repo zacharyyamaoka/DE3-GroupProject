@@ -1,0 +1,58 @@
+
+from mujoco_py import load_model_from_xml, MjSim, MjViewer, load_model_from_path
+import math
+import os
+import numpy as np
+import matplotlib.pyplot as plt
+
+# model = load_model_from_xml(simple_x)
+model = load_model_from_path("/Users/zachyamaoka/Documents/de3_group_project/sim/falling_bar.xml")
+sim = MjSim(model)
+viewer = MjViewer(sim)
+
+t = 0
+vel_data = []
+pos_data = []
+acc_data = []
+time = []
+while True:
+    # sim.data.ctrl[0] = math.cos(t / 10.) * 0.01
+    # sim.data.ctrl[1] = math.sin(t / 10.) * 0.01
+    time.append(t*0.01)
+    t += 1
+    sim.step()
+    vel_data.append(np.array(sim.data.get_body_xvelp("rod"))) #careful with placement here
+    pos_data.append(np.array(sim.data.get_body_xpos("rod")))
+    acc_data.append(np.array(sim.data.qacc)[0:6])
+    viewer.render()
+    if t > 400:
+        break
+    if t > 100 and os.getenv('TESTING') is not None:
+        break
+
+vel_data = np.array(vel_data)
+pos_data = np.array(pos_data)
+acc_data = np.array(acc_data)
+
+plt.ion()
+plt.figure(1)
+plt.title("Velocity")
+plt.plot(time,vel_data[:,0])
+plt.plot(time,vel_data[:,1])
+plt.plot(time,vel_data[:,2])
+
+plt.figure(2)
+plt.title("Position")
+plt.plot(time,pos_data[:,0])
+plt.plot(time,pos_data[:,1])
+plt.plot(time,pos_data[:,2])
+
+plt.figure(3)
+plt.title("Accel")
+print("Max Accel: ", np.amax(acc_data))
+plt.plot(time,acc_data[:,0])
+plt.plot(time,acc_data[:,1])
+plt.plot(time,acc_data[:,2])
+plt.show()
+plt.pause(10)
+plt.clf()
