@@ -2,19 +2,58 @@ import numpy as np
 import unittest
 from Debugger import Debugger
 from load_structure import *
+from save_structure import *
 from solver_util import *
 # could optimize to do half the computations but that is not where the greatest gain is
 # Testing the 1 D Case
 
 # State vector
 class TestMain(unittest.TestCase):
+
+    def test_converge_proper(self):
+        debug = True
+        K, L, X = loadFusionStructure()
+        step = 0.001
+        self.assertEqual(np.sum(K-K.T),0)
+        self.assertEqual(np.sum(L-L.T),0)
+        n = K.shape[0]
+        iter = 3100
+        for i in np.arange(iter):
+            energy, cache = forward(K,X,L)
+            D_3D, K_i, D_i, L_i = cache
+            gradient, info = backprop(cache)
+            X -= gradient * step
+            total_F, node_F = ForceInfo(K_i, D_i, L_i, D_3D)
+            if (abs(node_F) < 1e-12).all():
+                break
+            if iter % 1000 == 0 and iter != 0:
+                step *= 0.1
+            print(node_F)
+            if debug and i%100==0:
+                Debugger.clear()
+                Debugger.draw_X(X)
+                # Debugger.draw_K_strut(K, L, X)
+                Debugger.draw_C(D_i, K, L, X)
+                Debugger.display(0.00001, 45, 20)
+
+        if debug:
+            Debugger.display(5, 45, 20)
+
+        #export nodal positions to txt
+        save_fusion360(X, K)
+
     def test_structure_loading(self):
+        debug = False
         K, L, X = loadFusionStructure()
         n = K.shape[0]
-        Debugger.clear()
-        Debugger.draw_X(X)
-        Debugger.draw_K_strut(K, L, X)
-        Debugger.display(5, 45, 20)
+        # print(K)
+        # print(X)
+
+        if debug:
+            Debugger.clear()
+            Debugger.draw_X(X)
+            Debugger.draw_K_strut(K, L, X)
+            Debugger.display(5, 45, 20)
         self.assertEqual(L.shape[0], n)
         self.assertEqual(X.shape[0], n)
 
@@ -105,7 +144,7 @@ class TestMain(unittest.TestCase):
         debug = False
         nodes = 6
 
-        K_s = 50 #careful with size of gradient
+        K_s = 40 #careful with size of gradient
         L_s = 10.0
 
         K = np.array([[0, 1, 1, K_s, 1, 0],

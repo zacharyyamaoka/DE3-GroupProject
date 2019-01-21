@@ -1,22 +1,66 @@
 <mujoco>
    <option timestep="0.01" />
+   <default>
+ 		  <site type="sphere" size="0.005"/>
+      <tendon limited="true" range="0.1 0.8" width="0.005" rgba="0.99 0. 0. 1"  stiffness="1" damping="0.5"/>
+
+ 	 </default>
    <worldbody>
       <light diffuse=".5 .5 .5" pos="0 0 3" dir="0 0 -1"/>
 
       <geom type="plane" size="1 1 0.1" rgba=".9 0 0 1"/>
-      <site name="end2" pos="0.5 0 0.2" type="sphere" size="0.01"/>
 
-      <body name="rod" pos="0 0 10" euler="0 45 0">
-         <joint name="box1" type="free"/>
-         <site name="end1" pos="0.1 0 0.2" type="sphere" size="0.01"/>
-         <geom fromto="0 0 1 0 0 -1"  density="1000" type="cylinder" size="0.014"/>
+      <body name="rod0_1" pos="0 0 0">
+        <geom name="r01"  fromto="0.554168  0.181788  0.638605 -0.191882  -0.227347  0.0405941"  density="1000" type="cylinder" size="0.014" />
+        <joint name="move0_1" type="free"/>
+  			<body name="rod0_1_child1">
+  				<geom name="r01_child1" pos="0.554168  0.181788  0.638605" density="5000" mass="5" type="sphere"  size="0.03" friction="10 0.005 0.0001"/>
+  				<site name="s0" pos="0.554168  0.181788  0.638605"/>
+  				<joint type="ball" pos="0.554168  0.181788  0.638605"/>
+  			</body>
+  			<body name="rod0_1_child2">
+  				<geom name="r01_child2" pos="-0.191882  -0.227347  0.0405941" density="5000" mass="5" type="sphere"  size="0.03" friction="10 0.005 0.0001"/>
+  				<site name="s1" pos="-0.191882  -0.227347  0.0405941" />
+  				<joint type="ball" pos="-0.191882  -0.227347  0.0405941"/>
+  			</body>
+  		</body>
+      <body name="rod2_3" pos="0 0 0">
+          <geom name="r23"  fromto="-0.186509 -0.448923  0.63765 -0.186517  0.409422 0.050415" density="1000" type="cylinder"  size="0.014"/>
+          <joint name="move2_3" type="free"/>
+  				<body name="rod2_3_child1">
+  					<geom name="r23_child1" pos="-0.186509 -0.448923  0.63765" density="5000" mass="5" type="sphere"  size="0.03" friction="10 0.005 0.0001"/>
+          	<site name="s2" pos="-0.186509 -0.448923  0.63765"/>
+  					<joint type="ball" pos="-0.186509 -0.448923  0.63765"/>
+  				</body>
+  				<body name="rod2_3_child2">
+  					<geom name="r23_child2" pos="-0.186517  0.409422  0.050415" density="5000" mass="5" type="sphere"  size="0.03" friction="10 0.005 0.0001"/>
+  					<site name="s3" pos="-0.186517  0.409422  0.050415" />
+  					<joint type="ball" pos="-0.186517  0.409422  0.050415"/>
+  				</body>
       </body>
 
    </worldbody>
-
+   <tendon>
+         <spatial name="td_0">
+             <site site="s0"/>
+             <site site="s2"/>
+         </spatial>
+         <spatial  name="td_1">
+             <site site="s0"/>
+             <site site="s3"/>
+         </spatial>
+         <spatial  name="td_2">
+             <site site="s1"/>
+             <site site="s2"/>
+         </spatial>
+         <spatial  name="td_3">
+             <site site="s1"/>
+             <site site="s3"/>
+         </spatial>
+     </tendon>
     <sensor>
-        <accelerometer name="accel" site="end1" />
-        <velocimeter name="velo" site="end1" />
+        <accelerometer name="accel" site="s1" />
+        <velocimeter name="velo" site="s1" />
     </sensor>
 
 

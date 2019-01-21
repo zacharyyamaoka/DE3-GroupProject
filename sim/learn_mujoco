@@ -1,9 +1,9 @@
-
 from mujoco_py import load_model_from_xml, MjSim, MjViewer, load_model_from_path
 import math
 import os
 import numpy as np
 import matplotlib.pyplot as plt
+
 
 # model = load_model_from_xml(simple_x)
 model = load_model_from_path("/Users/zachyamaoka/Documents/de3_group_project/sim/falling_bar.xml")

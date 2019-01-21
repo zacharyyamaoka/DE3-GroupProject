@@ -19,9 +19,10 @@ class Debugger():
       self.ax.cla()
   def fix_ratio(self):
       ax = self.ax
-      X = np.arange(-10,10)
-      Y = np.arange(-10,10)
-      Z = np.arange(-10,10)
+      size = 0.1 #m
+      X = np.arange(-size,size)
+      Y = np.arange(-size,size)
+      Z = np.arange(-size,size)
 
       max_range = np.array([X.max()-X.min(), Y.max()-Y.min(), Z.max()-Z.min()]).max()
       Xb = 0.5*max_range*np.mgrid[-1:2:2,-1:2:2,-1:2:2][0].flatten() + 0.5*(X.max()+X.min())
@@ -29,9 +30,9 @@ class Debugger():
       Zb = 0.5*max_range*np.mgrid[-1:2:2,-1:2:2,-1:2:2][2].flatten() + 0.5*(Z.max()+Z.min())
       for xb, yb, zb in zip(Xb, Yb, Zb):
           ax.plot([xb], [yb], [zb], 'w')
-      ax.set_xlim([-10,10])
-      ax.set_ylim([-10,10])
-      ax.set_zlim([-10,10])
+      ax.set_xlim([-size,size])
+      ax.set_ylim([-size,size])
+      ax.set_zlim([-size,size])
   def draw_K_strut(self, K, L, X, strut_K = 50):
       ax = self.ax
       print(X[[0,0],[0,0]])
