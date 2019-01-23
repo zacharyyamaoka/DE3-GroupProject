@@ -1,0 +1,21 @@
+builders:
+  rod:
+    class: tgRodInfo
+    parameters: {density: 0.635, radius: 0.635}
+  strut:
+    class: tgRodInfo
+    parameters: {density: 0.635, radius: 0.635}
+nodes:
+  1: [2, 2, 4]
+  2: [2, 10, 4]
+  3: [2, 1, 4]
+  4: [2, -5, 4]
+pair_groups:
+  rod:
+  - [1, 2]
+  - [3, 2]
+  - [4, 2]
+  strut:
+  - [1, 2]
+  - [3, 2]
+  - [4, 2]
