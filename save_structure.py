@@ -1,6 +1,59 @@
 import os.path
 import numpy as np
+from yaml import *
 
+def GetKConstants(K):
+
+    list_full = K.flatten().tolist()
+    list_unique = set(list_full)
+    list_sorted = sorted(list_unique)
+    k_e = list_sorted[1]
+    k_s = list_sorted[2]
+    return k_s,k_e
+
+def save_YAML(X,K,filename="drone"):
+    info = dict()
+
+    n = X.shape[0]
+    K_s, K_e = GetKConstants(K)
+    #populate nodes
+    info["nodes"] = dict()
+
+    for i in range(n):
+        ind = "node" + str(i)
+        info["nodes"][ind] = X[i,0,:].tolist()
+
+    info["pair_groups"] = dict()
+    strut = []
+    elastic = []
+    for i in range(n):
+        for j in range(i+1,n):
+            one = "node" + str(i)
+            two = "node" + str(j)
+            if K[i,j] == K_s:
+                strut.append([one,two])
+            if K[i,j] == K_e:
+                elastic.append([one,two])
+
+    info["pair_groups"]["strut"]=strut
+    info["pair_groups"]["elastic"]=elastic
+
+    info["builders"] = dict()
+    info["builders"]["elastic"] = dict()
+    info["builders"]["elastic"]["class"] = "tgBasicActuatorInfo"
+    info["builders"]["elastic"]["parameters"] = dict()
+    info["builders"]["elastic"]["parameters"]["stiffness"] = K_s
+    info["builders"]["elastic"]["parameters"]["damping"] = 10
+    info["builders"]["elastic"]["parameters"]["pretension"] = 100
+
+    info["builders"]["strut"] = dict()
+    info["builders"]["strut"]["class"] = "tgRodInfo"
+    info["builders"]["strut"]["parameters"] = dict()
+    info["builders"]["strut"]["parameters"]["density"] = 0.635
+    info["builders"]["strut"]["parameters"]["radius"] = 0.635
+
+    with open(os.path.join('/Users/zachyamaoka/Documents/de3_group_project/YAML',filename), "w") as file1:
+        dump(info, file1)    # Write a YAML representation of data to 'document.yaml'.
 
 def save_fusion360(X, K):
 
@@ -38,7 +91,7 @@ def save_fusion360(X, K):
             elif j != last:
                 K_info += ","
 
-    
+
     save("fusion_drone_X", X_info)
     save("fusion_drone_K", K_info)
 
