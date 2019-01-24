@@ -1,3 +1,10 @@
+builders:
+  elastic:
+    class: tgBasicActuatorInfo
+    parameters: {damping: 10, pretension: 100, stiffness: 100.0}
+  strut:
+    class: tgRodInfo
+    parameters: {density: 0.635, radius: 0.635}
 nodes:
   node0: [-0.02416567639533928, -0.0250466375406451, 0.0]
   node1: [-0.023958626859972555, 0.020918359310765987, 0.0]
@@ -10,13 +17,5 @@ pair_groups:
   - [node1, node2]
   - [node2, node3]
   strut:
-  - [1, 2]
-  - [3, 2]
-  - [4, 2]
-  builders:
-    rod:
-      class: tgRodInfo
-      parameters: {density: 0.635, radius: 0.635}
-    strut:
-      class: tgRodInfo
-      parameters: {density: 0.635, radius: 0.635}
+  - [node0, node2]
+  - [node1, node3]

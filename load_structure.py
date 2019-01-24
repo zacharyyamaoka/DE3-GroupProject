@@ -62,16 +62,15 @@ def reOrderKLX(K, L, X, K_e, K_s):
     # loop through and fill in the other connections
     return new_K, new_L, new_X
 
-def loadFusionStructure(strut_K = 100, elastic_K = 5, strut_D = 1, elastic_L = 0):
+def loadFusionStructure(filenumber = "0", strut_K = 100, elastic_K = 5, strut_D = 1, elastic_L = 0):
     K_s = -1
     K_e = 1
 
     L_s = 0.3 #careful here.....
     L_e = 0
-
-    K_mixed = load("droneK", int)
-    L_mixed = load("droneL", float)
-    X_mixed = load("droneX", float)
+    K_mixed = load("droneK_" + filenumber, int)
+    L_mixed = load("droneL_" + filenumber, float)
+    X_mixed = load("droneX_" + filenumber, float)
     n = K_mixed.shape[0] #see length of K matrix
     nodes = int(np.sqrt(n)) #there are n by n entries in K b/c its flat, #nodes is n
     K_mixed = K_mixed.reshape(nodes,nodes) #reshape into square matrix
@@ -86,8 +85,6 @@ def loadFusionStructure(strut_K = 100, elastic_K = 5, strut_D = 1, elastic_L = 0
     L[strut_mask] = L_s
     L[elastic_mask] = L_e
     return K, L, X
-
-loadFusionStructure()
 
 def loadStructure(filename = 'droneK'):
     band_stiffness = 1
