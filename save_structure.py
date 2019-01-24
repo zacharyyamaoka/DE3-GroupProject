@@ -14,6 +14,11 @@ def GetKConstants(K):
 def save_YAML(X,K,filename="drone"):
     info = dict()
 
+    scale = 10 #make sure to set gravity to 98.1dm/s
+
+    X *= 10
+    K *= 10
+
     n = X.shape[0]
     K_s, K_e = GetKConstants(K)
     #populate nodes
@@ -44,13 +49,13 @@ def save_YAML(X,K,filename="drone"):
     info["builders"]["elastic"]["parameters"] = dict()
     info["builders"]["elastic"]["parameters"]["stiffness"] = K_s
     info["builders"]["elastic"]["parameters"]["damping"] = 10
-    info["builders"]["elastic"]["parameters"]["pretension"] = 100
+    info["builders"]["elastic"]["parameters"]["pretension"] = 10
 
     info["builders"]["strut"] = dict()
     info["builders"]["strut"]["class"] = "tgRodInfo"
     info["builders"]["strut"]["parameters"] = dict()
     info["builders"]["strut"]["parameters"]["density"] = 0.635
-    info["builders"]["strut"]["parameters"]["radius"] = 0.635
+    info["builders"]["strut"]["parameters"]["radius"] = 0.1
 
     with open(os.path.join('/Users/zachyamaoka/Documents/de3_group_project/YAML',filename), "w") as file1:
         dump(info, file1)    # Write a YAML representation of data to 'document.yaml'.
