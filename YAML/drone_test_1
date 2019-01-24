@@ -1,15 +1,15 @@
 builders:
   elastic:
     class: tgBasicActuatorInfo
-    parameters: {damping: 10, pretension: 100, stiffness: 100.0}
+    parameters: {damping: 10, pretension: 10, stiffness: 1000.0}
   strut:
     class: tgRodInfo
-    parameters: {density: 0.635, radius: 0.635}
+    parameters: {density: 0.635, radius: 0.1}
 nodes:
-  node0: [-0.02416567639533928, -0.0250466375406451, 0.0]
-  node1: [-0.023958626859972555, 0.020918359310765987, 0.0]
-  node2: [0.030495400941473925, 0.02588754815956719, 0.0]
-  node3: [0.02863195512317347, -0.03374271802604721, 0.0]
+  node0: [-0.2416567639533928, -0.250466375406451, 0.0]
+  node1: [-0.23958626859972554, 0.20918359310765988, 0.0]
+  node2: [0.30495400941473927, 0.25887548159567186, 0.0]
+  node3: [0.2863195512317347, -0.33742718026047214, 0.0]
 pair_groups:
   elastic:
   - [node0, node1]
