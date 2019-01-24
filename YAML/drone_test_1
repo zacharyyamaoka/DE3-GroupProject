@@ -1,11 +1,7 @@
 builders:
   elastic:
     class: tgBasicActuatorInfo
-<<<<<<< HEAD
     parameters: {damping: 10, stiffness: 100.0}
-=======
-    parameters: {damping: 10, pretension: 10, stiffness: 1000.0}
->>>>>>> 9c2cadfefcc551c649a4a47f46ef3551f724a670
   strut:
     class: tgRodInfo
     parameters: {density: 0.635, radius: 0.1}
