@@ -10,9 +10,10 @@ from solver_util import *
 """
 # TODO:
 
-1. Tensegrity to YAML
-2. YAML to simulator
-3. Run Simulator
+0. Set up scale and size to match actual drone
+1. Get meaning full and realistic data output
+2. Smooth out flow for testing.
+3. Generate Data Sheet
 
 """
 # State vector

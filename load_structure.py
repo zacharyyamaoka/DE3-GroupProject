@@ -3,7 +3,7 @@ import numpy as np
 
 
 def load(filename, dtype):
-    with open(os.path.join('/Users/zachyamaoka/Documents/de3_group_project/user_structures',filename), "r") as file1:
+    with open(os.path.join('./user_structures',filename), "r") as file1:
         lines = file1.readlines()
         info = np.fromstring(lines[0], dtype, sep=',')
     return info
