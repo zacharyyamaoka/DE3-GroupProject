@@ -11,6 +11,22 @@ def GetKConstants(K):
     k_s = list_sorted[2]
     return k_s,k_e
 
+
+def save_DROP_YAML(filename='drone', height = 0, rotation = 0, translation = [0, 10, 0]):
+    info = dict()
+    info["substructures"] = dict()
+    info["substructures"][filename] = dict()
+    info["substructures"][filename]["path"] = "./" + filename
+    info["substructures"][filename]["translation"] = translation
+    info["substructures"][filename]["rotation"] = dict()
+    info["substructures"][filename]["rotation"]["axis"] = [1, 0, 0]
+    info["substructures"][filename]["rotation"]["angle"] = 45
+    info["substructures"][filename]["scale"] = 1
+
+    with open(os.path.join('./YAML',filename + "_drop"), "w") as file1:
+        dump(info, file1)    # Write a YAML representation of data to 'document.yaml'.
+        return True
+
 def save_YAML(X,K,filename="drone"):
     info = dict()
 
@@ -61,7 +77,7 @@ def save_YAML(X,K,filename="drone"):
 
     with open(os.path.join('./YAML',filename), "w") as file1:
         dump(info, file1)    # Write a YAML representation of data to 'document.yaml'.
-
+        return True
 def save_fusion360(X, K):
 
 
@@ -112,6 +128,7 @@ def k_Save_Val(val):
     return val
 
 def save(filename, info):
-    with open(os.path.join('/Users/zachyamaoka/Documents/de3_group_project/user_structures',filename), "w") as file1:
+    path = os.path.join(os.getcwd(), "user_structures")
+    with open(os.path.join(path,filename), "w") as file1:
         file1.write(info)
         file1.close()

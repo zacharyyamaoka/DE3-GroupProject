@@ -1,18 +1,27 @@
 import numpy as np
 import unittest
+
+import os
+import sys
+sys.path.append(os.path.join(os.getcwd(), "utils"))
+sys.path.append(os.path.join(os.getcwd(), "solver"))
+
+
 from Debugger import Debugger
 from load_structure import *
 from save_structure import *
 from solver_util import *
-# could optimize to do half the computations but that is not where the greatest gain is
-# Testing the 1 D Case
-
+from solver_func import *
 # State vector
 class TestMain(unittest.TestCase):
 
+    def test_find_stability(self):
+        K, L, X = loadFusionStructure("iso")
+        # K, L, X = find_stability(K, L, X, Debugger=None, display_time=5)
+
     def test_converge_proper(self):
-        debug = True
-        K, L, X = loadFusionStructure()
+        debug = False
+        K, L, X = loadFusionStructure("iso")
         step = 0.001
         self.assertEqual(np.sum(K-K.T),0)
         self.assertEqual(np.sum(L-L.T),0)
@@ -28,7 +37,7 @@ class TestMain(unittest.TestCase):
                 break
             if iter % 1000 == 0 and iter != 0:
                 step *= 0.1
-            print(node_F)
+
             if debug and i%100==0:
                 Debugger.clear()
                 Debugger.draw_X(X)
@@ -41,6 +50,8 @@ class TestMain(unittest.TestCase):
 
         #export nodal positions to txt
         save_fusion360(X, K)
+
+
 
     def test_structure_loading(self):
         debug = False

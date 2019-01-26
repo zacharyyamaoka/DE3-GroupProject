@@ -62,15 +62,15 @@ def reOrderKLX(K, L, X, K_e, K_s):
     # loop through and fill in the other connections
     return new_K, new_L, new_X
 
-def loadFusionStructure(filenumber = "0", strut_K = 100, elastic_K = 5, strut_D = 1, elastic_L = 0):
+def loadFusionStructure(filename = "drone", strut_K = 100, elastic_K = 5, strut_D = 1, elastic_L = 0):
     K_s = -1
     K_e = 1
 
     L_s = 0.3 #careful here.....
     L_e = 0
-    K_mixed = load("droneK_" + filenumber, int)
-    L_mixed = load("droneL_" + filenumber, float)
-    X_mixed = load("droneX_" + filenumber, float)
+    K_mixed = load(filename + "_K", int)
+    L_mixed = load(filename + "_L", float)
+    X_mixed = load(filename + "_X", float)
     n = K_mixed.shape[0] #see length of K matrix
     nodes = int(np.sqrt(n)) #there are n by n entries in K b/c its flat, #nodes is n
     K_mixed = K_mixed.reshape(nodes,nodes) #reshape into square matrix
@@ -86,7 +86,7 @@ def loadFusionStructure(filenumber = "0", strut_K = 100, elastic_K = 5, strut_D 
     L[elastic_mask] = L_e
     return K, L, X
 
-def loadStructure(filename = 'droneK'):
+def loadStructure(filename = 'drone_K'):
     band_stiffness = 1
     strut_stiffness = band_stiffness*4
     K_s = -1
@@ -94,7 +94,9 @@ def loadStructure(filename = 'droneK'):
 
     L_s = 10
     L_e = 0
-    with open(os.path.join('/Users/zachyamaoka/Documents/de3_group_project/user_structures',filename), "r") as file1:
+
+    path = os.path.join(os.getcwd(), "user_structures")
+    with open(os.path.join(path,filename), "r") as file1:
         lines = file1.readlines()
         K_mixed = np.fromstring(lines[0], dtype=int, sep=',')
     n = K_mixed.shape[0] #see length of K matrix
