@@ -10,5 +10,13 @@ pair_groups:
   - [node1, node2]
   - [node2, node3]
   strut:
-  - [node0, node2]
-  - [node1, node3]
+  - [1, 2]
+  - [3, 2]
+  - [4, 2]
+  builders:
+    rod:
+      class: tgRodInfo
+      parameters: {density: 0.635, radius: 0.635}
+    strut:
+      class: tgRodInfo
+      parameters: {density: 0.635, radius: 0.635}

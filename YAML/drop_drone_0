@@ -1,0 +1,10 @@
+substructures:
+  12BarCube:
+    path: ./drone_test_1
+    translation: [0, 10, 0] #dm
+    rotation:
+      axis: [1, 0, 0]
+      angle: 45 #deg
+    scale: 100
+
+# https://github.com/NASA-Tensegrity-Robotics-Toolkit/NTRTsim/tree/12Bar/src/dev/mcdaly/12BarTensegrity
