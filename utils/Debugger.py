@@ -10,6 +10,16 @@ class Debugger():
       self.fig = plt.figure(1)
       self.ax = self.fig.add_subplot(111,projection='3d',proj_type = 'ortho')
       # self.ax = self.fig.add_subplot(111,projection='3d')
+      self.ax.set_aspect('equal')
+  #Display 3D position data
+  def draw_Pos(self, pos):
+      #(pos has shape (timesteps,3))
+      ax = self.ax
+      self.pos_data = pos
+
+      timesteps = pos.shape[0]
+      for i in range(timesteps):
+        ax.scatter3D(pos[i,0], pos[i,1], pos[i,2], c="b");
 
   def draw_X(self, X):
       ax = self.ax
@@ -17,12 +27,43 @@ class Debugger():
         ax.scatter3D(node[:,0], node[:,1], node[:,2], c="b");
   def clear(self):
       self.ax.cla()
-  def fix_ratio(self):
+
+  def drop_port(self):
+
+      #Find mean drop data...
+      X = self.pos_data[:,0]
+      Y = self.pos_data[:,1]
+      Z = self.pos_data[:,2]
+
+      n = X.shape[0]
+      first_third = int(n/3)
+
+      x_mean = X[0] #np.mean(X[:,:first_third])
+      x_var = 10 #np.var(X)
+      y_mean = Y[0] #np.mean(Y[:,:first_third])
+      y_var = 10 #np.var(Y)
+      x=[x_mean-x_var,x_mean+x_var]
+      y=[y_mean-y_var,y_mean+y_var]
+      print(np.max(Z))
+      z=[0,np.max(Z)]
+      print(x, y, z)
+      print(self.pos_data)
+      self.fix_ratio(x, y, z, scale = 1)
+
+  def fix_ratio(self, x=[-1.0,1.0], y=[-1.0,1.0], z=[-1.0,1.0], scale = 0.1):
       ax = self.ax
-      size = 0.1 #m
-      X = np.arange(-size,size)
-      Y = np.arange(-size,size)
-      Z = np.arange(-size,size)
+
+      x = np.array(x)
+      y = np.array(y)
+      z = np.array(z)
+
+      x *= scale
+      y *= scale
+      z *= scale
+
+      X = np.arange(x[0],x[1])
+      Y = np.arange(y[0],y[1])
+      Z = np.arange(z[0],z[1])
 
       max_range = np.array([X.max()-X.min(), Y.max()-Y.min(), Z.max()-Z.min()]).max()
       Xb = 0.5*max_range*np.mgrid[-1:2:2,-1:2:2,-1:2:2][0].flatten() + 0.5*(X.max()+X.min())
@@ -30,9 +71,9 @@ class Debugger():
       Zb = 0.5*max_range*np.mgrid[-1:2:2,-1:2:2,-1:2:2][2].flatten() + 0.5*(Z.max()+Z.min())
       for xb, yb, zb in zip(Xb, Yb, Zb):
           ax.plot([xb], [yb], [zb], 'w')
-      ax.set_xlim([-size,size])
-      ax.set_ylim([-size,size])
-      ax.set_zlim([-size,size])
+      ax.set_xlim([x[0],x[1]])
+      ax.set_ylim([y[0],y[1]])
+      ax.set_zlim([z[0],z[1]])
   def draw_K_strut(self, K, L, X, strut_K = 50):
       ax = self.ax
       print(X[[0,0],[0,0]])
@@ -79,10 +120,13 @@ class Debugger():
                   # ax.quiver(start[0], start[1], start[2], end[0], end[1], end[2], normalize = True)
 
 
-  def display(self,  time=1, azimuth=0, altitude=90):
+  def display(self,  time=1, azimuth=0, altitude=90, drop_port = False):
       # self.ax.view_init(15,45)
       self.ax.view_init(altitude,azimuth)
-      self.fix_ratio()
+      if not drop_port:
+          self.fix_ratio()
+      else:
+          self.drop_port()
       plt.show()
       plt.pause(time)
       # plt.close()

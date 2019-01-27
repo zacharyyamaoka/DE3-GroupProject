@@ -12,7 +12,7 @@ def GetKConstants(K):
     return k_s,k_e
 
 
-def save_DROP_YAML(filename='drone', height = 0, rotation = 0, translation = [0, 10, 0]):
+def save_DROP_YAML(filename='drone', height = 0, rotation = 0, translation = [0, 100, 0]):
     info = dict()
     info["substructures"] = dict()
     info["substructures"][filename] = dict()

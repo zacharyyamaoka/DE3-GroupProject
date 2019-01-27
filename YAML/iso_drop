@@ -5,4 +5,4 @@ substructures:
       angle: 45
       axis: [1, 0, 0]
     scale: 1
-    translation: [0, 10, 0]
+    translation: [0, 100, 0]
