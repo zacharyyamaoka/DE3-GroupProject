@@ -5,6 +5,6 @@ substructures:
     rotation:
       axis: [1, 0, 0]
       angle: 45 #deg
-    scale: 100
+    scale: 1
 
 # https://github.com/NASA-Tensegrity-Robotics-Toolkit/NTRTsim/tree/12Bar/src/dev/mcdaly/12BarTensegrity

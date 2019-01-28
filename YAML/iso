@@ -1,0 +1,53 @@
+builders:
+  elastic:
+    class: tgBasicActuatorInfo
+    parameters: {damping: 10, pretension: 10, stiffness: 10000.0}
+  strut:
+    class: tgRodInfo
+    parameters: {density: 0.635, radius: 0.1}
+nodes:
+  node0: [-4.431902778659092, 4.093727364592992, 0.0]
+  node1: [3.388389690333809, 4.044217825410497, 0.0]
+  node10: [5.779118708424423, 0.5077238669663034, 2.0]
+  node11: [4.690623259550952, 0.30235571707959785, -2.0]
+  node2: [0.4695277058011505, -1.6473932661497774, 5.380165933487676]
+  node3: [0.8467676612873256, 2.0114008392168294, 5.665172919897549]
+  node4: [-4.228288211397478, 0.5887901015509281, 2.0]
+  node5: [-5.309376740449048, 0.30235571707959785, -2.0]
+  node6: [-4.431902778659092, -5.906272635407008, 0.0]
+  node7: [3.388389690333809, -5.955782174589503, 0.0]
+  node8: [0.4695277058011505, -1.6473932661497794, -4.619834066512324]
+  node9: [0.8467676612873256, 2.0114008392168268, -4.334827080102451]
+pair_groups:
+  elastic:
+  - [node0, node3]
+  - [node0, node4]
+  - [node0, node5]
+  - [node0, node9]
+  - [node1, node3]
+  - [node1, node9]
+  - [node1, node10]
+  - [node1, node11]
+  - [node2, node4]
+  - [node2, node6]
+  - [node2, node7]
+  - [node2, node10]
+  - [node3, node4]
+  - [node3, node10]
+  - [node4, node6]
+  - [node5, node6]
+  - [node5, node8]
+  - [node5, node9]
+  - [node6, node8]
+  - [node7, node8]
+  - [node7, node10]
+  - [node7, node11]
+  - [node8, node11]
+  - [node9, node11]
+  strut:
+  - [node0, node6]
+  - [node1, node7]
+  - [node2, node8]
+  - [node3, node9]
+  - [node4, node10]
+  - [node5, node11]
