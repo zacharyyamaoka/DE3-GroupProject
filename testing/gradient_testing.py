@@ -23,6 +23,7 @@ class TestMain(unittest.TestCase):
         debug = True
         K, L, X = loadFusionStructure("iso")
         step = 0.001
+        print(K)
         self.assertEqual(np.sum(K-K.T),0)
         self.assertEqual(np.sum(L-L.T),0)
         n = K.shape[0]
