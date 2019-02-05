@@ -49,13 +49,33 @@ for i in range(n):
 
     full_data['rod_'+str(i)] = np.array([x,v,a])
 
-Viz.draw_Pos(full_data['rod_0'][0][:,:3])
-Viz.draw_Pos(full_data['rod_1'][0][:,:3])
-Viz.draw_Pos(full_data['rod_3'][0][:,:3])
-Viz.draw_Pos(full_data['rod_2'][0][:,:3])
-Viz.draw_Pos(full_data['rod_5'][0][:,:3])
-Viz.draw_Pos(full_data['rod_4'][0][:,:3])
-#
-Viz.display(time=10, azimuth=45, altitude=20, drop_port=True)
+
+#just xyz
+a3 = full_data['rod_0'][2][:,:3]
+a3_norm = np.sum(a3 * a3, axis = 1)
+
+print(a3_norm.shape)
+print(t.shape)
+
+plt.figure(2)
+plt.plot(t,a3_norm)
+# plt.ylim((0,40))
+plt.show()
+
+if True:
+    Viz.draw_Pos(full_data['rod_0'][0][:,:3])
+    # Viz.draw_Pos(full_data['rod_1'][0][:,:3])
+    # Viz.draw_Pos(full_data['rod_3'][0][:,:3])
+    # Viz.draw_Pos(full_data['rod_2'][0][:,:3])
+    # Viz.draw_Pos(full_data['rod_5'][0][:,:3])
+    # Viz.draw_Pos(full_data['rod_4'][0][:,:3])
+    Viz.display(time=1, azimuth=45, altitude=20, drop_port=True)
+
+
+print(full_data['rod_3'][2].shape)
+
+plt.pause(100)
+#a magnitude is a
+
 # plt.plot(t,full_data['rod_1'][0][:,1])
 # plt.show()

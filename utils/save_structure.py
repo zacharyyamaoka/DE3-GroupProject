@@ -11,7 +11,6 @@ def GetKConstants(K):
     k_s = list_sorted[2]
     return k_s,k_e
 
-
 def save_DROP_YAML(filename='drone', height = 0, rotation = 0, translation = [0, 100, 0]):
     info = dict()
     info["substructures"] = dict()
@@ -30,13 +29,20 @@ def save_DROP_YAML(filename='drone', height = 0, rotation = 0, translation = [0,
 def save_YAML(X,K,filename="drone"):
     info = dict()
 
-    scale = 100 #make sure to set gravity to 98.1dm/s
-
+    scale = 10 #make sure to set gravity to 98.1dm/s
     X *= scale
     K *= scale
 
+    w = 0.079
+    h = 0.079
+    l = 0.079
+
+    w *= scale
+    h *= scale
+    l *= scale
+
     r = 0.02 * np.sqrt(scale)
-    r = 0.1
+    r = 0.02*scale
     n = X.shape[0]
     K_s, K_e = GetKConstants(K)
     #populate nodes
@@ -55,11 +61,36 @@ def save_YAML(X,K,filename="drone"):
             two = "node" + str(j)
             if K[i,j] == K_s:
                 strut.append([one,two])
+
+                pos_1 = np.array(info["nodes"][one])
+                pos_2 = np.array(info["nodes"][two])
+                length = pos_1 - pos_2
+                print(np.linalg.norm(length))
             if K[i,j] == K_e:
                 elastic.append([one,two])
 
     info["pair_groups"]["strut"]=strut
     info["pair_groups"]["elastic"]=elastic
+
+    # Add code to connect with payload
+    #add payload nodes starting from n
+
+    pay_nodes, payload, payload_bars = getPayload(w,h,l)
+
+    for i in range(len(pay_nodes)):
+        q = i + 1
+        ind = "p" + str(q)
+
+        info["nodes"][ind] = pay_nodes[i]
+
+
+    # payload_bars = []
+    # payload = []
+    payload_connect = [["p1","node0"],["p1","node1"]]
+
+    info["pair_groups"]["payload_bars"]=payload_bars
+    info["pair_groups"]["payload"]=payload
+    info["pair_groups"]["payload_connect"]=payload_connect
 
     info["builders"] = dict()
     info["builders"]["elastic"] = dict()
@@ -75,12 +106,55 @@ def save_YAML(X,K,filename="drone"):
     info["builders"]["strut"]["parameters"]["density"] = 0.635
     info["builders"]["strut"]["parameters"]["radius"] = r #10 cm
 
+    #Pay load t_info
+    info["builders"]["payload_bars"] = dict()
+    info["builders"]["payload_bars"]["class"] = "tgRodInfo"
+    info["builders"]["payload_bars"]["parameters"] = dict()
+    info["builders"]["payload_bars"]["parameters"]["density"] = 0.1
+    info["builders"]["payload_bars"]["parameters"]["radius"] = r #10 cm
+
+    info["builders"]["payload_connect"] = dict()
+    info["builders"]["payload_connect"]["class"] = "tgBasicActuatorInfo"
+    info["builders"]["payload_connect"]["parameters"] = dict()
+    info["builders"]["payload_connect"]["parameters"]["stiffness"] = K_s
+    info["builders"]["payload_connect"]["parameters"]["damping"] = 10
+    info["builders"]["payload_connect"]["parameters"]["pretension"] = 10
+
+    info["builders"]["payload"] = dict()
+    info["builders"]["payload"]["class"] = "tgBoxInfo"
+    info["builders"]["payload"]["parameters"] = dict()
+    info["builders"]["payload"]["parameters"]["density"] = 0.5
+    info["builders"]["payload"]["parameters"]["width"] = w/2 #10 cm
+    info["builders"]["payload"]["parameters"]["height"] = h/2 #10 cm
+
     with open(os.path.join('./YAML',filename), "w") as file1:
         dump(info, file1)    # Write a YAML representation of data to 'document.yaml'.
         return True
+
+def getPayload(width, height, length):
+    nodes = []
+    x1 = [length/2, 0, 0]
+    x2 = [-length/2, 0, 0]
+    y1 = [0, width/2, 0]
+    y2 = [0, -width/2, 0]
+    z1 = [0, 0, height/2]
+    z2 = [0, 0, -height/2]
+
+    nodes.append(x1)
+    nodes.append(x2)
+    nodes.append(y1)
+    nodes.append(y2)
+    nodes.append(z1)
+    nodes.append(z2)
+
+    box = [['p1','p2']]
+    support = [['p1','p2'],['p1','p3'],['p1','p4'],['p1','p5'],['p1','p6']]
+
+    return nodes, box, support
+    #return box with proper node onnections
+
+
 def save_fusion360(X, K):
-
-
     #center X
     n = X.shape[0]
 
