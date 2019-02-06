@@ -39,33 +39,33 @@ class TestMain(unittest.TestCase):
     #     # print(subprocess.check_output('ls', shell=True))
 
     def test_fusion_2_yaml(self):
-        file = 'test'
+        file = 'iso'
         #Load up structure
         K, L, X = loadFusionStructure(file)
 
         #find stability
-        K, L, X = find_stability(K, L, X, Debugger, display_time=2)
-
+        # K, L, X = find_stability(K, L, X, Debugger, display_time=1)
+        K, L, X = find_stability(K, L, X)
         #Save back to YAML + Fusion 360
         print(L)
         save_YAML(X,K,file)
-        save_DROP_YAML(file)
+        save_DROP_YAML(file,translation = [0, 50, 0]) # dm
         save_fusion360(X, K)
 
-    def test_save_DROP_YAML(self):
-        file = 'iso'
-        self.assertTrue(save_DROP_YAML(file))
+    # def test_save_DROP_YAML(self):
+    #     file = 'iso'
+    #     self.assertTrue(save_DROP_YAML(file))
 
     def test_GetKConstants(self):
         K, L, X = loadFusionStructure("iso")
         k_s, k_e = GetKConstants(K)
-        self.assertEqual(k_s, 100)
+        self.assertEqual(k_s, 800)
         self.assertEqual(k_e, 5)
 
-    def test_tensegrit_2_yaml(self):
-        file = 'iso'
-        K, L, X = loadFusionStructure(file)
-        self.assertTrue(save_YAML(X,K,file))
+    # def test_tensegrit_2_yaml(self):
+    #     file = 'iso'
+    #     K, L, X = loadFusionStructure(file)
+    #     self.assertTrue(save_YAML(X,K,file))
 
         # the_dump = dump(t_info)
         # print(the_dump)

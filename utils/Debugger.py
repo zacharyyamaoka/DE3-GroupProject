@@ -2,7 +2,7 @@ import numpy as np
 from mpl_toolkits import mplot3d
 import matplotlib.pyplot as plt
 import matplotlib.patches as mpatches
-
+from annotate import *
 
 class Debugger():
   def __init__(self):
@@ -19,12 +19,39 @@ class Debugger():
 
       timesteps = pos.shape[0]
       for i in range(timesteps):
-        ax.scatter3D(pos[i,0], pos[i,1], pos[i,2], c="b");
+        ax.scatter3D(pos[i,0], pos[i,1], pos[i,2], c="b")
+
+  def draw_payload(self, width, height, length):
+      ax = self.ax
+      nodes = []
+      x1 = [length/2, 0, 0]
+      x2 = [-length/2, 0, 0]
+      y1 = [0, width/2, 0]
+      y2 = [0, -width/2, 0]
+      z1 = [0, 0, height/2]
+      z2 = [0, 0, -height/2]
+
+      nodes.append(x1)
+      nodes.append(x2)
+      nodes.append(y1)
+      nodes.append(y2)
+      nodes.append(z1)
+      nodes.append(z2)
+      for i in range(len(nodes)):
+        node = nodes[i]
+        ax.scatter3D(node[0], node[1], node[2], c="b")
+        annotate3D(ax, s="p" + str(i+1), xyz=node, fontsize=10, xytext=(-3,3),
+                       textcoords='offset points', ha='right',va='bottom')
 
   def draw_X(self, X):
       ax = self.ax
-      for node in X:
-        ax.scatter3D(node[:,0], node[:,1], node[:,2], c="b");
+      n = X.shape[0]
+      # for node in X:
+      for i in range(n):
+          node = X[i]
+          ax.scatter3D(node[:,0], node[:,1], node[:,2], c="b")
+          annotate3D(ax, s=str(i), xyz=node[0,:], fontsize=10, xytext=(-3,3),
+                         textcoords='offset points', ha='right',va='bottom')
   def clear(self):
       self.ax.cla()
 

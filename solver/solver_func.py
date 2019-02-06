@@ -12,7 +12,7 @@ def find_stability(K, L, X, Debugger=None, display_time=2):
 
         if Debugger:
             debug = True
-            
+
         step = 0.001
         n = K.shape[0]
         iter = 3100
@@ -30,6 +30,7 @@ def find_stability(K, L, X, Debugger=None, display_time=2):
             if debug and i%100==0:
                 Debugger.clear()
                 Debugger.draw_X(X)
+                Debugger.draw_payload(0.079, 0.079, 0.079) #potentially comment
                 # Debugger.draw_K_strut(K, L, X)
                 Debugger.draw_C(D_i, K, L, X)
                 Debugger.display(0.00001, 45, 20)

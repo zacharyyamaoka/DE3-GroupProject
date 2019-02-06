@@ -41,8 +41,9 @@ def save_YAML(X,K,filename="drone"):
     h *= scale
     l *= scale
 
+    d = 0.02
     r = 0.02 * np.sqrt(scale)
-    r = 0.02*scale
+    r = d/2*scale
     n = X.shape[0]
     K_s, K_e = GetKConstants(K)
     #populate nodes
@@ -75,7 +76,7 @@ def save_YAML(X,K,filename="drone"):
     # Add code to connect with payload
     #add payload nodes starting from n
 
-    pay_nodes, payload, payload_bars = getPayload(w,h,l)
+    pay_nodes, payload, sense_bar, payload_bars = getPayload(w,h,l)
 
     for i in range(len(pay_nodes)):
         q = i + 1
@@ -86,9 +87,18 @@ def save_YAML(X,K,filename="drone"):
 
     # payload_bars = []
     # payload = []
-    payload_connect = [["p1","node0"],["p1","node1"]]
+    #just for isohydran
+    payload_connect = [
+    ["p1","node10"],["p1","node11"],
+    ["p2","node4"],["p2","node5"],
+    ["p3","node1"],["p3","node0"],
+    ["p4","node6"],["p4","node7"],
+    ["p5","node2"],["p5","node3"],
+    ["p6","node9"],["p6","node8"],
+    ]
 
     info["pair_groups"]["payload_bars"]=payload_bars
+    info["pair_groups"]["sense_bar"]=sense_bar
     info["pair_groups"]["payload"]=payload
     info["pair_groups"]["payload_connect"]=payload_connect
 
@@ -110,8 +120,14 @@ def save_YAML(X,K,filename="drone"):
     info["builders"]["payload_bars"] = dict()
     info["builders"]["payload_bars"]["class"] = "tgRodInfo"
     info["builders"]["payload_bars"]["parameters"] = dict()
-    info["builders"]["payload_bars"]["parameters"]["density"] = 0.1
-    info["builders"]["payload_bars"]["parameters"]["radius"] = r #10 cm
+    info["builders"]["payload_bars"]["parameters"]["density"] = 0
+    info["builders"]["payload_bars"]["parameters"]["radius"] = r*0.1 #10 cm
+
+    info["builders"]["sense_bar"] = dict()
+    info["builders"]["sense_bar"]["class"] = "tgRodInfo"
+    info["builders"]["sense_bar"]["parameters"] = dict()
+    info["builders"]["sense_bar"]["parameters"]["density"] = 0
+    info["builders"]["sense_bar"]["parameters"]["radius"] = r*0.1 #10 cm
 
     info["builders"]["payload_connect"] = dict()
     info["builders"]["payload_connect"]["class"] = "tgBasicActuatorInfo"
@@ -148,9 +164,9 @@ def getPayload(width, height, length):
     nodes.append(z2)
 
     box = [['p1','p2']]
-    support = [['p1','p2'],['p1','p3'],['p1','p4'],['p1','p5'],['p1','p6']]
-
-    return nodes, box, support
+    support = [['p1','p3'],['p1','p4'],['p1','p5'],['p1','p6']]
+    sense = [['p1','p2']]
+    return nodes, box, sense, support
     #return box with proper node onnections
 
 
