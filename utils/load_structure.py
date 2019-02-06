@@ -62,7 +62,7 @@ def reOrderKLX(K, L, X, K_e, K_s):
     # loop through and fill in the other connections
     return new_K, new_L, new_X
 
-def loadFusionStructure(filename = "drone", strut_K = 800, elastic_K = 5, strut_D = 1, elastic_L = 0):
+def loadFusionStructure(filename = "drone", strut_K = 800, elastic_K = 5, strut_L = 0.3, elastic_L = 0):
     K_s = -1
     K_e = 1
 
@@ -82,8 +82,8 @@ def loadFusionStructure(filename = "drone", strut_K = 800, elastic_K = 5, strut_
     strut_mask = K==K_s
     K[strut_mask] = strut_K
     K[elastic_mask] = elastic_K
-    L[strut_mask] = L_s
-    L[elastic_mask] = L_e
+    L[strut_mask] = strut_L
+    L[elastic_mask] = elastic_L
     return K, L, X
 
 def loadStructure(filename = 'drone_K'):

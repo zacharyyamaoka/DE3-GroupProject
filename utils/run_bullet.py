@@ -8,4 +8,4 @@ def run_bullet(file, run_time):
     sim.kill()
     return sim
 
-sim = run_bullet("iso",5)
+# sim = run_bullet("iso",5)

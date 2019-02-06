@@ -11,7 +11,7 @@ from Debugger import *
 
 def get_max_a(a):
     a_norm = np.sqrt(np.sum(a * a, axis = 1))
-    return np.max(a_norm)
+    return np.max(a_norm), a_norm
 
 def parse_data():
     #return x, v, a of cm
@@ -56,6 +56,6 @@ def parse_data():
     #just xyz
     x = full_data['rod_4'][0][:,:3]
     v = full_data['rod_4'][1][:,:3]
-    a = full_data['rod_4'][1][:,:3]
+    a = full_data['rod_4'][2][:,:3]
 
-    return x, v, a
+    return t, x, v, a

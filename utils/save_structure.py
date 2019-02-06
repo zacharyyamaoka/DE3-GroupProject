@@ -169,6 +169,17 @@ def getPayload(width, height, length):
     return nodes, box, sense, support
     #return box with proper node onnections
 
+def save_solved_fusion360(file,X,K,L,K_s,K_e):
+    strut_K = -1
+    elastic_K = 1
+
+    K[K==K_e] = elastic_K
+    K[K==K_s] = strut_K
+
+    np.savetxt('./user_structures/' + file + "_X", X.flatten(), fmt='%1.4f', delimiter=',')
+    np.savetxt('./user_structures/' + file + "_K", K.flatten(), fmt='%1.4f', delimiter=',')
+    np.savetxt('./user_structures/' + file + "_L", L.flatten(), fmt='%1.4f', delimiter=',')
+
 
 def save_fusion360(X, K):
     #center X
