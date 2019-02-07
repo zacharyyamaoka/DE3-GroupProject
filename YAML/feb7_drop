@@ -1,0 +1,8 @@
+substructures:
+  feb7:
+    path: ./feb7
+    rotation:
+      angle: 45
+      axis: [1, 0, 0]
+    scale: 1
+    translation: [0, 50, 0]

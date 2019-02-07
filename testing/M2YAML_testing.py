@@ -39,13 +39,13 @@ class TestMain(unittest.TestCase):
     #     # print(subprocess.check_output('ls', shell=True))
 
     def test_fusion_2_yaml(self):
-        file = 'iso'
+        file = 'feb7'
         #Load up structure
-        K, L, X = loadFusionStructure(file)
+        K, L, X = loadFusionStructure(file,strut_L = 0.3)
 
         #find stability
-        # K, L, X = find_stability(K, L, X, Debugger, display_time=1)
-        K, L, X = find_stability(K, L, X)
+        K, L, X = find_stability(K, L, X, Debugger, display_time=1)
+        # K, L, X = find_stability(K, L, X)
         #Save back to YAML + Fusion 360
         print(L)
         save_YAML(X,K,file)
@@ -57,7 +57,8 @@ class TestMain(unittest.TestCase):
     #     self.assertTrue(save_DROP_YAML(file))
 
     def test_GetKConstants(self):
-        K, L, X = loadFusionStructure("iso")
+        file = 'feb7'
+        K, L, X = loadFusionStructure(file)
         k_s, k_e = GetKConstants(K)
         self.assertEqual(k_s, 800)
         self.assertEqual(k_e, 5)
