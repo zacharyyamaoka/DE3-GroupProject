@@ -36,7 +36,6 @@ def parse_data():
         x = pos[:,i*7:((i+1)*7)-1]/scale
 
         pos_1 = i*7
-        # print(headers[pos_1])
         #switch y and z
         x_xyz = np.copy(x)
         x_xyz[:,1] = x[:,2]

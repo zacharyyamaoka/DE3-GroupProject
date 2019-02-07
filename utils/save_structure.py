@@ -9,6 +9,7 @@ def GetKConstants(K):
     list_sorted = sorted(list_unique)
     k_e = list_sorted[1]
     k_s = list_sorted[2]
+
     return k_s,k_e
 
 def save_DROP_YAML(filename='drone', height = 0, rotation = 0, translation = [0, 100, 0]):
@@ -66,7 +67,6 @@ def save_YAML(X,K,filename="drone"):
                 pos_1 = np.array(info["nodes"][one])
                 pos_2 = np.array(info["nodes"][two])
                 length = pos_1 - pos_2
-                print(np.linalg.norm(length))
             if K[i,j] == K_e:
                 elastic.append([one,two])
 
@@ -169,16 +169,31 @@ def getPayload(width, height, length):
     return nodes, box, sense, support
     #return box with proper node onnections
 
-def save_solved_fusion360(file,X,K,L,K_s,K_e):
+def overwrite_fusion360_file(file,X_mat,K_mat,L_mat,K_s,K_e):
+
+    X = X_mat.copy()
+    K = K_mat.copy()
+    L = L_mat.copy()
+
     strut_K = -1
     elastic_K = 1
-
     K[K==K_e] = elastic_K
     K[K==K_s] = strut_K
 
-    np.savetxt('./user_structures/' + file + "_X", X.flatten(), fmt='%1.4f', delimiter=',')
-    np.savetxt('./user_structures/' + file + "_K", K.flatten(), fmt='%1.4f', delimiter=',')
-    np.savetxt('./user_structures/' + file + "_L", L.flatten(), fmt='%1.4f', delimiter=',')
+    X_str = ''
+    for val in X.flatten():
+        X_str += str(val) +','
+    K_str = ''
+    for val in K.flatten():
+        val = int(round(val))
+        K_str += str(val) +','
+    L_str = ''
+    for val in L.flatten():
+        L_str += str(val) +','
+
+    save(file + "_X", X_str)
+    save(file + "_K", K_str)
+    save(file + "_L", L_str)
 
 
 def save_fusion360(X, K):
