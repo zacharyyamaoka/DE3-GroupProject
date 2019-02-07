@@ -76,6 +76,7 @@ def loadFusionStructure(filename = "drone", strut_K = 800, elastic_K = 5, strut_
     K_mixed = K_mixed.reshape(nodes,nodes) #reshape into square matrix
     L_mixed = L_mixed.reshape(nodes,nodes) #reshape into square matrix
     X_mixed = X_mixed.reshape(nodes,1,3)
+
     K, L, X = reOrderKLX(K_mixed, L_mixed, X_mixed, K_e, K_s)
 
     elastic_mask = K==K_e

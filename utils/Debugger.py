@@ -71,10 +71,7 @@ class Debugger():
       y_var = 10 #np.var(Y)
       x=[x_mean-x_var,x_mean+x_var]
       y=[y_mean-y_var,y_mean+y_var]
-      print(np.max(Z))
       z=[0,np.max(Z)]
-      print(x, y, z)
-      print(self.pos_data)
       self.fix_ratio(x, y, z, scale = 1)
 
   def fix_ratio(self, x=[-1.0,1.0], y=[-1.0,1.0], z=[-1.0,1.0], scale = 0.1):

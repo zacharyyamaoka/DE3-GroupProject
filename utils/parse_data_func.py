@@ -12,7 +12,20 @@ from Debugger import *
 def get_max_a(a):
     a_norm = np.sqrt(np.sum(a * a, axis = 1))
     return np.max(a_norm), a_norm
+def get_actual_L(X, scale = 10):
 
+    X /= scale #dm to m
+    #Split into 2
+    n = X.shape[0]
+    half = int(n/2)
+
+    #find difference
+    D = X[0:half,0,:] -X[half:n,0,:]
+    #take magnitude of difference
+    D_norm = np.sqrt(np.sum(D * D, axis = 1))
+
+    #put thoose L's back into L mat
+    return D_norm
 def parse_data():
     #return x, v, a of cm
     path = os.path.join(os.getcwd(), "ntrt_sim_data/*")
@@ -36,7 +49,6 @@ def parse_data():
         x = pos[:,i*7:((i+1)*7)-1]/scale
 
         pos_1 = i*7
-        # print(headers[pos_1])
         #switch y and z
         x_xyz = np.copy(x)
         x_xyz[:,1] = x[:,2]

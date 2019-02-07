@@ -26,7 +26,6 @@ def find_stability(K, L, X, Debugger=None, display_time=2):
                 break
             if iter % 1000 == 0 and iter != 0:
                 step *= 0.1
-            print(node_F)
             if debug and i%100==0:
                 Debugger.clear()
                 Debugger.draw_X(X)
