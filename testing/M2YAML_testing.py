@@ -41,10 +41,10 @@ class TestMain(unittest.TestCase):
     def test_fusion_2_yaml(self):
         file = 'feb7'
         #Load up structure
-        K, L, X = loadFusionStructure(file,strut_L = 0.3)
+        K, L, X = loadFusionStructure(file,strut_L = 1.5)
 
         #find stability
-        K, L, X = find_stability(K, L, X, Debugger, display_time=1)
+        K, L, X = find_stability(K, L, X, Debugger, display_time=5)
         # K, L, X = find_stability(K, L, X)
         #Save back to YAML + Fusion 360
         print(L)

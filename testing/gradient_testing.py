@@ -17,7 +17,7 @@ class TestMain(unittest.TestCase):
 
     def test_find_stability(self):
         K, L, X = loadFusionStructure("iso")
-        # K, L, X = find_stability(K, L, X, Debugger=None, display_time=5)
+        # K, L, X = find_stability(K, L, X, Debugger, display_time=5)
 
     def test_converge_proper(self):
         debug = True

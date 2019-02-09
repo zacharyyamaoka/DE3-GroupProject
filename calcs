@@ -1,0 +1,8 @@
+import numpy as np
+
+
+h = 120
+g = 9.81
+
+t = np.sqrt(2*h/g)
+print(t)

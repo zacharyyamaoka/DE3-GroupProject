@@ -148,7 +148,7 @@ class Debugger():
       # self.ax.view_init(15,45)
       self.ax.view_init(altitude,azimuth)
       if not drop_port:
-          self.fix_ratio()
+          self.fix_ratio(scale = 0.5)
       else:
           self.drop_port()
       plt.show()
