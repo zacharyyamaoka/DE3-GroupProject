@@ -81,9 +81,11 @@ class Debugger():
       y = np.array(y)
       z = np.array(z)
 
+      print("x")
       x *= scale
       y *= scale
       z *= scale
+      print(x)
 
       X = np.arange(x[0],x[1])
       Y = np.arange(y[0],y[1])
@@ -144,11 +146,11 @@ class Debugger():
                   # ax.quiver(start[0], start[1], start[2], end[0], end[1], end[2], normalize = True)
 
 
-  def display(self,  time=1, azimuth=0, altitude=90, drop_port = False):
+  def display(self,  time=1, azimuth=0, altitude=90, drop_port = False, s = 0.3):
       # self.ax.view_init(15,45)
       self.ax.view_init(altitude,azimuth)
       if not drop_port:
-          self.fix_ratio(scale = 0.1)
+          self.fix_ratio(scale=s)
       else:
           self.drop_port()
 

@@ -62,7 +62,7 @@ def reOrderKLX(K, L, X, K_e, K_s):
     # loop through and fill in the other connections
     return new_K, new_L, new_X
 
-def loadFusionStructure(filename = "drone", strut_K = 800, elastic_K = 5, strut_L = 0.3, elastic_L = 0):
+def loadFusionStructure(filename = "drone", strut_K = 500, elastic_K = 50, strut_L = 0.3, elastic_L = 0, override_L = False):
     K_s = -1
     K_e = 1
 
@@ -83,15 +83,16 @@ def loadFusionStructure(filename = "drone", strut_K = 800, elastic_K = 5, strut_
     X_mixed = X_mixed.reshape(nodes,1,3)
 
     K, L, X = reOrderKLX(K_mixed, L_mixed, X_mixed, K_e, K_s)
-    print(L)
     blade_mask = np.isclose(L,L_b,rtol=1e-05, atol=0.001) #anything within 1cm of the distance aswell..
     elastic_mask = K==K_e
     strut_mask = K==K_s
     K[strut_mask] = strut_K
     K[elastic_mask] = elastic_K
-    L[strut_mask] = strut_L
     L[elastic_mask] = elastic_L
-    L[blade_mask]=strut_L*blade_strut_mul
+
+    if override_L:
+        L[strut_mask] = strut_L
+        L[blade_mask]=strut_L #*blade_strut_mul
     return K, L, X
 
 def loadStructure(filename = 'drone_K'):
