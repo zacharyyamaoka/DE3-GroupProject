@@ -1,0 +1,93 @@
+builders:
+  elastic:
+    class: tgBasicActuatorInfo
+    parameters: {damping: 10, pretension: 10, stiffness: 550}
+  payload:
+    class: tgBoxInfo
+    parameters: {density: 0.5, height: 0.395, width: 0.395}
+  payload_bars:
+    class: tgRodInfo
+    parameters: {density: 0, radius: 0.21}
+  payload_connect:
+    class: tgBasicActuatorInfo
+    parameters: {damping: 10, pretension: 10, stiffness: 180}
+  sense_bar:
+    class: tgRodInfo
+    parameters: {density: 0, radius: 0.21}
+  strut:
+    class: tgRodInfo
+    parameters: {density: 0.925, radius: 0.21}
+nodes:
+  node0: [-1.055368409290773, 2.3442520420873256, 0.028897684143761728]
+  node1: [1.0968303129435262, 2.173279141703734, 0.027927875035837626]
+  node10: [2.1610521632660165, -0.08971054184187055, -1.1551583897266924]
+  node11: [-0.03216753362329125, 1.2230723141523172, 2.1349060347259985]
+  node2: [0.012306631644827188, -1.018100925921912, -2.2850480477711606]
+  node3: [-2.1809130652444804, 0.2946819300722759, 1.0050163766815299]
+  node4: [-2.143345281202618, 0.2522352589253156, -1.1532187715108446]
+  node5: [0.042968034460436684, 1.138178971858397, -2.1815642616587856]
+  node6: [-1.11669121492199, -1.9683077534733284, -0.1780698880810018]
+  node7: [1.03550750731231, -2.13928065385692, -0.1790396971889256]
+  node8: [-0.06282893643889884, -0.9332075836279919, 2.031422248613625]
+  node9: [2.1234843792241547, -0.0472638706949115, 1.0030767584656821]
+  p1: [0.395, 0, 0]
+  p2: [-0.395, 0, 0]
+  p3: [0, 0.395, 0]
+  p4: [0, -0.395, 0]
+  p5: [0, 0, 0.395]
+  p6: [0, 0, -0.395]
+pair_groups:
+  elastic:
+  - [node0, node3]
+  - [node0, node4]
+  - [node0, node5]
+  - [node0, node11]
+  - [node1, node5]
+  - [node1, node9]
+  - [node1, node10]
+  - [node1, node11]
+  - [node2, node4]
+  - [node2, node6]
+  - [node2, node7]
+  - [node2, node10]
+  - [node3, node6]
+  - [node3, node8]
+  - [node3, node11]
+  - [node4, node5]
+  - [node4, node6]
+  - [node5, node10]
+  - [node6, node8]
+  - [node7, node8]
+  - [node7, node9]
+  - [node7, node10]
+  - [node8, node9]
+  - [node9, node11]
+  payload:
+  - [p1, p2]
+  payload_bars:
+  - [p1, p3]
+  - [p1, p4]
+  - [p1, p5]
+  - [p1, p6]
+  payload_connect:
+  - [p1, node10]
+  - [p1, node11]
+  - [p2, node4]
+  - [p2, node5]
+  - [p3, node1]
+  - [p3, node0]
+  - [p4, node6]
+  - [p4, node7]
+  - [p5, node2]
+  - [p5, node3]
+  - [p6, node9]
+  - [p6, node8]
+  sense_bar:
+  - [p1, p2]
+  strut:
+  - [node0, node6]
+  - [node1, node7]
+  - [node2, node8]
+  - [node3, node9]
+  - [node4, node10]
+  - [node5, node11]

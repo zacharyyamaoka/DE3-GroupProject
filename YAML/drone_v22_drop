@@ -1,0 +1,8 @@
+substructures:
+  drone_v22:
+    path: ./drone_v22
+    rotation:
+      angle: 45
+      axis: [1, 0, 0]
+    scale: 1
+    translation: [0, 50, 0]
